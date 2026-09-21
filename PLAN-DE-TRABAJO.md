@@ -17,9 +17,10 @@ La fuente de verdad es el [contrato](docs/CONTRATO-CATALOGO.md). Si algo de este
 | Tarea | Responsable | Entrega | Historias | Depende de |
 |---|---|---|---|---|
 | **B1** Base del proyecto | Rances Ramírez | Esqueleto, Mongo, modelos, categorías, errores | 6 | — |
-| **B2** Escritura | Hector Franco | `POST /productos`, `PUT /productos/{id}` | 1, 4 | B1 |
-| **B3** Lectura y borrado | Jhon Velandia | `GET /productos`, `GET /productos/{id}`, `DELETE /productos/{id}` | 2, 3, 5 | B1 |
+| **B2** Escritura | Hector Franco | `POST`, `PUT`, `POST /{id}/activar`, `POST /descontar-stock` | 1, 4, 7 | B1 |
+| **B3** Lectura y borrado | Jhon Velandia | `GET /productos` (con filtro `activo`), `GET /productos/{id}`, `DELETE /productos/{id}` | 2, 3, 5, 8 | B1 |
 | **B4** Infraestructura y eventos | Cristian Rivera | RabbitMQ, Docker, Eureka, Kong, Swagger | — | B1; los eventos, también B2 y B3 |
+| **H1** Host App | Rances Ramírez | Cascarón: encabezado, menú, enrutador e integración de los 3 módulos | — | — |
 | **F1** Base del frontend | Juan Diego Tellez | Proyecto Vue, rutas, cliente HTTP, errores | — | — |
 | **F2** Vistas de lectura | Roger Hernandez | Listado y detalle | 2, 3 | F1; para datos reales, B3 |
 | **F3** Vistas de administración | Carlos Beltrán | Crear, editar y desactivar | 1, 4, 5 | F1; para datos reales, B2 y B3 |
@@ -35,12 +36,16 @@ graph LR
     B3 --> B4b
     F1[F1 Base] --> F2[F2 Lectura]
     F1 --> F3[F3 Administración]
+    H1[H1 Host App] -.-> F1
+    H1 -.-> A[Módulo Búsqueda<br/>Equipo A]
+    H1 -.-> C[Módulo Carro<br/>Equipo C]
 ```
 
 1. **B1 ya está en `main`** (pull request #1): era la base de todo lo demás.
 2. **B2, B3 y B4 trabajan en paralelo**, cada uno en su rama.
 3. **B4 conecta los eventos al final**, cuando B2 y B3 ya estén en `main`, porque los eventos se publican desde las operaciones que ellos programan.
-4. **El frontend puede empezar ya.** F1 no depende del backend. Para la entrega, las vistas deben usar los endpoints reales, sin datos inventados (contrato §9). Mientras B2 y B3 terminan, `GET /categorias` ya funciona.
+4. **El Host App (H1) es lo más urgente del frontend.** No porque sea difícil —es medio día de trabajo— sino porque de él dependen los equipos A y C para poder integrar sus módulos. Lo hace Rances, en el repositorio [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp), para no atravesarle otra tarea a F1. Las líneas punteadas del diagrama son eso: nadie queda bloqueado esperándolo, porque cada módulo debe funcionar solo.
+5. **El frontend puede empezar ya.** F1 no depende del backend. Para la entrega, las vistas deben usar los endpoints reales, sin datos inventados (contrato §9). Mientras B2 y B3 terminan, `GET /categorias` ya funciona.
 
 ### ¿Quién depende de quién?
 
@@ -51,10 +56,12 @@ graph LR
 | B3 | Ya | Nadie | B4 (eventos), F2 y F3 (para usar datos reales) |
 | B4: Docker, Eureka, Kong, Swagger | Ya | Nadie | Nadie |
 | B4: eventos | Cuando B2 y B3 estén en `main` | B2 y B3 | Nadie |
+| H1 (Host App) | Ya | Nadie | **Equipos A y C**, para integrar sus módulos |
 | F1 | Ya | Nadie | F2 y F3 |
 | F2 | Cuando F1 esté en `main` | F1 (y B3 para datos reales) | Nadie |
 | F3 | Cuando F1 esté en `main` | F1 (y B2 y B3 para datos reales) | Nadie |
 
+- **H1 es la única tarea de la que dependen otros equipos.** Si se atrasa, se atrasan A y C. Por eso el cascarón se mantiene mínimo y se entrega antes que cualquier otra cosa del frontend.
 - **B2 y B3 no se esperan entre sí,** pero los dos agregan métodos a `ProductoService` y `ProductoController`. Quien una su PR de segundo tendrá que resolver un conflicto sencillo (ver la sección 7 de la [guía de git](GUIA-GIT.md)).
 - **"Para datos reales"** significa que el frontend puede construir la vista antes, pero solo la termina cuando el endpoint que usa ya está en `main`.
 
@@ -144,7 +151,7 @@ git merge main
   - `ProductoController`, vacío, en `/productos`
 - [x] Código documentado con Javadoc: qué hace cada clase y qué regla del contrato aplica cada método
 
-## B2 — Escritura (Historias 1 y 4)
+## B2 — Escritura (Historias 1, 4 y 7)
 
 **Rama:** `b2-escritura`
 
@@ -152,6 +159,8 @@ git merge main
 
 - `POST /productos` → **201** con el producto creado, incluido su `id`
 - `PUT /productos/{id}` → **200** con el producto actualizado
+- `POST /productos/{id}/activar` → **200** con el producto reactivado
+- `POST /productos/descontar-stock` → **200**, o **409** `STOCK_INSUFICIENTE`
 
 **Cómo**
 
@@ -170,6 +179,30 @@ git merge main
 - **Categoría existente:** se valida en `ProductoService` con `categoriaRepository.existsById(...)`. Si no existe, lanza `ValidacionFallidaException` (400), **no** 404.
 - **POST:** `new Producto(...)`; el producto nace activo.
 - **PUT:** busca el producto con `buscarExistente(id)`, que ya lanza el 404 si no existe, y llama a `producto.actualizar(...)`. Sobre un producto inactivo responde 200 y sigue inactivo.
+- **Activar (Historia 7):** agregar un método `activar()` a la entidad `Producto`, al lado de `desactivar()`. Es idempotente: si ya estaba activo, responde 200 sin guardar ni publicar evento, igual que hace `DELETE` con uno ya inactivo. No toca ningún otro campo.
+
+**Descuento de stock (contrato §2)**
+
+Es lo que Carro llama al confirmar el checkout, con todos los ítems en una sola petición. Es la parte más delicada de esta tarea, así que conviene hacerla en su propio pull request, aparte del resto.
+
+- **El descuento va con una sola operación atómica de Mongo, no con `findById` + `save`.** Si lees el stock, restas en Java y guardas, entre la lectura y la escritura cabe otro checkout y los dos pasan: eso es sobreventa. La operación correcta va condicionada al stock disponible:
+
+  ```java
+  // en un repositorio propio, con MongoTemplate
+  Query consulta = Query.query(Criteria.where("_id").is(id)
+                                       .and("activo").is(true)
+                                       .and("stock").gte(cantidad));
+  Update resta = new Update().inc("stock", -cantidad);
+  UpdateResult r = mongoTemplate.updateFirst(consulta, resta, Producto.class);
+  boolean alcanzo = r.getModifiedCount() == 1;
+  ```
+
+  Si no alcanzó, ningún documento cumplió la condición y no se modificó nada. Mongo garantiza que esa operación es atómica **sobre un documento**, así que dos peticiones simultáneas no pueden pasar las dos.
+
+- **Si un ítem falla, hay que devolver los que ya se descontaron** en esa misma petición (mismo `inc`, en positivo) y responder 409 nombrando los ids que no alcanzaron. O pasa todo, o no pasa nada.
+- **Por qué no se usa una transacción:** haría falta un conjunto de réplicas de Mongo y aquí corre un solo nodo (ARQUITECTURA §5). La reversión de arriba es de mejor esfuerzo y alcanza para esta entrega.
+- **Validar antes:** `cantidad` entero ≥ 1 y sin ids repetidos en la lista; si no, 400.
+- Publica `producto.actualizado` por cada producto cuyo stock cambió — coordinar con B4.
 
 **Cómo verificar**
 
@@ -182,22 +215,29 @@ git merge main
 | PUT válido | 200 con los datos nuevos |
 | PUT a un id inexistente | 404 `PRODUCTO_NO_ENCONTRADO` |
 | PUT a un producto inactivo | 200 y sigue con `activo: false` |
+| Activar un producto inactivo | 200, `activo: true`, y vuelve a salir en `GET /productos` |
+| Activar uno que ya estaba activo | 200, sin cambios y sin publicar otro evento |
+| Activar un id inexistente | 404 `PRODUCTO_NO_ENCONTRADO` |
+| Descontar stock con cantidades disponibles | 200 y el `stock` baja en Mongo |
+| Descontar más de lo que hay | 409 `STOCK_INSUFICIENTE` y **ningún** stock cambió |
+| Descontar de un producto inactivo o inexistente | 409 o 404, sin tocar los demás |
 
 En Mongo (`db.productos.findOne()`), el precio debe verse como `Decimal128('...')`.
 
-## B3 — Lectura y borrado (Historias 2, 3 y 5)
+## B3 — Lectura y borrado (Historias 2, 3, 5 y 8)
 
 **Rama:** `b3-lectura`
 
 **Qué entrega**
 
-- `GET /productos` → 200 con `{productos, total, pagina, tamanoPagina}`, solo con productos activos
+- `GET /productos` → 200 con `{productos, total, pagina, tamanoPagina}`; por defecto solo activos
 - `GET /productos/{id}` → 200 (también si está inactivo) o 404
 - `DELETE /productos/{id}` → 204 o 404
 
 **Cómo**
 
-- Parámetros de `GET /productos` (contrato §2): `pagina` (por defecto 1, mínimo 1), `tamanoPagina` (por defecto 20, entre 1 y 100) y `categoria` (opcional).
+- Parámetros de `GET /productos` (contrato §2): `pagina` (por defecto 1, mínimo 1), `tamanoPagina` (por defecto 20, entre 1 y 100), `categoria` (opcional) y `activo` (Historia 8).
+- **`activo` acepta `true`, `false` o `todos`, y por defecto es `true`.** Ese valor por defecto es lo que mantiene el contrato compatible: quien no lo envíe recibe exactamente lo mismo que antes. Cualquier otro valor es 400. El índice compuesto `{activo, categoria}` ya existe y sirve para los tres casos.
 - En el repositorio, métodos derivados con `Pageable`, por ejemplo `findByActivoTrue(Pageable)` y `findByActivoTrueAndCategoria(String, Pageable)`. Spring Data genera la consulta a partir del nombre del método.
 - **La página 1 del contrato es la página 0 de Spring Data:** `PageRequest.of(pagina - 1, tamanoPagina)`.
 - Definir un **orden fijo** (por ejemplo, por `id`) para que las páginas no se mezclen entre una consulta y otra.
@@ -229,7 +269,8 @@ En Mongo (`db.productos.findOne()`), el precio debe verse como `Decimal128('...'
 **Eventos (contrato §5)**
 
 - Spring AMQP (`spring-boot-starter-amqp`) con un exchange **topic** llamado `catalogo.eventos`.
-- Routing keys: `producto.creado`, `producto.actualizado` y `producto.desactivado`. El cuerpo es un JSON con los campos del payload del contrato.
+- Routing keys: `producto.creado`, `producto.actualizado`, `producto.desactivado` y `producto.reactivado`. El cuerpo es un JSON con los campos del payload del contrato §5, que desde v2.3 incluye `descripcion` y `stock`.
+- **Habrá dos consumidores, no uno:** Búsqueda y Carro. No hay que hacer nada especial —un exchange *topic* reparte copia a cada cola— pero conviene saberlo al probar.
 - Publicar **solo después** de guardar con éxito, y no volver a publicar en un DELETE repetido.
 - Conectar las llamadas en `ProductoService` cuando B2 y B3 ya estén en `main`.
 
@@ -254,6 +295,39 @@ En Mongo (`db.productos.findOne()`), el precio debe verse como `Decimal128('...'
 **Swagger**
 
 - `springdoc-openapi`. Antes de agregarlo, verificar qué versión es compatible con Spring Boot 4.1.
+
+---
+
+## H1 — Host App
+
+**Responsable:** Rances Ramírez · **Repositorio:** [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp) · **Rama:** `h1-cascaron`
+
+El Host App quedó a cargo del Equipo B por acuerdo de los 3 equipos. Es una tarea aparte del módulo de Catálogo: otro repositorio, otro despliegue y otros consumidores (los equipos A y C).
+
+**Por qué no lo hace F1:** el cascarón es lo único de lo que dependen dos equipos externos, así que conviene que no compita por tiempo con la base del módulo. Además, así ninguna tarea del plan cambia de dueño a mitad de camino.
+
+**Qué entrega**
+
+- Proyecto Vite + Vue 3 con Vue Router: encabezado, menú, enrutador y los espacios donde se montan los módulos.
+- Las variables de estilo definidas en `:root`, según el [contrato del Host App](https://github.com/rancesra/teambsoft-hostapp/blob/main/CONTRATO-HOSTAPP.md).
+- **Etapa 1 — composición por rutas:** el cascarón enlaza a los tres módulos servidos por separado. Es obligatoria y con ella ya hay algo que mostrar.
+- **Etapa 2 — Module Federation:** encima de lo anterior, y solo si queda tiempo.
+
+**Reglas que hay que respetar**
+
+- **No tiene pantallas de negocio ni llama a ningún microservicio.** Si el Host App le pega a un endpoint de Catálogo, Búsqueda o Carro, algo se hizo mal: esa llamada le toca al módulo.
+- **Fijar la versión de Vue en el `package.json` y anunciarla en el grupo.** Los tres módulos tienen que usar la misma, o la integración falla en tiempo de ejecución con errores que no dicen nada útil.
+- Entrega `sesion` y `navegar` por `provide`, y nada más: ni el carrito, ni los productos, ni los resultados de búsqueda.
+
+**Cómo verificar**
+
+| Caso | Esperado |
+|---|---|
+| `npm run dev` | Abre el cascarón con su encabezado y su menú |
+| Entrar a `/` | Redirige a `/catalogo` |
+| Entrar a `/catalogo` con el módulo corriendo aparte | Se ve el módulo dentro del cascarón |
+| Entrar a `/catalogo` **sin** el módulo corriendo | Mensaje claro de módulo no disponible, no una pantalla en blanco |
+| Abrir el módulo de Catálogo por su cuenta | Funciona igual, sin el cascarón (regla de oro del contrato) |
 
 ---
 

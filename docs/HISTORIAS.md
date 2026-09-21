@@ -1,8 +1,8 @@
 # Historias de Usuario — Catálogo (Equipo B)
 
 **Entrega:** Primera entrega — Ciclo 1 (actualizado en Ciclo 2)
-**Versión:** 1.1
-**Fecha:** 2026-09-10
+**Versión:** 1.2
+**Fecha:** 2026-09-21
 **Formato:** Como [rol], quiero [funcionalidad], para [beneficio] — con criterios Given/When/Then
 
 ## Historia 1 — Registrar producto
@@ -59,16 +59,38 @@
 - Cuando consulto el listado de categorías
 - Entonces recibo su id y nombre
 
+## Historia 7 — Reactivar producto
+**Como** administrador, **quiero** volver a activar un producto que había desactivado, **para** ponerlo de nuevo a la venta sin tener que crearlo otra vez.
+
+- Dado que soy administrador autenticado y el producto existe pero está inactivo
+- Cuando solicito reactivarlo
+- Entonces queda marcado como activo y vuelve a aparecer en el listado
+- Y sus demás datos no cambian
+- Y si ya estaba activo, la operación responde con éxito sin cambiar nada
+- Y si el producto no existe, recibo error 404
+
+## Historia 8 — Ver los productos desactivados
+**Como** administrador, **quiero** ver también los productos que desactivé, **para** poder encontrarlos y reactivarlos.
+
+- Dado que hay productos desactivados
+- Cuando consulto el listado pidiendo los inactivos
+- Entonces los recibo, paginados igual que los activos
+- Y si no pido nada, el listado sigue devolviendo solo los activos, como antes
+
 ## Priorización sugerida para Ciclo 2
 
 | Prioridad | Historias |
 |---|---|
-| Ciclo 2 (primer incremento funcional + frontend) | 1, 2, 3, 4, 5, 6 |
+| Ciclo 2 (primer incremento funcional + frontend) | 1, 2, 3, 4, 5, 6, 7, 8 |
 | Backlog (ciclo 3+) | — |
 
 La Historia 3 entra en Ciclo 2 aunque no era la idea original, porque Carro depende de `GET /productos/{id}` para validar antes de agregar al carrito — sin ella, Equipo C no puede completar su parte. La Historia 6 es de bajo esfuerzo (las categorías vienen precargadas) y la necesita el formulario de creación del frontend.
 
 Las Historias 4 y 5 estaban en el backlog (ciclo 3+) y se adelantaron al Ciclo 2 para entregar el CRUD completo que pide la segunda entrega.
+
+Las Historias 7 y 8 nacen de la revisión cruzada con los otros dos equipos: al dibujar la pantalla de administración se vio que un producto desactivado no se podía ni encontrar ni recuperar, y el contrato de Búsqueda v1.0 preguntaba por un evento de reactivación que no existía. Son dos caras del mismo hueco.
+
+**Descuento de stock al confirmar la compra** (`POST /productos/descontar-stock`, contrato §2) no se escribe como historia de Catálogo: no hay un usuario nuestro que la ejecute. Es un requisito técnico que sale de la HU-09 del contrato de Carrito v1.1, que sin él no puede responder `STOCK_INSUFICIENTE` de forma confiable.
 
 ## Historial de cambios
 
@@ -76,3 +98,4 @@ Las Historias 4 y 5 estaban en el backlog (ciclo 3+) y se adelantaron al Ciclo 2
 |---|---|
 | 2026-08-21 | v1.0 — versión inicial (Primera entrega) |
 | 2026-09-10 | v1.1 — Alineadas con el contrato v2.1: Historia 1 agrega `stock` y las reglas de validación; Historia 2 agrega filtro por categoría y paginación; Historia 3: un producto inactivo se devuelve con `activo: false` (antes decía 404); Historia 4: se envía el producto completo (`PUT`); Historia 5: agrega 404 y desactivación repetida sin error; Historias 4 y 5 pasan del backlog al Ciclo 2 |
+| 2026-09-21 | v1.2 — Alineadas con el contrato v2.3: nuevas Historias 7 (reactivar producto) y 8 (ver los desactivados), las dos en Ciclo 2. Se anota por qué el descuento de stock no se escribe como historia |
