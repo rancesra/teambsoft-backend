@@ -8,7 +8,7 @@ Paso a paso para trabajar en el repositorio sin pisar el trabajo de los demás: 
 2. [Plan de trabajo](PLAN-DE-TRABAJO.md): qué te toca y en qué rama.
 3. Esta guía: cómo trabajar con git día a día.
 
-Todos los comandos son para **PowerShell** (la terminal de VS Code en Windows) y se ejecutan desde la carpeta del repo, por ejemplo `C:\dev\teambsoft`.
+Todos los comandos son para **PowerShell** (la terminal de VS Code en Windows) y se ejecutan desde la carpeta del repo, por ejemplo `C:\dev\teambsoft-backend`.
 
 ## Conceptos en un minuto
 
@@ -97,7 +97,6 @@ git pull origin main
 Después levanta el entorno:
 
 ```powershell
-cd backend
 docker compose up -d
 ```
 
@@ -121,9 +120,7 @@ Sube al menos una vez al día. Así queda un respaldo y tus compañeros ven tu a
 
 ```powershell
 git pull origin main
-cd backend
 .\mvnw.cmd test
-cd ..
 git push
 ```
 
@@ -137,7 +134,7 @@ git push
 
 **Abrir el PR:**
 
-1. Entra a https://github.com/rancesra/teambsoft. Arriba aparece un aviso con tu rama y el botón **Compare & pull request**. Si no aparece, ve a la pestaña **Pull requests → New pull request**.
+1. Entra a https://github.com/rancesra/teambsoft-backend. Arriba aparece un aviso con tu rama y el botón **Compare & pull request**. Si no aparece, ve a la pestaña **Pull requests → New pull request**.
 2. Revisa que diga **base: `main` ← compare: `tu-rama`**.
 3. **Título:** la tarea y qué entrega; por ejemplo, `B2: POST y PUT de productos`.
 4. **Descripción:** qué hiciste, cómo probarlo y cualquier cosa que el revisor deba saber.
@@ -172,7 +169,7 @@ Un conflicto ocurre cuando tú y otra persona cambiaron **las mismas líneas** d
 **Cuándo lo verás:** al hacer `git pull origin main`, git dice algo como:
 
 ```
-CONFLICT (content): Merge conflict in backend/src/.../ProductoService.java
+CONFLICT (content): Merge conflict in src/main/java/.../ProductoService.java
 Automatic merge failed; fix conflicts and then commit the result.
 ```
 
@@ -206,7 +203,7 @@ Si no estás seguro de qué versión dejar, **no adivines**: pregúntale a quien
 | `Updates were rejected because the remote contains work that you do not have locally` | Tu rama en GitHub tiene commits que tú no tienes (por ejemplo, porque subiste desde otro computador) | `git pull` y luego `git push` |
 | `Need to specify how to reconcile divergent branches` | Falta la configuración única | `git config --global pull.rebase false` y repite |
 | `CONFLICT (content): Merge conflict in ...` | Dos personas cambiaron las mismas líneas | Sección 7 |
-| `not a git repository` | Estás fuera de la carpeta del repo | `cd C:\dev\teambsoft` |
+| `not a git repository` | Estás fuera de la carpeta del repo | `cd C:\dev\teambsoft-backend` |
 | La terminal muestra una pantalla extraña con `~` a la izquierda | Es Vim: falta la configuración única del editor | Escribe `:wq` y presiona Enter para salir |
 | Hiciste commits en `main` por error | Trabajaste en la rama equivocada | Ver abajo |
 

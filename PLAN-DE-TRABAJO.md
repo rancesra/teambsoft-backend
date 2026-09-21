@@ -10,6 +10,8 @@ Qué le toca a cada integrante del equipo B, en qué orden, qué necesita y cóm
 
 La fuente de verdad es el [contrato](docs/CONTRATO-CATALOGO.md). Si algo de este plan lo contradice, manda el contrato. El contrato no se cambia sin acordarlo con los equipos A y C.
 
+**Dos repositorios:** las tareas B1 a B4 se trabajan en [teambsoft-backend](https://github.com/rancesra/teambsoft-backend) (este) y las F1 a F3 en [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend). Este plan y el resto de la documentación viven aquí y valen para los dos frentes.
+
 ## Resumen
 
 | Tarea | Responsable | Entrega | Historias | Depende de |
@@ -112,7 +114,7 @@ git merge main
 - **Precio (`BigDecimal`):** compáralo con `compareTo`, no con `equals` (`49900` y `49900.00` no son `equals`).
 - **Mongo tiene que estar encendido** para correr la app y las pruebas: la carga de categorías escribe en Mongo al arrancar.
 - **Para probar endpoints** en Windows, usa la extensión **REST Client** de VS Code con archivos `.http`. Así evitas los problemas de comillas de `curl` en PowerShell.
-- **Pruebas automáticas:** `ManejadorGlobalErroresTest` (en `backend/src/test`) es un ejemplo de cómo probar la capa web con `@WebMvcTest` y `MockMvc`, sin necesidad de Mongo.
+- **Pruebas automáticas:** `ManejadorGlobalErroresTest` (en `src/test`) es un ejemplo de cómo probar la capa web con `@WebMvcTest` y `MockMvc`, sin necesidad de Mongo.
 - **Documentación del código:** cada clase lleva un Javadoc (`/** ... */`) que explica qué papel cumple, y cada método no evidente dice qué regla del contrato aplica. No comentes lo obvio (getters, asignaciones). Si cambias un código, actualiza su comentario: uno desactualizado confunde más que ninguno. El código de B1 sirve de ejemplo.
 
 ## Definición de terminado (tareas de backend)
@@ -262,8 +264,8 @@ En Mongo (`db.productos.findOne()`), el precio debe verse como `Decimal128('...'
 - **Node.js** en su versión LTS: https://nodejs.org (instalador `.msi` de Windows).
 - **VS Code** con la extensión **Vue - Official**.
 - Crear el proyecto con la herramienta oficial, que usa Vite: `npm create vue@latest`. Elegir **Vue Router: sí**; Pinia: no, por ahora.
-- **Mockup:** [docs/mockup-frontend-catalogo.html](docs/mockup-frontend-catalogo.html). Tiene las tres vistas, los estados compartidos y los criterios de entrega, con las reglas del contrato anotadas en cada pantalla. GitHub muestra el código del HTML; para verlo como página, ábrelo en el navegador desde tu copia del repo (doble clic en el archivo).
-- **Dónde vive el código:** _por definir_ (una carpeta `frontend/` en este repo o el repo del Host App).
+- **Mockup:** [docs/mockup-frontend-catalogo.html](docs/mockup-frontend-catalogo.html), en este repositorio. Tiene las tres vistas, los estados compartidos y los criterios de entrega, con las reglas del contrato anotadas en cada pantalla. GitHub muestra el código del HTML; para verlo como página, ábrelo en el navegador desde tu copia del repo (doble clic en el archivo).
+- **Dónde vive el código:** el repositorio [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend), con su propia guía de inicio. Cómo se integra después al Host App sigue por definir (contrato §9).
 
 ### Pendientes con los otros equipos
 

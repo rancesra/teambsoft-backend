@@ -11,6 +11,17 @@
 
 Catálogo es la **fuente de verdad de los productos** de la tienda virtual. Expone un CRUD de productos por REST (a través de Kong) y publica eventos en RabbitMQ para que los demás servicios se mantengan sincronizados.
 
+## Los dos repositorios
+
+El módulo de Catálogo está repartido en dos repositorios, uno por frente de trabajo:
+
+| Repositorio | Qué contiene | Quién trabaja ahí |
+|---|---|---|
+| **teambsoft-backend** (este) | El microservicio en Spring Boot y la documentación del módulo | B1 a B4 |
+| [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) | El módulo de frontend en Vue.js | F1 a F3 |
+
+El contrato, las historias y la arquitectura viven **solo en este repositorio**, para que no existan dos versiones distintas de un acuerdo; el repositorio del frontend los enlaza.
+
 ## Arquitectura
 
 ```mermaid
@@ -43,19 +54,22 @@ El detalle de las capas internas está en [ARQUITECTURA-CATALOGO.md](docs/ARQUIT
 ## Estructura del repositorio
 
 ```
+├── src/                 Código del microservicio (Spring Boot)
 ├── docs/                Documentación del proyecto y mockup del frontend
-├── backend/             Microservicio de Catálogo (Spring Boot)
+├── docker-compose.yml   MongoDB para desarrollo
+├── pom.xml              Dependencias y compilación (Maven)
 ├── GUIA-INICIO.md       Instalación y primer arranque
 ├── PLAN-DE-TRABAJO.md   Tareas del equipo
 └── GUIA-GIT.md          Cómo trabajar con git
 ```
+
+La raíz del repositorio es la raíz del proyecto Maven: `./mvnw` se ejecuta desde aquí.
 
 ## Cómo ejecutar el backend
 
 **Requisitos:** JDK 21 y Docker Desktop abierto. No hace falta instalar Maven: el proyecto trae el Maven Wrapper (`mvnw`).
 
 ```bash
-cd backend
 docker compose up -d     # levanta MongoDB 7.0 en un contenedor
 ./mvnw test              # corre las pruebas (necesitan Mongo encendido)
 ./mvnw spring-boot:run   # arranca el servicio en http://localhost:8080

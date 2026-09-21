@@ -1,11 +1,13 @@
-# Guía de inicio — Equipo B (Windows)
+# Guía de inicio — backend del Catálogo (Windows)
 
 Pasos para dejar tu computador listo y empezar a trabajar desde donde está el proyecto. Todos los comandos se ejecutan en **PowerShell**, la terminal por defecto de Windows y de VS Code.
+
+> Esta guía es para el repositorio del **backend**. Si te toca frontend (F1, F2 o F3), tu repositorio es [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) y tiene su propia guía de inicio: aquí se instala JDK y Docker, allá Node.js.
 
 ## 0. Acceso al repositorio
 
 1. Necesitas una cuenta de GitHub.
-2. Acepta la invitación de colaborador que te llegó por correo, o entra a https://github.com/rancesra/teambsoft/invitations. Sin aceptarla puedes descargar el repo, pero no subir cambios.
+2. Acepta la invitación de colaborador que te llegó por correo, o entra a https://github.com/rancesra/teambsoft-backend/invitations. Sin aceptarla puedes descargar el repo, pero no subir cambios.
 
 ## 1. Instalar las herramientas
 
@@ -78,8 +80,8 @@ No tienes que iniciar sesión en GitHub ahora. La primera vez que hagas `git pus
 ```powershell
 mkdir C:\dev
 cd C:\dev
-git clone https://github.com/rancesra/teambsoft.git
-cd teambsoft
+git clone https://github.com/rancesra/teambsoft-backend.git
+cd teambsoft-backend
 code .
 ```
 
@@ -90,7 +92,6 @@ code .
 Abre Docker Desktop y espera a que diga que está corriendo. Luego, en VS Code, abre una terminal (menú **Terminal → New Terminal**) y ejecuta:
 
 ```powershell
-cd backend
 docker compose up -d
 docker compose ps
 ```
@@ -99,7 +100,7 @@ docker compose ps
 
 ## 5. Verificar que el backend funciona
 
-Con Mongo encendido, desde la carpeta `backend`:
+Con Mongo encendido, desde la carpeta del proyecto:
 
 ```powershell
 .\mvnw.cmd test
