@@ -85,12 +85,12 @@ Para comprobar que todo funciona, abre http://localhost:8080/actuator/health: de
 
 ## Equipo B
 
-| Integrante | Parte |
-|---|---|
-| _Rances Ramirez_ | Backend |
-| _Nombre_ | Backend |
-| _Nombre_ | Backend |
-| _Nombre_ | Backend |
-| _Nombre_ | Frontend |
-| _Nombre_ | Frontend |
-| _Nombre_ | Frontend |
+| Integrante | Parte | Tarea |
+|---|---|---|
+| Rances Alejandro Ramírez Morillo | Backend | B1 — Base del proyecto |
+| Hector Julian Franco Trujillo | Backend | B2 — Escritura |
+| Jhon Jairo Velandia Ramirez | Backend | B3 — Lectura y borrado |
+| Cristian Rivera | Backend | B4 — Infraestructura y eventos |
+| Juan Diego Tellez Quintero | Frontend | F1 — Base del frontend |
+| Roger Sergio Hernandez | Frontend | F2 — Vistas de lectura |
+| Carlos Andrés Beltrán Ardila | Frontend | F3 — Vistas de administración |

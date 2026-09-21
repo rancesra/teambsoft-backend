@@ -14,13 +14,13 @@ La fuente de verdad es el [contrato](docs/CONTRATO-CATALOGO.md). Si algo de este
 
 | Tarea | Responsable | Entrega | Historias | Depende de |
 |---|---|---|---|---|
-| **B1** Base del proyecto | Rances | Esqueleto, Mongo, modelos, categorías, errores | 6 | — |
-| **B2** Escritura | _Nombre_ | `POST /productos`, `PUT /productos/{id}` | 1, 4 | B1 |
-| **B3** Lectura y borrado | _Nombre_ | `GET /productos`, `GET /productos/{id}`, `DELETE /productos/{id}` | 2, 3, 5 | B1 |
-| **B4** Infraestructura y eventos | _Nombre_ | RabbitMQ, Docker, Eureka, Kong, Swagger | — | B1; los eventos, también B2 y B3 |
-| **F1** Base del frontend | _Nombre_ | Proyecto Vue, rutas, cliente HTTP, errores | — | — |
-| **F2** Vistas de lectura | _Nombre_ | Listado y detalle | 2, 3 | F1; para datos reales, B3 |
-| **F3** Vistas de administración | _Nombre_ | Crear, editar y desactivar | 1, 4, 5 | F1; para datos reales, B2 y B3 |
+| **B1** Base del proyecto | Rances Ramírez | Esqueleto, Mongo, modelos, categorías, errores | 6 | — |
+| **B2** Escritura | Hector Franco | `POST /productos`, `PUT /productos/{id}` | 1, 4 | B1 |
+| **B3** Lectura y borrado | Jhon Velandia | `GET /productos`, `GET /productos/{id}`, `DELETE /productos/{id}` | 2, 3, 5 | B1 |
+| **B4** Infraestructura y eventos | Cristian Rivera | RabbitMQ, Docker, Eureka, Kong, Swagger | — | B1; los eventos, también B2 y B3 |
+| **F1** Base del frontend | Juan Diego Tellez | Proyecto Vue, rutas, cliente HTTP, errores | — | — |
+| **F2** Vistas de lectura | Roger Hernandez | Listado y detalle | 2, 3 | F1; para datos reales, B3 |
+| **F3** Vistas de administración | Carlos Beltrán | Crear, editar y desactivar | 1, 4, 5 | F1; para datos reales, B2 y B3 |
 
 ## Orden de trabajo
 
@@ -127,7 +127,7 @@ git merge main
 
 ## B1 — Base del proyecto
 
-**Responsable:** Rances · **Rama:** `b1-base` · **Estado:** ✅ terminado, en `main` desde el pull request #1
+**Responsable:** Rances Ramírez · **Rama:** `b1-base` · **Estado:** ✅ terminado, en `main` desde el pull request #1
 
 - [x] Esqueleto (Spring Boot 4.1.1, Java 21)
 - [x] Conexión a MongoDB 7.0 con Docker Compose
