@@ -43,7 +43,8 @@ El detalle de las capas internas está en [ARQUITECTURA-CATALOGO.md](docs/ARQUIT
 
 | Documento | Contenido |
 |---|---|
-| [Contrato de servicio](docs/CONTRATO-CATALOGO.md) | Endpoints, modelos, errores y eventos acordados con los equipos A y C (v2.2) |
+| [Contrato de servicio](docs/CONTRATO-CATALOGO.md) | Endpoints, modelos, errores y eventos acordados con los equipos A y C (v2.3) |
+| [Contrato del Host App](https://github.com/rancesra/teambsoft-hostapp/blob/main/CONTRATO-HOSTAPP.md) | Cómo se integra cada módulo al cascarón: rutas, qué expone cada uno y estilo compartido |
 | [Historias de usuario](docs/HISTORIAS.md) | Backlog con criterios de aceptación |
 | [Arquitectura](docs/ARQUITECTURA-CATALOGO.md) | Stack, capas internas y decisiones de diseño |
 | [Guía de inicio](GUIA-INICIO.md) | Instalar las herramientas y dejar el proyecto corriendo (Windows) |
@@ -93,6 +94,9 @@ Para comprobar que todo funciona, abre http://localhost:8080/actuator/health: de
 - [ ] Historia 4 — Actualizar producto
 - [ ] Historia 5 — Desactivar producto
 - [x] Historia 6 — Listar categorías
+- [ ] Historia 7 — Reactivar producto
+- [ ] Historia 8 — Ver los productos desactivados
+- [ ] Descuento de stock en el checkout
 - [ ] Publicación de eventos en RabbitMQ
 - [ ] Registro en Eureka
 - [ ] Integración con Kong
@@ -101,7 +105,7 @@ Para comprobar que todo funciona, abre http://localhost:8080/actuator/health: de
 
 | Integrante | Parte | Tarea |
 |---|---|---|
-| Rances Alejandro Ramírez Morillo | Backend | B1 — Base del proyecto |
+| Rances Alejandro Ramírez Morillo | Backend · Host App | B1 — Base del proyecto · H1 — Host App |
 | Hector Julian Franco Trujillo | Backend | B2 — Escritura |
 | Jhon Jairo Velandia Ramirez | Backend | B3 — Lectura y borrado |
 | Cristian Rivera | Backend | B4 — Infraestructura y eventos |
