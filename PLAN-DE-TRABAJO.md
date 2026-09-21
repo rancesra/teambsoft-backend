@@ -265,12 +265,23 @@ En Mongo (`db.productos.findOne()`), el precio debe verse como `Decimal128('...'
 - **VS Code** con la extensión **Vue - Official**.
 - Crear el proyecto con la herramienta oficial, que usa Vite: `npm create vue@latest`. Elegir **Vue Router: sí**; Pinia: no, por ahora.
 - **Mockup:** [docs/mockup-frontend-catalogo.html](docs/mockup-frontend-catalogo.html), en este repositorio. Tiene las tres vistas, los estados compartidos y los criterios de entrega, con las reglas del contrato anotadas en cada pantalla. GitHub muestra el código del HTML; para verlo como página, ábrelo en el navegador desde tu copia del repo (doble clic en el archivo).
+- **Cómo debe verse:** dos documentos en el repositorio del frontend, que se complementan. El [mockup del módulo en el Host App](https://github.com/rancesra/teambsoft-frontend/blob/main/docs/mockup-catalogo-hostapp.html) dice **qué lleva cada pantalla y por qué**, con las reglas del contrato anotadas, el mapa de rutas y los espacios reservados para Búsqueda y Carro. La [propuesta visual](https://github.com/rancesra/teambsoft-frontend/blob/main/docs/propuesta-visual-catalogo.html) dice **cómo se ve**, e incluye las once variables de estilo que proponemos a los 3 equipos. Los dos son HTML: hay que abrirlos en el navegador, GitHub los muestra como código.
 - **Dónde vive el código:** el repositorio [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend), con su propia guía de inicio. Cómo se integra después al Host App sigue por definir (contrato §9).
 
 ### Pendientes con los otros equipos
 
 - **Integración al Host App:** los 3 equipos usan Vue, pero falta decidir cómo se integra cada módulo (contrato §9).
 - **CORS:** el navegador bloquea las llamadas entre orígenes distintos (por ejemplo, de `localhost:5173` al backend). La recomendación es usar el proxy de Vite en desarrollo y el plugin CORS de Kong en integración. No hay que configurarlo también en Spring: las cabeceras se duplican y el navegador rechaza la respuesta.
+- **Estilo compartido:** si cada equipo elige sus colores, el Host App se ve como tres páginas pegadas. Nuestra propuesta son once variables CSS (sección 1 de la propuesta visual), no una librería de componentes: una librería pesada, repetida en tres módulos, hay que declararla como dependencia compartida o se descarga tres veces.
+- **Aislamiento de estilos:** si el Host App trae CSS global, sus estilos y los nuestros se pisan. Con componentes web el aislamiento viene incluido; con Module Federation hay que acordar prefijos de clase o usar `scoped` en todos los componentes.
+- **El botón “Agregar al carro”:** ¿lo pinta Catálogo y emite un evento, o lo inyecta el Host App en un espacio que dejamos nosotros? Es el punto donde nuestro módulo y el del Equipo C se tocan.
+
+### Pendientes de nuestro propio contrato
+
+Aparecieron al dibujar la pantalla de administración. No se cambian sin acordarlo en equipo, y serían un contrato **v2.3** (compatible hacia atrás: no rompen nada de lo que A y C ya consumen).
+
+- **No se pueden listar los productos desactivados.** `GET /productos` devuelve solo activos (§2) y no hay filtro `?activo=false`, así que un administrador no tiene cómo ver lo que desactivó: solo se llega por id.
+- **No se puede reactivar un producto.** `DELETE` pone `activo:false` y `PUT` ignora ese campo a propósito, así que no existe el camino de vuelta. Por eso la confirmación de desactivar debe advertir que no se deshace.
 
 ### F1 — Base
 
