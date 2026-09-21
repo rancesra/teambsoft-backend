@@ -1,8 +1,8 @@
 # Arquitectura — Catálogo (Equipo B)
 
 **Entrega:** Primera entrega — Ciclo 1 (actualizado en Ciclo 2)
-**Versión:** 1.2
-**Fecha:** 2026-09-11
+**Versión:** 1.3
+**Fecha:** 2026-09-21
 
 ## 1. Rol en el sistema
 
@@ -16,7 +16,7 @@ Catálogo es uno de los 5 microservicios del sistema (junto a Búsqueda, Carro, 
 | MongoDB 7.0 | Persistencia de productos y categorías (documento, no relacional) |
 | Spring Data MongoDB | Capa de acceso a datos |
 | Eureka Client | Registro y descubrimiento del servicio |
-| Docker (Docker Compose) | Empaquetado y entorno reproducible; en desarrollo, MongoDB corre en un contenedor definido en `backend/docker-compose.yml` |
+| Docker (Docker Compose) | Empaquetado y entorno reproducible; en desarrollo, MongoDB corre en un contenedor definido en `docker-compose.yml` |
 | RabbitMQ (vía Spring AMQP) | Publicación de eventos de dominio |
 
 ## 3. Arquitectura interna
@@ -70,6 +70,7 @@ Producto y Categoría, con sus campos y reglas de validación, están definidos 
 - **Errores centralizados con el formato del contrato, no ProblemDetail:** un único `@RestControllerAdvice` traduce a `{codigo, mensaje}` tanto nuestras excepciones como las de validación de Spring (cuerpo, parámetros, tipos y JSON mal formado). Spring ofrece ProblemDetail (RFC 9457) como formato estándar, pero el formato ya estaba acordado con los equipos A y C. Los errores que el contrato no contempla (fallas inesperadas, rutas inexistentes) usan el formato por defecto de Spring.
 - **Precio como `BigDecimal`, guardado como `Decimal128`:** `double` introduce errores de redondeo con dinero y `long` no admite decimales. Guardarlo como texto impediría comparar u ordenar por precio en Mongo. Desde Spring Data MongoDB 5.0 no hay una representación por defecto para `BigDecimal`, así que se configura explícitamente en `application.yml`.
 - **Entidades sin setters y DTOs separados:** `Producto` solo cambia con su constructor (POST), `actualizar(...)` (PUT) y `desactivar()` (DELETE). Así, las reglas del contrato (PUT no toca `id` ni `activo`; solo DELETE cambia `activo`) quedan en el código y no solo en el documento. La API nunca expone las entidades, sino DTOs, para que un cambio en la base de datos no cambie el contrato sin querer.
+- **Un repositorio por frente, no uno solo con las dos partes:** el microservicio vive en `teambsoft-backend` y el módulo de frontend en `teambsoft-frontend`. Cada frente tiene su propio ciclo: el backend se compila con Maven y se despliega como contenedor; el frontend se construye con Vite y termina integrándose al Host App. Separarlos deja cada repositorio con la forma que esperan sus herramientas (la raíz del repositorio del backend es la raíz del proyecto Maven) y evita que un cambio de Vue pase por la revisión de Java. El costo es que la documentación no se puede duplicar: el contrato, las historias y este documento viven solo en el repositorio del backend y el del frontend los enlaza. La separación se hizo antes de que existiera código de frontend, que es cuando no obliga a reescribir historial.
 - **Categorías precargadas desde el código, de forma idempotente:** se guardan al arrancar con ids fijos, así que repetir el arranque no crea duplicados. Se descartó un script de Mongo en Docker porque solo se ejecuta cuando el volumen está vacío.
 
 ## 6. Documentos relacionados
@@ -84,3 +85,4 @@ Producto y Categoría, con sus campos y reglas de validación, están definidos 
 | 2026-08-21 | v1.0 — versión inicial (Primera entrega) |
 | 2026-09-10 | v1.1 — Se fijan las versiones del stack (Spring Boot 4.1.1 con Java 21, MongoDB 7.0) y se documenta por qué MongoDB 7.0 y no 8.x |
 | 2026-09-11 | v1.2 — La arquitectura interna refleja lo construido en B1 (categorías, DTOs, manejador global de errores y carga de categorías). Nuevas decisiones: formato de errores, precio como Decimal128, entidades sin setters y carga idempotente de categorías |
+| 2026-09-21 | v1.3 — El módulo se separa en dos repositorios (`teambsoft-backend` y `teambsoft-frontend`) y el proyecto Maven pasa a la raíz del repositorio del backend. Se actualizan las rutas afectadas y se documenta la decisión. El contrato no cambia |
