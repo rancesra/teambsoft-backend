@@ -1,12 +1,16 @@
 # Arquitectura — Catálogo (Equipo B)
 
 **Entrega:** Primera entrega — Ciclo 1 (actualizado en Ciclo 2)
-**Versión:** 1.4
-**Fecha:** 2026-09-21
+**Versión:** 1.5
+**Fecha:** 2026-09-23
 
 ## 1. Rol en el sistema
 
-Catálogo es uno de los 5 microservicios del sistema (junto a Búsqueda, Carro, Descuento y Órdenes), y es la **fuente de verdad de los productos**. Todo el tráfico externo pasa por Kong (API Gateway); Catálogo se registra en Eureka para ser descubierto, y publica eventos a RabbitMQ para que Búsqueda mantenga su índice sin consultarlo directamente. El diagrama general del sistema (ya entregado por el equipo) muestra este contexto completo; este documento se enfoca solo en la pieza de Catálogo.
+Catálogo es uno de los 5 microservicios del sistema (junto a Búsqueda, Carro, Descuento y Órdenes), y es la **fuente de verdad de los productos**. Todo el tráfico externo pasa por Kong (API Gateway); Catálogo se registra en Eureka para ser descubierto, y publica eventos a RabbitMQ para que Búsqueda mantenga su índice sin consultarlo directamente. El diagrama general del sistema, entregado por el profesor, muestra este contexto completo:
+
+![Diagrama del sistema completo](diagrama-sistema.jpeg)
+
+Ahí se ve el Cliente Web con su Host App y los módulos de cada equipo, Kong como puerta de entrada, Keycloak para la identidad, los cinco microservicios con su propia base de datos, RabbitMQ como bus de eventos y Eureka para el registro y descubrimiento. **Este documento se enfoca solo en la pieza de Catálogo.**
 
 ## 2. Stack tecnológico
 
@@ -87,4 +91,5 @@ Producto y Categoría, con sus campos y reglas de validación, están definidos 
 | 2026-09-10 | v1.1 — Se fijan las versiones del stack (Spring Boot 4.1.1 con Java 21, MongoDB 7.0) y se documenta por qué MongoDB 7.0 y no 8.x |
 | 2026-09-11 | v1.2 — La arquitectura interna refleja lo construido en B1 (categorías, DTOs, manejador global de errores y carga de categorías). Nuevas decisiones: formato de errores, precio como Decimal128, entidades sin setters y carga idempotente de categorías |
 | 2026-09-21 | v1.3 — El módulo se separa en dos repositorios (`teambsoft-backend` y `teambsoft-frontend`) y el proyecto Maven pasa a la raíz del repositorio del backend. Se actualizan las rutas afectadas y se documenta la decisión. El contrato no cambia |
+| 2026-09-23 | v1.5 — Se enlaza el diagrama del sistema completo, que estaba en el repositorio sin que ningún documento lo referenciara. Se actualizan las rutas tras mover el plan de trabajo y las guías a `docs/` |
 | 2026-09-21 | v1.4 — Se documenta cómo se descuenta el stock (operación atómica de MongoDB en vez de transacciones) y por qué se descarta la reserva con retención. Acompaña al contrato v2.3 |

@@ -126,6 +126,6 @@ Los datos se conservan. **No uses `docker compose down -v`**: la `-v` borra el v
 
 ## 6. Antes de programar
 
-1. Lee el [contrato](docs/CONTRATO-CATALOGO.md). Es el acuerdo con los otros equipos y no se cambia sin consultarlo.
-2. Busca tu tarea en el [plan de trabajo](PLAN-DE-TRABAJO.md).
+1. Lee el [contrato](../CONTRATO-CATALOGO.md). Es el acuerdo con los otros equipos y no se cambia sin consultarlo.
+2. Busca tu tarea en el [plan de trabajo](../PLAN-DE-TRABAJO.md).
 3. Lee la [guía de git](GUIA-GIT.md): cómo crear tu rama, qué hacer cada día y cómo entregar tu tarea con un pull request.

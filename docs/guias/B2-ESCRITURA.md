@@ -6,13 +6,13 @@ Al terminar, el catálogo podrá **crear, editar, reactivar productos y desconta
 
 **El código de esta guía ya se probó.** Lo compilé y corrí las pruebas de la capa web antes de escribirla: 10 de 10 pasan. Si copias cada archivo tal cual, funciona.
 
-**No tienes que esperar a nadie.** B1 ya está en `main` con los modelos, los repositorios y el manejo de errores. Tu tarea no depende de B3 ni de B4; lo único que comparten es que los dos van a tocar `ProductoService` y `ProductoController`, así que quien una su pull request de segundo tendrá un conflicto sencillo ([guía de git](../../GUIA-GIT.md) §7).
+**No tienes que esperar a nadie.** B1 ya está en `main` con los modelos, los repositorios y el manejo de errores. Tu tarea no depende de B3 ni de B4; lo único que comparten es que los dos van a tocar `ProductoService` y `ProductoController`, así que quien una su pull request de segundo tendrá un conflicto sencillo ([guía de git](GUIA-GIT.md) §7).
 
 Los comandos son para **PowerShell**, en la terminal de VS Code.
 
 ## 1. Antes de empezar
 
-1. Necesitas **JDK 21, Docker Desktop y VS Code** con el *Extension Pack for Java* ([guía de inicio](../../GUIA-INICIO.md) §1), y haber aceptado la invitación de GitHub.
+1. Necesitas **JDK 21, Docker Desktop y VS Code** con el *Extension Pack for Java* ([guía de inicio](GUIA-INICIO.md) §1), y haber aceptado la invitación de GitHub.
 2. Trae lo último de `main` y crea tu rama:
 
    ```powershell

@@ -300,7 +300,7 @@ graph TD
 
 ## 8. Entorno de desarrollo
 
-El entorno es reproducible y está documentado en [GUIA-INICIO.md](../GUIA-INICIO.md), escrita para Windows porque es el sistema de la mayoría del equipo.
+El entorno es reproducible y está documentado en [GUIA-INICIO.md](guias/GUIA-INICIO.md), escrita para Windows porque es el sistema de la mayoría del equipo.
 
 | Herramienta | Versión | Para qué |
 |---|---|---|
@@ -324,7 +324,7 @@ docker compose up -d      # MongoDB en un contenedor
 
 ### 9.1 Marco de trabajo
 
-Se trabaja por sprints con un tablero de tareas. Cada tarea tiene un responsable, una entrega concreta, sus dependencias y una definición de terminado. El plan completo está en [PLAN-DE-TRABAJO.md](../PLAN-DE-TRABAJO.md).
+Se trabaja por sprints con un tablero de tareas. Cada tarea tiene un responsable, una entrega concreta, sus dependencias y una definición de terminado. El plan completo está en [PLAN-DE-TRABAJO.md](PLAN-DE-TRABAJO.md).
 
 ### 9.2 Dependencias entre tareas
 
@@ -343,7 +343,7 @@ B1 se construyó primero y en solitario, porque es la base sobre la que trabajan
 
 ### 9.3 Flujo de trabajo con git
 
-Documentado en [GUIA-GIT.md](../GUIA-GIT.md):
+Documentado en [GUIA-GIT.md](guias/GUIA-GIT.md):
 
 1. Nadie trabaja directo en `main`: cada tarea tiene su rama.
 2. `git pull origin main` al empezar el día y antes de subir cambios.
@@ -453,9 +453,9 @@ Las 6 pruebas del manejador de errores comprueban, una por una, que un producto 
 | [HISTORIAS.md](HISTORIAS.md) | Historias de usuario con criterios de aceptación |
 | [ARQUITECTURA-CATALOGO.md](ARQUITECTURA-CATALOGO.md) | Stack, capas internas y decisiones de diseño |
 | [mockup-frontend-catalogo.html](mockup-frontend-catalogo.html) | Vistas del frontend con las reglas del contrato anotadas |
-| [PLAN-DE-TRABAJO.md](../PLAN-DE-TRABAJO.md) | Tareas, dependencias y definición de terminado |
-| [GUIA-INICIO.md](../GUIA-INICIO.md) | Instalación del entorno |
-| [GUIA-GIT.md](../GUIA-GIT.md) | Flujo de trabajo con ramas y pull requests |
+| [PLAN-DE-TRABAJO.md](PLAN-DE-TRABAJO.md) | Tareas, dependencias y definición de terminado |
+| [GUIA-INICIO.md](guias/GUIA-INICIO.md) | Instalación del entorno |
+| [GUIA-GIT.md](guias/GUIA-GIT.md) | Flujo de trabajo con ramas y pull requests |
 
 ### B. Cómo reproducir lo construido
 

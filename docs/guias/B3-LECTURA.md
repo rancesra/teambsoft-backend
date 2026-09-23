@@ -6,13 +6,13 @@ Al terminar, el catálogo podrá **listarse con filtros y paginación, consultar
 
 **El código de esta guía ya se probó**: 20 pruebas, 10 de la capa web y 10 contra MongoDB de verdad. Si copias cada archivo tal cual, funciona.
 
-**No tienes que esperar a nadie.** B1 ya está en `main`. Tu tarea no depende de B2; lo único que comparten es que los dos tocan `ProductoService` y `ProductoController`, así que quien una su pull request de segundo tendrá un conflicto sencillo ([guía de git](../../GUIA-GIT.md) §7).
+**No tienes que esperar a nadie.** B1 ya está en `main`. Tu tarea no depende de B2; lo único que comparten es que los dos tocan `ProductoService` y `ProductoController`, así que quien una su pull request de segundo tendrá un conflicto sencillo ([guía de git](GUIA-GIT.md) §7).
 
 Los comandos son para **PowerShell**, en la terminal de VS Code.
 
 ## 1. Antes de empezar
 
-1. Necesitas **JDK 21, Docker Desktop y VS Code** con el *Extension Pack for Java* ([guía de inicio](../../GUIA-INICIO.md) §1), y haber aceptado la invitación de GitHub.
+1. Necesitas **JDK 21, Docker Desktop y VS Code** con el *Extension Pack for Java* ([guía de inicio](GUIA-INICIO.md) §1), y haber aceptado la invitación de GitHub.
 2. Trae lo último de `main` y crea tu rama:
 
    ```powershell
