@@ -4,11 +4,11 @@ Qué le toca a cada integrante del equipo B, en qué orden, qué necesita y cóm
 
 **Orden de lectura para empezar:**
 
-1. [Guía de inicio](GUIA-INICIO.md): instalar las herramientas y clonar el repo.
+1. [Guía de inicio](guias/GUIA-INICIO.md): instalar las herramientas y clonar el repo.
 2. Este plan: qué te toca y en qué rama.
-3. [Guía de git](GUIA-GIT.md): cómo trabajar día a día (pull, commits, push, pull requests y conflictos).
+3. [Guía de git](guias/GUIA-GIT.md): cómo trabajar día a día (pull, commits, push, pull requests y conflictos).
 
-La fuente de verdad es el [contrato](docs/CONTRATO-CATALOGO.md). Si algo de este plan lo contradice, manda el contrato. El contrato no se cambia sin acordarlo con los equipos A y C.
+La fuente de verdad es el [contrato](CONTRATO-CATALOGO.md). Si algo de este plan lo contradice, manda el contrato. El contrato no se cambia sin acordarlo con los equipos A y C.
 
 **Dos repositorios:** las tareas B1 a B4 se trabajan en [teambsoft-backend](https://github.com/rancesra/teambsoft-backend) (este) y las F1 a F3 en [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend). Este plan y el resto de la documentación viven aquí y valen para los dos frentes.
 
@@ -62,12 +62,12 @@ graph LR
 | F3 | Cuando F1 esté en `main` | F1 (y B2 y B3 para datos reales) | Nadie |
 
 - **H1 es la única tarea de la que dependen otros equipos.** Si se atrasa, se atrasan A y C. Por eso el cascarón se mantiene mínimo y se entrega antes que cualquier otra cosa del frontend.
-- **B2 y B3 no se esperan entre sí,** pero los dos agregan métodos a `ProductoService` y `ProductoController`. Quien una su PR de segundo tendrá que resolver un conflicto sencillo (ver la sección 7 de la [guía de git](GUIA-GIT.md)).
+- **B2 y B3 no se esperan entre sí,** pero los dos agregan métodos a `ProductoService` y `ProductoController`. Quien una su PR de segundo tendrá que resolver un conflicto sencillo (ver la sección 7 de la [guía de git](guias/GUIA-GIT.md)).
 - **"Para datos reales"** significa que el frontend puede construir la vista antes, pero solo la termina cuando el endpoint que usa ya está en `main`.
 
 ## Cómo trabajamos con git
 
-**Nadie trabaja directo en `main`.** Cada tarea vive en su propia rama y entra a `main` con un *pull request* (PR) que revisa otro integrante. El paso a paso completo está en la [guía de git](GUIA-GIT.md): cómo empezar la tarea, qué hacer cada día, cómo subir, cómo abrir el PR y qué hacer si git se queja.
+**Nadie trabaja directo en `main`.** Cada tarea vive en su propia rama y entra a `main` con un *pull request* (PR) que revisa otro integrante. El paso a paso completo está en la [guía de git](guias/GUIA-GIT.md): cómo empezar la tarea, qué hacer cada día, cómo subir, cómo abrir el PR y qué hacer si git se queja.
 
 | Tarea | Rama |
 |---|---|
@@ -108,7 +108,7 @@ git merge main
 
 ## Convenciones del backend
 
-- **Paquetes por capa** dentro de `co.edu.uis.catalogo`: `model`, `repository`, `service`, `controller`, `dto`, `config`, `error`. Reflejan el diagrama de [ARQUITECTURA-CATALOGO.md](docs/ARQUITECTURA-CATALOGO.md).
+- **Paquetes por capa** dentro de `co.edu.uis.catalogo`: `model`, `repository`, `service`, `controller`, `dto`, `config`, `error`. Reflejan el diagrama de [ARQUITECTURA-CATALOGO.md](ARQUITECTURA-CATALOGO.md).
 - **Nombres:** el dominio y los métodos en español (`Producto`, `listar`); los sufijos técnicos en inglés (`Controller`, `Service`, `Repository`, `Request`, `Response`).
 - **Entidades = clases; DTOs = records.** Los DTOs (`ProductoRequest`, `ProductoResponse`) definen lo que entra y sale por la API: nunca se devuelve la entidad directamente. Cada `Response` tiene un método estático `desde(entidad)`.
 - **`Producto` no tiene setters.** Se modifica solo con:
@@ -338,7 +338,7 @@ El Host App quedó a cargo del Equipo B por acuerdo de los 3 equipos. Es una tar
 - **Node.js** en su versión LTS: https://nodejs.org (instalador `.msi` de Windows).
 - **VS Code** con la extensión **Vue - Official**.
 - Crear el proyecto con la herramienta oficial, que usa Vite: `npm create vue@latest`. Elegir **Vue Router: sí**; Pinia: no, por ahora.
-- **Mockup:** [docs/mockup-frontend-catalogo.html](docs/mockup-frontend-catalogo.html), en este repositorio. Tiene las tres vistas, los estados compartidos y los criterios de entrega, con las reglas del contrato anotadas en cada pantalla. GitHub muestra el código del HTML; para verlo como página, ábrelo en el navegador desde tu copia del repo (doble clic en el archivo).
+- **Mockup:** [mockup-frontend-catalogo.html](mockup-frontend-catalogo.html), en este repositorio. Tiene las tres vistas, los estados compartidos y los criterios de entrega, con las reglas del contrato anotadas en cada pantalla. GitHub muestra el código del HTML; para verlo como página, ábrelo en el navegador desde tu copia del repo (doble clic en el archivo).
 - **Cómo debe verse:** dos documentos en el repositorio del frontend, que se complementan. El [mockup del módulo en el Host App](https://github.com/rancesra/teambsoft-frontend/blob/main/docs/mockup-catalogo-hostapp.html) dice **qué lleva cada pantalla y por qué**, con las reglas del contrato anotadas, el mapa de rutas y los espacios reservados para Búsqueda y Carro. La [propuesta visual](https://github.com/rancesra/teambsoft-frontend/blob/main/docs/propuesta-visual-catalogo.html) dice **cómo se ve**, e incluye las once variables de estilo que proponemos a los 3 equipos. Los dos son HTML: hay que abrirlos en el navegador, GitHub los muestra como código.
 - **Dónde vive el código:** el repositorio [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend), con su propia guía de inicio. Cómo se integra después al Host App sigue por definir (contrato §9).
 

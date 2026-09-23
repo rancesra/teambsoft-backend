@@ -1,0 +1,161 @@
+﻿"Issue ID","Issue Type","Summary","Parent","Priority","Description","Labels","Labels","Labels"
+"EP-HIS","Epic","Historias de usuario","","Medium","Backlog de producto del modulo Catalogo. Los criterios completos estan en docs/HISTORIAS.md v1.2 del repositorio teambsoft-backend.","epica-historias","",""
+"EP-BAC","Epic","Backend - Microservicio de Catalogo","","Highest","Spring Boot 4.1.1 + MongoDB 7.0 + RabbitMQ. Repositorio: teambsoft-backend.","epica-backend","",""
+"EP-FRO","Epic","Frontend - Modulo de Catalogo","","High","Vue 3 + Vite. Repositorio: teambsoft-frontend.","epica-frontend","",""
+"EP-HOS","Epic","Host App","","Highest","Cascaron donde se montan los modulos de los 3 equipos. Repositorio: teambsoft-hostapp. De esta epica dependen los equipos A y C.","epica-hostapp","",""
+"EP-DOC","Epic","Documentacion y coordinacion","","Medium","Contratos, historias, arquitectura, guias y los acuerdos con los equipos A y C.","epica-documentacion","",""
+"HIS-1","Story","Historia 1 - Registrar producto","EP-HIS","High","Como administrador, quiero registrar un producto con nombre, descripcion, precio, categoria, stock e imagenes, para que este disponible en el catalogo.
+
+Criterios de aceptacion:
+- Con nombre, precio, categoria y stock validos, se guarda como activo y devuelve el producto con su ID.
+- Si falta un campo obligatorio o un valor no cumple las reglas del contrato (precio > 0, stock >= 0, categoria existente, nombre de maximo 120 caracteres), devuelve 400 VALIDACION_FALLIDA.
+
+Backend: tarea B2. Frontend: tarea F3.","sprint-1","hector",""
+"HIS-2","Story","Historia 2 - Listar productos","EP-HIS","High","Como cliente, quiero ver el listado de productos activos, para explorar que puedo comprar.
+
+Criterios de aceptacion:
+- Recibo nombre, precio, imagen y categoria de cada uno.
+- Los productos desactivados no aparecen.
+- Puedo filtrar por categoria.
+- El listado viene paginado, 20 por pagina si no pido otro tamano, y la primera pagina es la 1.
+
+Backend: tarea B3. Frontend: tarea F2.","sprint-1","jhon",""
+"HIS-3","Story","Historia 3 - Ver detalle de un producto","EP-HIS","High","Como cliente, quiero ver el detalle de un producto, para decidir si lo compro.
+
+Criterios de aceptacion:
+- Recibo toda su informacion: nombre, descripcion, precio, categoria, stock, imagenes y activo.
+- Si el producto esta desactivado, igual lo recibo, con activo: false. No es un 404.
+- Si no existe, recibo 404 PRODUCTO_NO_ENCONTRADO.
+
+El equipo C depende de este endpoint para validar antes de agregar al carrito.
+Backend: tarea B3. Frontend: tarea F2.","sprint-1","jhon",""
+"HIS-4","Story","Historia 4 - Actualizar producto","EP-HIS","Medium","Como administrador, quiero actualizar los datos de un producto, para mantener la informacion al dia.
+
+Criterios de aceptacion:
+- Envio el producto completo: PUT reemplaza, no modifica campo por campo.
+- Si un valor no cumple las validaciones, recibo 400 VALIDACION_FALLIDA.
+- Si el producto no existe, recibo 404.
+- Actualizarlo no cambia su estado: si estaba inactivo, sigue inactivo.
+
+Backend: tarea B2. Frontend: tarea F3.","sprint-1","hector",""
+"HIS-5","Story","Historia 5 - Desactivar producto","EP-HIS","Medium","Como administrador, quiero desactivar un producto que ya no se vende, para que no aparezca en el catalogo.
+
+Criterios de aceptacion:
+- Queda marcado como inactivo y deja de aparecer en el listado.
+- El registro no se borra fisicamente.
+- Si ya estaba inactivo, responde con exito sin cambiar nada ni publicar otro evento.
+- Si el producto no existe, recibo 404.
+
+Backend: tarea B3. Frontend: tarea F3.","sprint-1","jhon",""
+"HIS-6","Story","Historia 6 - Listar categorias","EP-HIS","Low","Como cliente o administrador, quiero ver las categorias disponibles, para filtrar productos o clasificar uno nuevo.
+
+Criterios de aceptacion:
+- Recibo el id y el nombre de cada categoria.
+- Las categorias vienen precargadas; en esta entrega solo se listan.
+
+TERMINADA en la tarea B1, ya en main.","sprint-1","rances",""
+"HIS-7","Story","Historia 7 - Reactivar producto","EP-HIS","Medium","Como administrador, quiero volver a activar un producto que habia desactivado, para ponerlo de nuevo a la venta sin crearlo otra vez.
+
+Criterios de aceptacion:
+- Queda marcado como activo y vuelve a aparecer en el listado.
+- Sus demas datos no cambian.
+- Si ya estaba activo, responde con exito sin cambiar nada.
+- Si el producto no existe, recibo 404.
+
+Nueva en el contrato v2.3. La pidio tambien el equipo A, que necesita el evento de reactivacion.
+Backend: tarea B2. Frontend: tarea F3.","sprint-1","hector",""
+"HIS-8","Story","Historia 8 - Ver los productos desactivados","EP-HIS","Medium","Como administrador, quiero ver tambien los productos que desactive, para poder encontrarlos y reactivarlos.
+
+Criterios de aceptacion:
+- Cuando consulto el listado pidiendo los inactivos, los recibo paginados igual que los activos.
+- Si no pido nada, el listado sigue devolviendo solo los activos, como antes.
+
+Nueva en el contrato v2.3.
+Backend: tarea B3. Frontend: tarea F3.","sprint-1","jhon",""
+"TAR-B1","Task","B1 - Base del proyecto","EP-BAC","Highest","Esqueleto de Spring Boot, conexion a MongoDB con Docker, modelos Producto y Categoria, carga de categorias, GET /categorias y manejo global de errores con el formato del contrato.
+
+TERMINADA y en main (pull requests #1 y #2).","sprint-1","rances","backend"
+"TAR-B2","Task","B2 - Escritura de productos","EP-BAC","High","Rama: b2-escritura. Historias 1, 4 y 7.
+
+Entrega:
+- POST /productos -> 201 con el producto creado
+- PUT /productos/{id} -> 200 con el producto actualizado
+- POST /productos/{id}/activar -> 200, idempotente
+- POST /productos/descontar-stock -> 200 o 409 STOCK_INSUFICIENTE
+
+El descuento de stock va en un pull request aparte: es la parte mas delicada.
+
+Guia paso a paso, con el codigo ya probado: docs/guias/B2-ESCRITURA.md","sprint-1","hector","backend"
+"TAR-B3","Task","B3 - Lectura y borrado","EP-BAC","High","Rama: b3-lectura. Historias 2, 3, 5 y 8.
+
+Entrega:
+- GET /productos con paginacion, filtro por categoria y parametro activo
+- GET /productos/{id}, que devuelve tambien los inactivos
+- DELETE /productos/{id} -> 204, idempotente
+
+Guia paso a paso, con el codigo ya probado: docs/guias/B3-LECTURA.md","sprint-1","jhon","backend"
+"TAR-B4","Task","B4 - Infraestructura y eventos","EP-BAC","High","Rama: b4-infra. Conviene dividirla en cinco pull requests: eventos, Docker, Swagger, Eureka y Kong.
+
+Entrega:
+- RabbitMQ: exchange topic catalogo.eventos con las cuatro routing keys
+- Dockerfile y docker-compose con el servicio, Mongo y RabbitMQ
+- Registro en Eureka y ruta en Kong con strip_path
+- Swagger con springdoc 3.1.1
+
+Los eventos esperan a que B2 y B3 esten en main.
+
+Guia paso a paso, con todo verificado: docs/guias/B4-INFRAESTRUCTURA.md","sprint-1","cristian","backend"
+"TAR-F1","Task","F1 - Base del modulo de frontend","EP-FRO","High","Rama: f1-base. Repositorio teambsoft-frontend.
+
+Entrega: proyecto Vite + Vue 3, Vue Router, cliente HTTP con la URL base en VITE_API_URL, y los cinco estados compartidos.
+
+BLOQUEA a F2 y F3: es lo primero del frontend que tiene que entrar a main.
+
+Guia paso a paso, con el codigo ya probado: docs/guias/F1-BASE.md","sprint-1","juandiego","frontend"
+"TAR-F2","Task","F2 - Vistas de lectura","EP-FRO","Medium","Rama: f2-lectura. Historias 2 y 3.
+
+Entrega: listado con rejilla, filtro por categoria y paginacion que empieza en 1; y vista de detalle que muestra los productos retirados como no disponibles.
+
+Depende de F1.
+
+Guia paso a paso, con el codigo ya probado: docs/guias/F2-LECTURA.md","sprint-1","roger","frontend"
+"TAR-F3","Task","F3 - Vistas de administracion","EP-FRO","Medium","Rama: f3-admin. Historias 1, 4, 5, 7 y 8.
+
+Entrega: tabla de administracion con los filtros de estado, formulario de creacion y edicion, confirmacion antes de retirar, y reactivar.
+
+Depende de F1 y de F2 (usa sus utilidades de formato).
+
+Guia paso a paso, con el codigo ya probado: docs/guias/F3-ADMINISTRACION.md","sprint-1","carlos","frontend"
+"TAR-H1","Task","H1 - Cascaron del Host App","EP-HOS","Highest","Rama: h1-cascaron. Repositorio teambsoft-hostapp.
+
+Entrega: proyecto Vite + Vue 3 con encabezado, menu, enrutador, los espacios de cada modulo y las variables de estilo del contrato del Host App.
+
+Etapa 1: composicion por rutas (obligatoria). Etapa 2: Module Federation, solo si hay tiempo.
+
+PRIORIDAD MAXIMA: de esta tarea dependen los equipos A y C para integrar sus modulos.","sprint-1","rances","hostapp"
+"TAR-INV","Task","Invitar a los equipos A y C al repositorio del Host App","EP-HOS","High","Necesitan acceso de escritura para leer el contrato de integracion y registrar su modulo en el enrutador con un pull request.
+
+BLOQUEADO: faltan los usuarios de GitHub de los equipos A y C.","sprint-1","rances","coordinacion"
+"TAR-INF","Task","Decidir quien opera Kong y el servidor de Eureka","EP-HOS","Highest","Los tres contratos dicen que el trafico pasa por Kong y ninguno dice quien lo levanta. El servidor de Eureka tampoco tiene dueno.
+
+Es infraestructura compartida: un Kong por equipo no es una puerta de entrada, son tres. Propuesta: que el equipo A o el C la tome, ya que el equipo B asumio el Host App.
+
+Mientras se decide, cada equipo levanta el suyo en local para desarrollar.","sprint-1","rances","coordinacion"
+"TAR-C23","Task","Contrato de servicio v2.3","EP-DOC","High","Revision cruzada con los contratos de Busqueda v1.0 y Carrito v1.1. Eventos con descripcion y stock, evento producto.reactivado, endpoints de activar y descontar-stock, parametro activo y codigo STOCK_INSUFICIENTE.
+
+TERMINADA, en main (pull request #6).","sprint-1","rances","documentacion"
+"TAR-CHA","Task","Contrato del Host App v1.0","EP-DOC","High","Superficie de integracion entre el cascaron y los modulos: espacio de rutas, que expone cada modulo, que entrega el cascaron, variables de estilo y la regla de que cada modulo debe funcionar solo.
+
+TERMINADA, en el repositorio teambsoft-hostapp.","sprint-1","rances","documentacion"
+"TAR-GUI","Task","Guias paso a paso para los cinco companeros","EP-DOC","High","Seis guias en docs/guias/ con el codigo ya probado, el arbol de archivos, como verificar cada paso y una tabla de errores comunes.
+
+TERMINADA (pull request #7).","sprint-1","rances","documentacion"
+"TAR-AVI","Task","Avisar a los equipos A y C del contrato v2.3","EP-DOC","Highest","El equipo A sigue trabajando contra nuestro v2.0: no sabe que ya se les resolvio la descripcion en los eventos, que marcaron como bloqueante, ni conoce el nombre del exchange al que debe suscribirse.
+
+URGENTE: cada dia que pasa es trabajo suyo hecho contra un contrato viejo.","sprint-1","rances","coordinacion"
+"TAR-PRO","Task","Proteger la rama main en los tres repositorios","EP-DOC","Medium","Regla que exige pull request con una aprobacion, y bloquea el borrado y la reescritura de historial de main.
+
+Pendiente en teambsoft-backend, teambsoft-frontend y teambsoft-hostapp.","sprint-1","rances","coordinacion"
+"TAR-CAR","Task","Decidir donde vive el boton Agregar al carro","EP-DOC","Low","Pendiente entre los 3 equipos: si lo pinta el modulo de Catalogo y emite un evento, o si el Host App monta ahi un componente del modulo de Carro.
+
+Mientras tanto, el modulo de Catalogo deja el espacio reservado.","sprint-1","rances","coordinacion"

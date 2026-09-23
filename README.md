@@ -11,16 +11,15 @@
 
 Catálogo es la **fuente de verdad de los productos** de la tienda virtual. Expone un CRUD de productos por REST (a través de Kong) y publica eventos en RabbitMQ para que los demás servicios se mantengan sincronizados.
 
-## Los dos repositorios
-
-El módulo de Catálogo está repartido en dos repositorios, uno por frente de trabajo:
+## Los tres repositorios
 
 | Repositorio | Qué contiene | Quién trabaja ahí |
 |---|---|---|
-| **teambsoft-backend** (este) | El microservicio en Spring Boot y la documentación del módulo | B1 a B4 |
-| [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) | El módulo de frontend en Vue.js | F1 a F3 |
+| **teambsoft-backend** (este) | El microservicio en Spring Boot y **toda la documentación** | B1 a B4 |
+| [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) | El módulo de frontend en Vue.js y sus mockups | F1 a F3 |
+| [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp) | El cascarón donde se montan los módulos de los 3 equipos | H1 |
 
-El contrato, las historias y la arquitectura viven **solo en este repositorio**, para que no existan dos versiones distintas de un acuerdo; el repositorio del frontend los enlaza.
+**Toda la documentación vive aquí**, para que no existan dos versiones distintas de un mismo acuerdo. Los otros dos repositorios la enlazan.
 
 ## Arquitectura
 
@@ -39,32 +38,64 @@ El detalle de las capas internas está en [ARQUITECTURA-CATALOGO.md](docs/ARQUIT
 
 ## Documentación
 
-**¿Eres del equipo y vas a empezar?** Lee en este orden: [guía de inicio](GUIA-INICIO.md) → [plan de trabajo](PLAN-DE-TRABAJO.md) → [guía de git](GUIA-GIT.md).
+**¿Eres del equipo y vas a empezar?** Lee en este orden: [guía de inicio](docs/guias/GUIA-INICIO.md) → [plan de trabajo](docs/PLAN-DE-TRABAJO.md) → [guía de git](docs/guias/GUIA-GIT.md).
 
-| Documento | Contenido |
+### Acuerdos y diseño
+
+Lo que manda. Si el código contradice a alguno de estos, el equivocado es el código.
+
+| Documento | Versión | Contenido |
+|---|---|---|
+| [Contrato de servicio](docs/CONTRATO-CATALOGO.md) | v2.3 | Endpoints, modelos, errores y eventos acordados con los equipos A y C |
+| [Contrato del Host App](https://github.com/rancesra/teambsoft-hostapp/blob/main/CONTRATO-HOSTAPP.md) | v1.0 | Cómo se integra cada módulo al cascarón: rutas, qué expone cada uno y estilo compartido |
+| [Historias de usuario](docs/HISTORIAS.md) | v1.2 | Las 8 historias con sus criterios de aceptación |
+| [Arquitectura](docs/ARQUITECTURA-CATALOGO.md) | v1.5 | Stack, capas internas y decisiones de diseño |
+| [Plan de trabajo](docs/PLAN-DE-TRABAJO.md) | — | Qué hace cada integrante, en qué orden y cómo verificarlo |
+| [Informe del Sprint 0](docs/INFORME-SPRINT-0.md) | — | Entregado. La foto del proyecto al cerrar el sprint anterior |
+
+### Guías para trabajar
+
+| Guía | Para quién |
 |---|---|
-| [Contrato de servicio](docs/CONTRATO-CATALOGO.md) | Endpoints, modelos, errores y eventos acordados con los equipos A y C (v2.3) |
-| [Contrato del Host App](https://github.com/rancesra/teambsoft-hostapp/blob/main/CONTRATO-HOSTAPP.md) | Cómo se integra cada módulo al cascarón: rutas, qué expone cada uno y estilo compartido |
-| [Historias de usuario](docs/HISTORIAS.md) | Backlog con criterios de aceptación |
-| [Arquitectura](docs/ARQUITECTURA-CATALOGO.md) | Stack, capas internas y decisiones de diseño |
-| [Guía de inicio](GUIA-INICIO.md) | Instalar las herramientas y dejar el proyecto corriendo (Windows) |
-| [Plan de trabajo](PLAN-DE-TRABAJO.md) | Qué hace cada integrante, en qué orden y cómo verificarlo |
-| [Guía de git](GUIA-GIT.md) | Cómo trabajar en equipo con ramas y pull requests |
-| [Mockup del frontend](docs/mockup-frontend-catalogo.html) | Las vistas del módulo Catálogo con las reglas del contrato (se abre en el navegador) |
+| [Guía de inicio](docs/guias/GUIA-INICIO.md) | Todos: instalar las herramientas y dejar el proyecto corriendo (Windows) |
+| [Guía de git](docs/guias/GUIA-GIT.md) | Todos: ramas, commits, pull requests y conflictos |
+| [Guía de Jira](docs/guias/JIRA.md) | Todos: el tablero, los estados y la clave del ticket en las ramas |
+| [B2 — Escritura](docs/guias/B2-ESCRITURA.md) | Hector: `POST`, `PUT`, activar y descontar stock |
+| [B3 — Lectura y borrado](docs/guias/B3-LECTURA.md) | Jhon: listado con filtros, detalle y `DELETE` |
+| [B4 — Infraestructura](docs/guias/B4-INFRAESTRUCTURA.md) | Cristian: RabbitMQ, Docker, Eureka, Kong y Swagger |
+| [F1 — Base del frontend](docs/guias/F1-BASE.md) | Juan Diego: proyecto Vue, enrutador, cliente HTTP y estados |
+| [F2 — Vistas de lectura](docs/guias/F2-LECTURA.md) | Roger: listado y detalle |
+| [F3 — Administración](docs/guias/F3-ADMINISTRACION.md) | Carlos: crear, editar, retirar y reactivar |
+
+Cada guía trae el código **ya probado**, el árbol de archivos, cómo verificar cada paso y una tabla de errores comunes.
+
+### Diseño del frontend
+
+| Documento | Dónde |
+|---|---|
+| [Mockup del módulo en el Host App](https://github.com/rancesra/teambsoft-frontend/blob/main/docs/mockup-catalogo-hostapp.html) | Repo de frontend. Qué lleva cada pantalla y por qué |
+| [Propuesta visual](https://github.com/rancesra/teambsoft-frontend/blob/main/docs/propuesta-visual-catalogo.html) | Repo de frontend. Cómo se ve, con las variables de estilo compartidas |
+| [Mockup del Sprint 0](docs/mockup-frontend-catalogo.html) | Aquí. La primera versión, que cita el informe |
+
+Los mockups son HTML: GitHub los muestra como código, hay que abrirlos en el navegador desde tu copia.
 
 ## Estructura del repositorio
 
 ```
-├── src/                 Código del microservicio (Spring Boot)
-├── docs/                Documentación del proyecto y mockup del frontend
-├── docker-compose.yml   MongoDB para desarrollo
-├── pom.xml              Dependencias y compilación (Maven)
-├── GUIA-INICIO.md       Instalación y primer arranque
-├── PLAN-DE-TRABAJO.md   Tareas del equipo
-└── GUIA-GIT.md          Cómo trabajar con git
+├── src/                     Código del microservicio (Spring Boot)
+├── pom.xml                  Dependencias y compilación (Maven)
+├── docker-compose.yml       MongoDB para desarrollo
+└── docs/                    Toda la documentación
+    ├── CONTRATO-CATALOGO.md
+    ├── HISTORIAS.md
+    ├── ARQUITECTURA-CATALOGO.md
+    ├── PLAN-DE-TRABAJO.md
+    ├── INFORME-SPRINT-0.md
+    ├── diagrama-sistema.jpeg
+    └── guias/               Una guía por tarea, más git, inicio y Jira
 ```
 
-La raíz del repositorio es la raíz del proyecto Maven: `./mvnw` se ejecuta desde aquí.
+**La raíz del repositorio es la raíz del proyecto Maven** (`./mvnw` se ejecuta desde aquí) y `docs/` es todo lo demás. Nada de documentación en la raíz, salvo este README.
 
 ## Cómo ejecutar el backend
 

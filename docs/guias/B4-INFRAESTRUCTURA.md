@@ -20,7 +20,7 @@ Los comandos son para **PowerShell**, en la terminal de VS Code.
 
 ## 1. Antes de empezar
 
-1. Necesitas **JDK 21, Docker Desktop y VS Code** ([guía de inicio](../../GUIA-INICIO.md) §1), y haber aceptado la invitación de GitHub.
+1. Necesitas **JDK 21, Docker Desktop y VS Code** ([guía de inicio](GUIA-INICIO.md) §1), y haber aceptado la invitación de GitHub.
 
 2. Trae lo último y crea tu rama:
 

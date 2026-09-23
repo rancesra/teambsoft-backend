@@ -5,7 +5,7 @@ Paso a paso para trabajar en el repositorio sin pisar el trabajo de los demás: 
 **Orden de lectura para empezar:**
 
 1. [Guía de inicio](GUIA-INICIO.md): instalar las herramientas y clonar el repo.
-2. [Plan de trabajo](PLAN-DE-TRABAJO.md): qué te toca y en qué rama.
+2. [Plan de trabajo](../PLAN-DE-TRABAJO.md): qué te toca y en qué rama.
 3. Esta guía: cómo trabajar con git día a día.
 
 Todos los comandos son para **PowerShell** (la terminal de VS Code en Windows) y se ejecutan desde la carpeta del repo, por ejemplo `C:\dev\teambsoft-backend`.
@@ -26,7 +26,7 @@ Todos los comandos son para **PowerShell** (la terminal de VS Code en Windows) y
 
 ## Las 5 reglas
 
-1. **Nunca trabajes en `main`.** Cada tarea tiene su propia rama (ver el [plan](PLAN-DE-TRABAJO.md)).
+1. **Nunca trabajes en `main`.** Cada tarea tiene su propia rama (ver el [plan](../PLAN-DE-TRABAJO.md)).
 2. **Trae lo nuevo de `main` al empezar el día y antes de subir** (`git pull origin main`).
 3. **Haz commits pequeños**, con mensajes que digan qué hiciste.
 4. **Antes de subir, comprueba que compila y que pasan las pruebas.**
@@ -130,7 +130,7 @@ git push
 
 ## 5. Terminar la tarea: el pull request
 
-**Antes de abrirlo**, revisa la "Definición de terminado" del [plan](PLAN-DE-TRABAJO.md): compila, pasan las pruebas, lo probaste contra el contrato y marcaste tu casilla en el README. Luego haz el paso 4 una última vez.
+**Antes de abrirlo**, revisa la "Definición de terminado" del [plan](../PLAN-DE-TRABAJO.md): compila, pasan las pruebas, lo probaste contra el contrato y marcaste tu casilla en el README. Luego haz el paso 4 una última vez.
 
 **Abrir el PR:**
 
