@@ -1,6 +1,6 @@
 # Guía de S2-C — Pruebas automáticas y verificación de F3
 
-**Para:** Carlos Andrés · **Tareas:** S2-C1 (pruebas con Vitest), S2-C2 (F3 sobre F2 integrado), S2-C3 (guion de F3 contra datos reales) · **Repositorio:** [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) · **Rama:** `s2-pruebas` · **Entrega:** viernes 30 de octubre
+**Para:** Carlos Andrés · **Tareas:** S2-C1 (pruebas con Vitest), S2-C2 (F3 sobre F2 integrado), S2-C3 (guion de F3 contra datos reales) · **Repositorio:** [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) · **Rama:** `s2-pruebas` · **Entrega:** viernes 22 de octubre
 
 Al terminar, el frontend tendrá sus primeras pruebas automáticas (formato de precios, nombre de categoría y la tarjeta de producto), y tu F3 habrá sido verificada sobre el código real de F2 y contra el backend completo.
 
