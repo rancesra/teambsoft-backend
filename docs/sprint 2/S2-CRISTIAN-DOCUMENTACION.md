@@ -1,6 +1,6 @@
 # Guía de S2-K — Documentación del backend (tarea de peso bajo)
 
-**Para:** Cristian Rivera · **Tareas:** S2-K1 (README del backend), S2-K2 (ejemplos de la API), S2-K3 (opcional: probar B4 desde cero) · **Repositorio:** [teambsoft-backend](https://github.com/rancesra/teambsoft-backend) · **Rama:** `s2-docs-backend` · **Entrega:** viernes 30 de octubre
+**Para:** Cristian Rivera · **Tareas:** S2-K1 (README del backend), S2-K2 (ejemplos de la API), S2-K3 (opcional: probar B4 desde cero) · **Repositorio:** [teambsoft-backend](https://github.com/rancesra/teambsoft-backend) · **Rama:** `s2-docs-backend` · **Entrega:** viernes 22 de octubre
 
 > **Peso bajo, y no bloquea nada.** Ninguna otra tarea depende de esta. Si algo no queda terminado, el sprint se considera cumplido igual. Haz lo que alcances, en el orden de abajo.
 
