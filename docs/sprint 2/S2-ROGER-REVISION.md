@@ -1,6 +1,6 @@
 # Guía de S2-R — Revisión y pruebas manuales (tarea de peso bajo)
 
-**Para:** Roger Sergio · **Tareas:** S2-R1 (probar las vistas de lectura), S2-R2 (revisar los textos en español), S2-R3 (opcional: segunda mirada al PR de F2) · **Repositorio:** [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) · **Rama:** `s2-revision` (solo si cambias archivos) · **Entrega:** viernes 30 de octubre
+**Para:** Roger Sergio · **Tareas:** S2-R1 (probar las vistas de lectura), S2-R2 (revisar los textos en español), S2-R3 (opcional: segunda mirada al PR de F2) · **Repositorio:** [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) · **Rama:** `s2-revision` (solo si cambias archivos) · **Entrega:** viernes 22 de octubre
 
 > **Peso bajo, y no bloquea nada.** Ninguna otra tarea depende de esta, y no tienes que modificar código para cumplirla. Si algo no queda terminado, el sprint se considera cumplido igual. Haz lo que alcances, en el orden de abajo.
 
