@@ -1,6 +1,6 @@
 # Guía de S2-J — Estilos, Host App y revisión de F2
 
-**Para:** Juan Diego · **Tareas:** S2-J1 (auditoría de colores), S2-J2 (módulo dentro del Host App), S2-J3 (revisión del PR de F2) · **Repositorio:** [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) · **Rama:** `s2-integracion` · **Entrega:** viernes 30 de octubre
+**Para:** Juan Diego · **Tareas:** S2-J1 (auditoría de colores), S2-J2 (módulo dentro del Host App), S2-J3 (revisión del PR de F2) · **Repositorio:** [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) · **Rama:** `s2-integracion` · **Entrega:** viernes 22 de octubre
 
 Al terminar, el módulo de Catálogo respetará de verdad las variables de estilo del contrato con el Host App, se habrá probado corriendo dentro del cascarón, y el PR de F2 de Rances habrá pasado una revisión con criterios claros.
 
