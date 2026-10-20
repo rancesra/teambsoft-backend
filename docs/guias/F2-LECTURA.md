@@ -56,6 +56,8 @@ Los componentes de estados (`CargandoTarjetas`, `EstadoVacio`, `MensajeError`, `
 
 ## 3. `src/utilidades/formato.js`
 
+> **Este archivo ya existe en `main`: lo creó Carlos en F3.** No lo vuelvas a crear ni lo reemplaces por el de abajo — úsalo tal cual. Si lo sobrescribes, tu pull request va a cambiar el código de otro sin necesidad. Las dos versiones formatean los precios igual; el código de abajo queda solo para que entiendas qué hace.
+
 Dos funciones que usan tus dos vistas y también las de Carlos (F3). Van en un archivo aparte para que el precio se vea igual en todas partes.
 
 ```js
@@ -781,4 +783,4 @@ git push
 
 ---
 
-_Última actualización: 2026-09-23_
+_Última actualización: 2026-10-03 — `formato.js` ya existe en `main` (lo creó F3)_
