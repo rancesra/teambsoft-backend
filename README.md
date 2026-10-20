@@ -47,11 +47,12 @@ Lo que manda. Si el código contradice a alguno de estos, el equivocado es el c�
 | Documento | Versión | Contenido |
 |---|---|---|
 | [Contrato de servicio](docs/CONTRATO-CATALOGO.md) | v2.3 | Endpoints, modelos, errores y eventos acordados con los equipos A y C |
-| [Contrato del Host App](https://github.com/rancesra/teambsoft-hostapp/blob/main/CONTRATO-HOSTAPP.md) | v1.0 | Cómo se integra cada módulo al cascarón: rutas, qué expone cada uno y estilo compartido |
+| [Contrato del Host App](https://github.com/rancesra/teambsoft-hostapp/blob/main/CONTRATO-HOSTAPP.md) | v1.1 | Cómo se integra cada módulo al cascarón: rutas, qué expone cada uno y estilo compartido |
 | [Historias de usuario](docs/HISTORIAS.md) | v1.2 | Las 8 historias con sus criterios de aceptación |
 | [Arquitectura](docs/ARQUITECTURA-CATALOGO.md) | v1.5 | Stack, capas internas y decisiones de diseño |
 | [Plan de trabajo](docs/PLAN-DE-TRABAJO.md) | — | Qué hace cada integrante, en qué orden y cómo verificarlo |
-| [Informe del Sprint 0](docs/INFORME-SPRINT-0.md) | — | Entregado. La foto del proyecto al cerrar el sprint anterior |
+| [Informe del Sprint 1](docs/INFORME-SPRINT-1.md) | 1.0 | Lo construido en el Sprint 1: CRUD completo, frontend de administración y Host App |
+| [Informe del Sprint 0](docs/INFORME-SPRINT-0.md) | 1.0 | Entregado. Historias, contrato, arquitectura y la base del servicio |
 
 ### Guías para trabajar
 
@@ -91,6 +92,7 @@ Los mockups son HTML: GitHub los muestra como código, hay que abrirlos en el na
     ├── ARQUITECTURA-CATALOGO.md
     ├── PLAN-DE-TRABAJO.md
     ├── INFORME-SPRINT-0.md
+    ├── INFORME-SPRINT-1.md
     ├── diagrama-sistema.jpeg
     └── guias/               Una guía por tarea, más git, inicio y Jira
 ```
@@ -119,15 +121,15 @@ Para comprobar que todo funciona, abre http://localhost:8080/actuator/health: de
 - [x] Esqueleto del backend
 - [x] Conexión a MongoDB con Docker
 - [x] Manejo de errores con el formato del contrato
-- [ ] Historia 1 — Registrar producto
-- [ ] Historia 2 — Listar productos
-- [ ] Historia 3 — Ver detalle de un producto
-- [ ] Historia 4 — Actualizar producto
-- [ ] Historia 5 — Desactivar producto
+- [x] Historia 1 — Registrar producto
+- [x] Historia 2 — Listar productos
+- [x] Historia 3 — Ver detalle de un producto
+- [x] Historia 4 — Actualizar producto
+- [x] Historia 5 — Desactivar producto
 - [x] Historia 6 — Listar categorías
-- [ ] Historia 7 — Reactivar producto
-- [ ] Historia 8 — Ver los productos desactivados
-- [ ] Descuento de stock en el checkout
+- [x] Historia 7 — Reactivar producto
+- [x] Historia 8 — Ver los productos desactivados
+- [x] Descuento de stock en el checkout
 - [ ] Publicación de eventos en RabbitMQ
 - [ ] Registro en Eureka
 - [ ] Integración con Kong

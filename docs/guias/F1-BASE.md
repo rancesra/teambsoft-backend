@@ -309,13 +309,16 @@ const sinConexion = () =>
   })
 
 async function pedir(metodo, ruta, cuerpo) {
+  // El cuerpo solo se agrega cuando hay uno: un GET con "body", aunque vaya vacío, es inválido.
+  const opciones = { method: metodo, headers: {} }
+  if (cuerpo !== undefined) {
+    opciones.headers['Content-Type'] = 'application/json'
+    opciones.body = JSON.stringify(cuerpo)
+  }
+
   let respuesta
   try {
-    respuesta = await fetch(`${BASE}${ruta}`, {
-      method: metodo,
-      headers: cuerpo === undefined ? {} : { 'Content-Type': 'application/json' },
-      body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo),
-    })
+    respuesta = await fetch(`${BASE}${ruta}`, opciones)
   } catch {
     // fetch solo falla así cuando no hubo respuesta: servidor apagado o sin red.
     throw sinConexion()
@@ -900,4 +903,4 @@ git push
 
 ---
 
-_Última actualización: 2026-09-23_
+_Última actualización: 2026-10-03 — el cliente de la API ya no pasa `body` en los GET, que el revisor de código marcaba como error_
