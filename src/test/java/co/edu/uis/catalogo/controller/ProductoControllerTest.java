@@ -19,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+
 import co.edu.uis.catalogo.dto.DescuentoStockResponse;
 import co.edu.uis.catalogo.dto.ProductoResponse;
 import co.edu.uis.catalogo.error.ProductoNoEncontradoException;
@@ -37,6 +39,9 @@ class ProductoControllerTest {
 
 	@MockitoBean
 	private ProductoService productoService;
+
+	@MockitoBean
+	private RabbitTemplate rabbitTemplate;
 
 	private static final String CUERPO_VALIDO = """
 			{"nombre":"Camiseta","descripcion":"Algodón","precio":49900,

@@ -1,16 +1,76 @@
-# Entorno de desarrollo. Se levanta con "docker compose up -d" desde la carpeta backend.
+# Levanta el microservicio con sus dos dependencias. Para desarrollo del día a día basta con
+# "docker compose up -d mongo rabbitmq" y correr la aplicación desde VS Code.
+
 services:
   mongo:
-    # Versión fijada: MongoDB 8 no arranca con el kernel actual de Docker Desktop (ver ARQUITECTURA §5).
     image: mongo:7.0
     container_name: catalogo-mongo
     ports:
-      # Solo accesible desde tu propio computador (127.0.0.1): en desarrollo, Mongo no tiene contraseña.
-      - "127.0.0.1:27017:27017"
+      # Solo a 127.0.0.1: la base no queda expuesta a la red de la universidad.
+      - "127.0.0.1:27018:27017"
     volumes:
-      # Los datos viven en un volumen de Docker y sobreviven aunque se borre el contenedor.
-      # "docker compose down -v" borra el volumen, y con él todos los datos.
-      - mongo-data:/data/db
+      - mongo-datos:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: catalogo-rabbit
+    hostname: catalogo-rabbit
+    # Sin esto, en algunas versiones de Docker el contenedor arranca como root, Erlang escribe su
+    # cookie con permisos de root y el proceso, que corre como rabbitmq, no la puede leer.
+    user: rabbitmq
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    volumes:
+      - rabbit-datos:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  catalogo:
+    build: .
+    container_name: catalogo-servicio
+    ports:
+      - "8080:8080"
+    environment:
+      # Dentro de la red de Docker, los servicios se llaman por su nombre, no por localhost:
+      # "localhost" dentro de un contenedor es ese mismo contenedor.
+      SPRING_MONGODB_URI: mongodb://mongo:27017/catalogo
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_ENABLED: "false"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # --- Infraestructura del ecosistema ---------------------------------------------------------
+  # Kong es la única puerta de entrada al sistema: todo el tráfico del cliente pasa por aquí.
+  # Ojo: es infraestructura COMPARTIDA con los equipos A y C. Está aquí para poder desarrollar y
+  # probar Catálogo solo; cuando se decida quién opera el Kong del sistema, esto se mueve allá.
+  kong:
+    image: kong:3.9
+    container_name: catalogo-kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    volumes:
+      - ./kong:/kong:ro
+    ports:
+      - "8000:8000"
+      - "127.0.0.1:8001:8001"
+    depends_on:
+      - catalogo
 
 volumes:
-  mongo-data:
+  mongo-datos:
+  rabbit-datos:

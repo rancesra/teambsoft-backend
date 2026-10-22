@@ -1,0 +1,27 @@
+# Configuración declarativa de Kong (modo sin base de datos). Kong lee este archivo al arrancar;
+# no hay panel ni estado que mantener, y el enrutamiento queda versionado en el repositorio.
+_format_version: "3.0"
+
+services:
+  - name: catalogo
+    # Dentro de la red de Docker, el nombre del servicio del compose.
+    url: http://catalogo:8080
+
+    routes:
+      - name: catalogo-ruta
+        paths:
+          - /api/catalogo
+        # strip_path quita el prefijo antes de reenviar: /api/catalogo/productos llega al
+        # servicio como /productos. Por eso los controllers no llevan el prefijo.
+        strip_path: true
+
+    plugins:
+      - name: cors
+        config:
+          # En desarrollo, el frontend corre en el 5173 (Vite). Cuando el Host App tenga su
+          # dirección definitiva, se agrega aquí.
+          origins:
+            - http://localhost:5173
+          methods: [GET, POST, PUT, DELETE, OPTIONS]
+          headers: [Content-Type, Authorization]
+          credentials: true

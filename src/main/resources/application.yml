@@ -1,26 +1,44 @@
 spring:
   application:
-    # Nombre del servicio. Con este nombre se registrará en Eureka.
+    # Nombre del servicio. Con este nombre se registrarÃ¡ en Eureka.
     name: catalogo
   mongodb:
-    # Conexión a MongoDB. En Boot 4 va en spring.mongodb (en Boot 3 era spring.data.mongodb).
+    # ConexiÃ³n a MongoDB. En Boot 4 va en spring.mongodb (en Boot 3 era spring.data.mongodb).
     # Dentro de Docker se puede reemplazar con la variable de entorno SPRING_MONGODB_URI.
     uri: mongodb://localhost:27017/catalogo
   data:
     mongodb:
-      # Crea al arrancar los índices declarados en las entidades (@CompoundIndex de Producto).
+      # Crea al arrancar los Ã­ndices declarados en las entidades (@CompoundIndex de Producto).
       auto-index-creation: true
       representation:
         # Guarda los BigDecimal (el precio) como Decimal128, el decimal exacto de MongoDB.
-        # Desde Spring Data MongoDB 5 no hay valor por defecto: sin esta línea, guardar un precio falla.
+        # Desde Spring Data MongoDB 5 no hay valor por defecto: sin esta lÃ­nea, guardar un precio falla.
         big-decimal: decimal128
+  rabbitmq:
+    # Bus de eventos. Dentro de Docker el host es el nombre del servicio (rabbitmq), no localhost:
+    # se cambia con la variable de entorno SPRING_RABBITMQ_HOST.
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 server:
   port: 8080
+
+eureka:
+  client:
+    service-url:
+      # DÃ³nde vive el registro. Dentro de Docker es el nombre del servicio; se cambia con la
+      # variable de entorno EUREKA_CLIENT_SERVICEURL_DEFAULTZONE.
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    # Se anuncia por IP y no por el nombre de la mÃ¡quina: dentro de Docker el hostname es un
+    # identificador que nadie mÃ¡s puede resolver.
+    prefer-ip-address: true
 
 management:
   endpoint:
     health:
       # Muestra en /actuator/health el estado de cada componente (por ejemplo, mongo).
-      # Útil en desarrollo; hay que restringirlo antes de exponer el servicio a través de Kong.
+      # Ãštil en desarrollo; hay que restringirlo antes de exponer el servicio a travÃ©s de Kong.
       show-details: always
