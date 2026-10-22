@@ -1,0 +1,10 @@
+﻿
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+  mongodb:
+    uri: mongodb://localhost:27017/catalogo-test
+  data:
+    mongodb:
+      auto-index-creation: true

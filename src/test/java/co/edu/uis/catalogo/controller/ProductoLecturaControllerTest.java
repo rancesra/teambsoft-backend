@@ -22,6 +22,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+
 import co.edu.uis.catalogo.dto.ProductoListadoResponse;
 import co.edu.uis.catalogo.dto.ProductoResponse;
 import co.edu.uis.catalogo.error.ProductoNoEncontradoException;
@@ -44,6 +46,9 @@ class ProductoLecturaControllerTest {
 
 	@MockitoBean
 	private ProductoService productoService;
+
+	@MockitoBean
+	private RabbitTemplate rabbitTemplate;
 
 	private static final ProductoResponse PRODUCTO_ACTIVO = new ProductoResponse("prod-1", "Camiseta",
 			"Algodón", new BigDecimal("49900"), "cat-ropa", 120, List.of(), true);

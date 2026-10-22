@@ -18,6 +18,7 @@ import co.edu.uis.catalogo.dto.ProductoResponse;
 import co.edu.uis.catalogo.error.ProductoNoEncontradoException;
 import co.edu.uis.catalogo.error.StockInsuficienteException;
 import co.edu.uis.catalogo.error.ValidacionFallidaException;
+import co.edu.uis.catalogo.evento.PublicadorEventos;
 import co.edu.uis.catalogo.model.Producto;
 import co.edu.uis.catalogo.repository.CategoriaRepository;
 import co.edu.uis.catalogo.repository.ProductoRepository;
@@ -41,11 +42,15 @@ public class ProductoService {
 	/** Para el descuento atómico de stock, que MongoRepository no sabe hacer. */
 	private final ProductoStockRepository productoStockRepository;
 
+	/** Avisa a Búsqueda y a Carro de cada cambio del catálogo (contrato, sección 5). */
+	private final PublicadorEventos publicadorEventos;
+
 	public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository,
-			ProductoStockRepository productoStockRepository) {
+			ProductoStockRepository productoStockRepository, PublicadorEventos publicadorEventos) {
 		this.productoRepository = productoRepository;
 		this.categoriaRepository = categoriaRepository;
 		this.productoStockRepository = productoStockRepository;
+		this.publicadorEventos = publicadorEventos;
 	}
 
 	/**
@@ -113,6 +118,7 @@ public class ProductoService {
 
 		producto.desactivar();
 		productoRepository.save(producto);
+		publicadorEventos.productoDesactivado(id);
 		return true;
 	}
 
@@ -123,7 +129,12 @@ public class ProductoService {
 		Producto producto = new Producto(datos.nombre(), datos.descripcion(), datos.precio(),
 				datos.categoria(), datos.stock(), datos.imagenes());
 
-		return ProductoResponse.desde(productoRepository.save(producto));
+		// El evento sale DESPUÉS de guardar: si el guardado falla, nadie debe enterarse de un producto
+		// que no existe.
+		Producto guardado = productoRepository.save(producto);
+		publicadorEventos.productoCreado(guardado);
+
+		return ProductoResponse.desde(guardado);
 	}
 
 	/**
@@ -137,7 +148,9 @@ public class ProductoService {
 		producto.actualizar(datos.nombre(), datos.descripcion(), datos.precio(), datos.categoria(),
 				datos.stock(), datos.imagenes());
 
-		return ProductoResponse.desde(productoRepository.save(producto));
+		Producto guardado = productoRepository.save(producto);
+		publicadorEventos.productoActualizado(guardado);
+		return ProductoResponse.desde(guardado);
 	}
 
 	/**
@@ -152,7 +165,9 @@ public class ProductoService {
 		}
 
 		producto.activar();
-		return ProductoResponse.desde(productoRepository.save(producto));
+		Producto guardado = productoRepository.save(producto);
+		publicadorEventos.productoReactivado(guardado);
+		return ProductoResponse.desde(guardado);
 	}
 
 	/**
@@ -161,6 +176,10 @@ public class ProductoService {
 	 * <p>La regla es <b>o pasa todo, o no pasa nada</b>. Como esta entrega corre un MongoDB de un solo
 	 * nodo, no hay transacciones entre documentos: si un ítem no alcanza, hay que devolver a mano lo que
 	 * ya se descontó. Por eso se va guardando en {@code descontados} lo que va saliendo bien.
+	 *
+	 * <p>Los eventos de actualización solo se publican después de que todos los descuentos hayan
+	 * terminado con éxito. Si algún descuento falla, se revierten los anteriores y no se publica
+	 * ningún evento para esa operación fallida.
 	 */
 	public DescuentoStockResponse descontarStock(DescuentoStockRequest peticion) {
 		validarSinRepetidos(peticion.items());
@@ -187,6 +206,11 @@ public class ProductoService {
 
 			descontados.add(item);
 			resultado.add(new DescuentoStockResponse.Item(item.id(), restante));
+		}
+
+		// Solo publicamos después de que todos los descuentos hayan tenido éxito.
+		for (DescuentoStockRequest.Item item : descontados) {
+			productoRepository.findById(item.id()).ifPresent(publicadorEventos::productoActualizado);
 		}
 
 		return new DescuentoStockResponse(resultado);

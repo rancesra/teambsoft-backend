@@ -37,4 +37,5 @@ build/
 # Los worktrees van dentro del repositorio: si se suben con "git add .", se cuela una copia
 # completa del proyecto al commit.
 .jho/
+.k/
 .kilo/
