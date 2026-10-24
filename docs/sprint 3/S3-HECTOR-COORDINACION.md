@@ -1,6 +1,6 @@
 # Guía de S3-H — Coordinación, protección de `main`, decisiones y cierre del Sprint 3
 
-**Para:** Hector Julian · **Rol:** Scrum Master · **Tareas:** S3-H1 (gestión del sprint), S3-H2 (proteger `main` y clave de Jira), S3-H3 (decisiones abiertas y variables de color del Host App), S3-H4 (prueba de integración de cierre) · **Repositorios:** [teambsoft-backend](https://github.com/rancesra/teambsoft-backend), [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp) y [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) · **Rama:** `s3-coordinacion` (una en cada repositorio que toques) · **Entrega:** jueves 29 de octubre
+**Para:** Hector Julian  · **Tareas:** S3-H1 (gestión del sprint), S3-H2 (proteger `main` y clave de Jira), S3-H3 (decisiones abiertas y variables de color del Host App), S3-H4 (prueba de integración de cierre) · **Repositorios:** [teambsoft-backend](https://github.com/rancesra/teambsoft-backend), [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp) y [teambsoft-frontend](https://github.com/rancesra/teambsoft-frontend) · **Rama:** `s3-coordinacion` (una en cada repositorio que toques) · **Entrega:** jueves 29 de octubre
 
 Al terminar, los tres repositorios tendrán `main` protegido, cada rama y commit llevará la clave de Jira, las decisiones que quedaron abiertas tendrán respuesta escrita, el contrato del Host App tendrá las variables de color nuevas (v1.2) y habrá una prueba de punta a punta con su resultado documentado.
 
