@@ -143,7 +143,7 @@ git push
 
 **Si el revisor pide cambios:** hazlos en tu misma rama, guárdalos con commit y haz `git push`. El PR se actualiza solo; no abras otro.
 
-**Cuando esté aprobado:** **Merge pull request → Confirm merge**, y después **Delete branch**. Avisa en el grupo que tu tarea entró a `main`, para que tus compañeros hagan `git pull origin main` en sus ramas.
+**Cuando esté aprobado:** **Merge pull request → Confirm merge**. **No pulses Delete branch:** la rama se queda en GitHub como evidencia de cómo se trabajó, y el profesor la revisa. Avisa en el grupo que tu tarea entró a `main`, para que tus compañeros hagan `git pull origin main` en sus ramas.
 
 **Para tu siguiente tarea**, vuelve al paso 1: siempre se empieza desde un `main` actualizado.
 
@@ -225,4 +225,4 @@ Si tu rama de tarea ya existía, o si ya subiste los commits a `main`, **no haga
 
 ---
 
-_Última actualización: 2026-09-11_
+_Última actualización: 2026-10-20 — las ramas ya no se borran al unir el PR_
