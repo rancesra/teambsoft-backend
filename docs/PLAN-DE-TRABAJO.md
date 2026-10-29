@@ -102,7 +102,7 @@ git switch b2-escritura
 git merge main
 ```
 
-**4. Al terminar**, abre el PR en GitHub: pestaña **Pull requests → New pull request**, con base `main` y compare tu rama. Otro integrante lo revisa; cuando lo aprueba, se hace **Merge** y se borra la rama.
+**4. Al terminar**, abre el PR en GitHub: pestaña **Pull requests → New pull request**, con base `main` y compare tu rama. Otro integrante lo revisa; cuando lo aprueba, se hace **Merge**. La rama **no se borra**: queda en GitHub como evidencia del trabajo.
 
 **Conflictos:** B2 y B3 agregan métodos a los mismos archivos (`ProductoService`, `ProductoController`). Es probable que al unir el segundo PR git marque un conflicto. Casi siempre la solución es conservar los métodos de los dos.
 
