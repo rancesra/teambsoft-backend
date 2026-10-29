@@ -51,6 +51,7 @@ Lo que manda. Si el código contradice a alguno de estos, el equivocado es el c�
 | [Historias de usuario](docs/HISTORIAS.md) | v1.2 | Las 8 historias con sus criterios de aceptación |
 | [Arquitectura](docs/ARQUITECTURA-CATALOGO.md) | v1.5 | Stack, capas internas y decisiones de diseño |
 | [Plan de trabajo](docs/PLAN-DE-TRABAJO.md) | — | Qué hace cada integrante, en qué orden y cómo verificarlo |
+| [Evaluación del Outbox](docs/EVALUACION-OUTBOX.md) | 1.0 | Qué pasa cuando se guarda un producto y su evento no llega a RabbitMQ, y qué hacer |
 | [Informe del Sprint 1](docs/INFORME-SPRINT-1.md) | 1.0 | Lo construido en el Sprint 1: CRUD completo, frontend de administración y Host App |
 | [Informe del Sprint 0](docs/INFORME-SPRINT-0.md) | 1.0 | Entregado. Historias, contrato, arquitectura y la base del servicio |
 
