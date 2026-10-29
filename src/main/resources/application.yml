@@ -19,8 +19,8 @@ spring:
     # se cambia con la variable de entorno SPRING_RABBITMQ_HOST.
     host: localhost
     port: 5672
-    username: guest
-    password: guest
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
 
 server:
   port: 8080

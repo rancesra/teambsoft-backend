@@ -20,6 +20,9 @@ services:
     image: rabbitmq:4-management
     container_name: catalogo-rabbit
     hostname: catalogo-rabbit
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:?Define RABBITMQ_USER en .env}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Define RABBITMQ_PASSWORD en .env}
     # Sin esto, en algunas versiones de Docker el contenedor arranca como root, Erlang escribe su
     # cookie con permisos de root y el proceso, que corre como rabbitmq, no la puede leer.
     user: rabbitmq
@@ -44,6 +47,8 @@ services:
       # "localhost" dentro de un contenedor es ese mismo contenedor.
       SPRING_MONGODB_URI: mongodb://mongo:27017/catalogo
       SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:?Define RABBITMQ_USER en .env}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?Define RABBITMQ_PASSWORD en .env}
       EUREKA_CLIENT_ENABLED: "false"
     depends_on:
       mongo:

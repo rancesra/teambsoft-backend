@@ -39,3 +39,6 @@ build/
 .jho/
 .k/
 .kilo/
+
+# Variables de entorno locales
+.env
