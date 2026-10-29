@@ -16,6 +16,9 @@ RUN ./mvnw -B clean package -DskipTests
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
+# curl se utiliza en el healthcheck de Docker Compose.
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 # Un usuario sin privilegios: si alguien se cuela por una vulnerabilidad, no entra como root.
 RUN useradd --system --no-create-home catalogo
 USER catalogo
