@@ -50,6 +50,12 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   # --- Infraestructura del ecosistema ---------------------------------------------------------
   # Kong es la única puerta de entrada al sistema: todo el tráfico del cliente pasa por aquí.
@@ -69,7 +75,8 @@ services:
       - "8000:8000"
       - "127.0.0.1:8001:8001"
     depends_on:
-      - catalogo
+      catalogo:
+        condition: service_healthy
 
 volumes:
   mongo-datos:
