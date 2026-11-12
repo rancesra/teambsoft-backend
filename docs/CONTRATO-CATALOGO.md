@@ -1,10 +1,10 @@
 # Contrato de Servicio — Catálogo (Equipo B)
 
 **Versión:** 2.4 — Segunda entrega (Ciclo 2)\
-**Fecha:** 2026-11-05\
+**Fecha:** 2026-11-05 (revisada el 2026-11-12)\
 **Equipo responsable:** Equipo B\
 **Consumido por:** Equipo A (Búsqueda), Equipo C (Carrito)\
-**Estado:** propuesta, con plazo para objetar hasta el **8 de noviembre de 2026** (sección 11). Si los equipos A y C no objetan antes de esa fecha, queda acordada. Todos los cambios son compatibles con la v2.3.
+**Estado:** propuesta. El Equipo C la aceptó el 12 de noviembre. Plazo para objetar: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, queda acordada. Todos los cambios son compatibles con la v2.3.
 
 ## 1. Propósito
 
@@ -394,11 +394,24 @@ Revisados el 5 de noviembre de 2026 los `docker-compose.yml` de los tres equipos
 
 La configuración es declarativa (`kong.yml`, sin base de datos) y la mantiene el Equipo B.
 
+**CORS.** Cada frontend corre en su propio puerto (sección 10.4) y llama a Kong en `http://localhost:8000`. Para el navegador, eso es otro origen, así que Kong tiene que permitirlo. El plugin `cors` va **una sola vez, para todas las rutas**, con esta configuración:
+
+| Opción | Valor | Por qué |
+|---|---|---|
+| `origins` | `http://localhost:5173`, `http://localhost:5174`, `http://localhost:5175`, `http://localhost:5050` | Los cuatro frontends de la sección 10.4. Se nombran uno por uno, sin comodines |
+| `methods` | `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS` | Los que usan los tres servicios |
+| `headers` | `Authorization`, `Content-Type` | El token de Carrito y los cuerpos JSON |
+| `exposed_headers` | `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `Retry-After` | Para que el frontend de Carrito pueda leer su límite de peticiones (429) |
+| `max_age` | `3600` | El navegador guarda la respuesta al `OPTIONS` una hora y no la repite en cada llamada |
+
+Un origen que no está en la lista no puede llamar a Kong desde el navegador. Si un equipo necesita otro, lo pide y se agrega aquí antes de tocar `kong.yml`.
+
 ### 10.3 Un `docker-compose` de integración, en el repositorio del Host App
 
 - Vive en [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp) y lo opera el **Equipo B**. Levanta los tres backends, sus bases de datos, el RabbitMQ de 10.1 y el Kong de 10.2.
 - **Construye cada backend desde su repositorio de GitHub**, con el `Dockerfile` de cada equipo: nadie copia código de otro.
 - **Dentro de la red de Docker** cada servicio usa sus puertos de siempre sin chocar (Carrito y Búsqueda pueden seguir los dos en el 3000). **Hacia afuera solo se publican Kong (`8000`) y la consola de RabbitMQ (`15672`).**
+- Catálogo arranca con el perfil `integracion`, que carga los productos de prueba, y **después de Búsqueda** (sección 10.5).
 - Cada equipo sigue teniendo su propio `docker-compose.yml` para desarrollar solo. El de integración es para probar juntos y para la demostración.
 
 ### 10.4 Puertos de los frontends
@@ -412,15 +425,55 @@ La configuración es declarativa (`kong.yml`, sin base de datos) y la mantiene e
 
 Cada frontend fija su puerto con `server.port` y `server.strictPort: true` en `vite.config.js`, para que Vite no lo cambie solo si está ocupado. El Host App los carga con esas direcciones (contrato del Host App, sección 4).
 
+### 10.5 Productos de prueba con ids fijos
+
+MongoDB genera un id distinto en cada máquina, así que los equipos no pueden escribir sus pruebas ni sus reglas de descuento contra un id. Para la integración, Catálogo trae seis productos de prueba **con ids fijos**, iguales en todas las máquinas:
+
+| Id | Nombre | Categoría | Precio (COP) | Stock | Activo | Sirve para probar |
+|---|---|---|---|---|---|---|
+| `674000000000000000000001` | Camiseta básica algodón | `cat-ropa` | 49900 | 100 | sí | Una compra normal |
+| `674000000000000000000002` | Jean clásico azul | `cat-ropa` | 129900 | 50 | sí | Una compra con varios productos y descuentos |
+| `674000000000000000000003` | Lámpara de escritorio LED | `cat-hogar` | 89900 | 3 | sí | `409 STOCK_INSUFICIENTE`, pidiendo 4 o más |
+| `674000000000000000000004` | Juego de sábanas doble | `cat-hogar` | 159900 | 0 | sí | Un producto activo sin stock |
+| `674000000000000000000005` | Audífonos inalámbricos | `cat-electronica` | 199900 | 20 | sí | Una compra normal en otra categoría |
+| `674000000000000000000006` | Teclado mecánico | `cat-electronica` | 249900 | 10 | **no** | Un producto desactivado: `200` con `activo: false` |
+
+Cómo se cargan:
+
+- **Los crea Catálogo al arrancar con el perfil `integracion`** (`SPRING_PROFILES_ACTIVE=integracion`), que es el que usa el `docker-compose` de integración. Sin ese perfil no se cargan: el `docker-compose.yml` de desarrollo de Catálogo arranca vacío, como hasta ahora.
+- **Solo crea los que no existen.** Si un producto de prueba ya está, no lo toca, aunque se le haya descontado stock o se haya editado. Para volver a los datos de esta tabla se borra el volumen de MongoDB (`docker compose down -v`) y se arranca de nuevo.
+- **Por cada producto que crea, publica `producto.creado`** (sección 5), con `activo` tal como está en la tabla. Así Búsqueda los indexa por la vía normal de los eventos, sin llamar a `GET /productos`.
+- **En el `docker-compose` de integración, Catálogo arranca después de Búsqueda**, para que la cola de Búsqueda ya esté enlazada cuando salgan esos eventos. Si de todas formas se pierden, Búsqueda los recupera con la regla 3 de la sección 5.1.
+
+Los ids son ObjectId válidos de 24 caracteres hexadecimales, como los de cualquier otro producto (sección 7.2). Los nombres y precios pueden cambiar entre versiones; **los ids no**.
+
 ## 11. Aprobación de la v2.4
 
-Los equipos A y C tienen hasta el **8 de noviembre de 2026** para objetar cualquier punto. Una objeción se discute y, si cambia algo, se publica en una versión nueva. **Si no hay objeciones antes de esa fecha, la v2.4 queda acordada** y se implementa en Catálogo: primero el contrato, después el código.
+El plazo para objetar es el **martes 17 de noviembre de 2026, a las 12:00 m.**, el mismo que fijó el Equipo C en su contrato de integración. Reemplaza al del 8 de noviembre de la primera publicación de la v2.4. Una objeción se discute y, si cambia algo, se publica en una versión nueva. **Si no hay objeciones antes de esa hora, la v2.4 queda acordada.**
+
+Como todos los cambios son compatibles con la v2.3, Catálogo los implementa desde ya, para llegar a la presentación de la integración del **jueves 19 de noviembre**. Si una objeción cambia algo, primero se corrige el contrato y después el código.
 
 | Equipo | Respuesta | Fecha |
 |---|---|---|
 | B — Catálogo | *Pendiente* (aprueba el Scrum Master del sprint) | |
 | A — Búsqueda | *Pendiente* | |
-| C — Carrito | *Pendiente* | |
+| C — Carrito | **Acepta**, en su «Contrato de integración — Equipo C» v1.0 | 2026-11-12 |
+
+**Compromisos del Equipo B con la integración.** Usan la numeración del contrato de integración del Equipo C (sección 4):
+
+| # | Qué | Sección | Fecha |
+|---|---|---|---|
+| B1 | Productos de prueba con ids fijos | 10.5 | 17/11 |
+| B2 | `referencia` idempotente en `descontar-stock`, `POST /productos/devolver-stock` e `items` en el 409 | 2 y 4 | 17/11 |
+| B3 | Kong único con `/api/catalogo`, `/api/carrito` y `/api/busqueda`, y el `docker-compose` de integración en el repositorio del Host App | 10.2 y 10.3 | 17/11 |
+| B4 | CORS del Kong compartido para los orígenes `5173`, `5174`, `5175` y `5050` | 10.2 | 17/11 |
+
+**Respuesta a las preguntas abiertas del Equipo C** (su sección 5):
+
+1. **¿El Kong de Catálogo es el único de la integración?** Sí. Es el Kong del `docker-compose` de integración, en el repositorio del Host App, y lo opera el Equipo B. El Equipo B agrega la ruta `/api/carrito` y los orígenes de CORS (sección 10.2).
+2. **¿Cuándo estará el `docker-compose` y qué ids se usan?** El 17 de noviembre. Los ids son los de la sección 10.5, ya fijos desde hoy, para que los equipos puedan escribir sus pruebas y reglas antes de que el `docker-compose` esté listo.
+3. *(Para el Equipo A.)*
+4. **Plan B para la presentación:** el Equipo B está de acuerdo. Si el Host App o el `docker-compose` de integración fallan ese día, cada equipo muestra su módulo por separado con `npm run dev`. Es la razón por la que cada módulo tiene que funcionar solo (sección 9).
 
 **Lo que le toca hacer a cada equipo para integrar:**
 
@@ -449,3 +502,4 @@ Los equipos A y C tienen hasta el **8 de noviembre de 2026** para objetar cualqu
 | 2026-09-10 | v2.2 — §9: el frontend se construye con Vue.js, acordado por los 3 equipos; sigue pendiente el mecanismo de integración con el Host App |
 | 2026-09-21 | v2.3 — Cambios compatibles con v2.2, a partir de la revisión cruzada con los contratos de Búsqueda v1.0 y Carrito v1.1. **Eventos:** se agregan `descripcion` y `stock` al payload (lo pedía Búsqueda como bloqueante) y se suma `producto.reactivado`. **Endpoints nuevos:** `POST /productos/{id}/activar` (no existía forma de reactivar) y `POST /productos/descontar-stock` (lo pedía Carrito como bloqueante para su checkout). **`GET /productos`:** nuevo parámetro `activo`, con `true` por defecto, para que la administración pueda encontrar lo que desactivó. **Errores:** se agrega `STOCK_INSUFICIENTE` (409), con el mismo nombre y código que ya usaba Carrito. **§9:** el Host App queda a cargo del Equipo B y su superficie de integración se documenta en `CONTRATO-HOSTAPP.md`. Se cierran los dos “pendiente de confirmar” de las secciones 6 y 7 |
 | 2026-11-05 | v2.4 — Cambios compatibles con v2.3, a partir de la revisión de los repositorios de Búsqueda y Carrito. **Carrito:** `referencia` opcional e idempotente en `descontar-stock`, nuevo `POST /productos/devolver-stock`, `items` en el 409 `STOCK_INSUFICIENTE` y nuevo error `REFERENCIA_EN_USO` (lo propuso el contrato de Carrito v1.3); la sección 7 detalla qué llama Carro en cada paso. **Búsqueda:** `activo` y `fecha` en el payload de los eventos, reglas de consumo (sección 5.1) y la sección 6 detalla cómo aplicar cada evento. **Sección 2:** URL base a través de Kong y directa. **Sección 9:** la etapa 1 del Host App es con iframes, como dice su contrato v1.1, y se decide el botón “Agregar al carro” (`/carrito?agregar={id}`). **Nuevas secciones:** 10 (infraestructura compartida: un solo RabbitMQ, el de Catálogo; un solo Kong con las rutas de los tres; un `docker-compose` de integración en el repositorio del Host App, operado por el Equipo B; y los puertos de los frontends) y 11 (aprobación, con plazo para objetar hasta el 8 de noviembre) |
+| 2026-11-12 | v2.4, revisión — Sin cambios en la API, los eventos ni lo que ya se había propuesto; completa la v2.4 con la respuesta del Equipo C (su «Contrato de integración» v1.0, que la acepta). **Sección 10.2:** configuración del CORS del Kong compartido (orígenes `5173`, `5174`, `5175` y `5050`). **Nueva sección 10.5:** seis productos de prueba con ids fijos, que Catálogo crea con el perfil `integracion` y anuncia con `producto.creado`. **Sección 11:** el plazo para objetar pasa al martes 17 de noviembre a las 12:00 m., el mismo del Equipo C, porque el del 8 de noviembre venció antes de que los equipos recibieran el documento; se registra la aceptación del Equipo C, los compromisos B1 a B4 con fecha y la respuesta a las preguntas abiertas del Equipo C, incluido el plan B para la presentación del 19 de noviembre |
