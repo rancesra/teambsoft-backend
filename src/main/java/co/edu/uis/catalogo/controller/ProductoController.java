@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uis.catalogo.dto.DescuentoStockRequest;
 import co.edu.uis.catalogo.dto.DescuentoStockResponse;
+import co.edu.uis.catalogo.dto.DevolucionStockRequest;
 import co.edu.uis.catalogo.dto.ProductoListadoResponse;
 import co.edu.uis.catalogo.dto.ProductoRequest;
 import co.edu.uis.catalogo.dto.ProductoResponse;
@@ -102,6 +103,17 @@ public class ProductoController {
 	@PostMapping("/descontar-stock")
 	public DescuentoStockResponse descontarStock(@Valid @RequestBody DescuentoStockRequest peticion) {
 		return productoService.descontarStock(peticion);
+	}
+
+	/**
+	 * Lo llama Carro si falla guardar el pedido después de descontar (contrato v2.4). Responde 204
+	 * siempre que la petición sea válida, aunque la referencia no exista o ya se haya devuelto: es
+	 * idempotente, y a Carro le basta con saber que ese stock ya no está descontado.
+	 */
+	@PostMapping("/devolver-stock")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void devolverStock(@Valid @RequestBody DevolucionStockRequest peticion) {
+		productoService.devolverStock(peticion.referencia());
 	}
 
 }

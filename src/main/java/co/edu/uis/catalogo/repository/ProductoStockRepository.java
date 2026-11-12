@@ -50,7 +50,11 @@ public class ProductoStockRepository {
 		return (actualizado == null) ? null : actualizado.getStock();
 	}
 
-	/** Devuelve unidades al stock. Solo se usa para deshacer descuentos de una petición que falló. */
+	/**
+	 * Devuelve unidades al stock. Se usa para deshacer los descuentos de una petición que falló y para
+	 * {@code devolver-stock} (v2.4). No pide que el producto esté activo: si lo desactivaron entretanto,
+	 * las unidades existen igual.
+	 */
 	public void devolver(String id, int cantidad) {
 		mongoTemplate.updateFirst(Query.query(Criteria.where("_id").is(id)),
 				new Update().inc("stock", cantidad), Producto.class);
