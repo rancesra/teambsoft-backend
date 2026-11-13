@@ -66,6 +66,19 @@ public class Producto {
 	}
 
 	/**
+	 * Crea un producto con un id ya decidido. Solo lo usan los productos de prueba de la integración
+	 * (contrato v2.4, sección 10.5), que necesitan el mismo id en todas las máquinas. El resto de los
+	 * productos nacen sin id y MongoDB se lo asigna.
+	 *
+	 * @param id un ObjectId válido: 24 caracteres hexadecimales.
+	 */
+	public Producto(String id, String nombre, String descripcion, BigDecimal precio, String categoria, int stock,
+			List<String> imagenes) {
+		this(nombre, descripcion, precio, categoria, stock, imagenes);
+		this.id = id;
+	}
+
+	/**
 	 * Reemplaza todos los datos editables, porque PUT reemplaza el producto completo. No cambia
 	 * {@code id} ni {@code activo}: un producto inactivo sigue inactivo después de actualizarse
 	 * (contrato, sección 2).
