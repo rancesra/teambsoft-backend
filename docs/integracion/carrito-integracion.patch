@@ -1,0 +1,314 @@
+diff --git a/Frontend/src/App.vue b/Frontend/src/App.vue
+index 1aadd0f..769faa9 100644
+--- a/Frontend/src/App.vue
++++ b/Frontend/src/App.vue
+@@ -7,26 +7,45 @@ import PedidoConfirmado from './components/PedidoConfirmado.vue';
+ import PedidosView from './components/PedidosView.vue';
+ import { useCheckoutStore } from './stores/checkoutStore';
+ import { useOrdersStore } from './stores/ordersStore';
++import { useCartStore } from './stores/cartStore';
++import { abrirEnPedidos, embebido, pedirLogin, tomarProductoAAgregar } from './hostApp';
+ 
+ const co = useCheckoutStore(); // Sprint 3: decide qué paso del flujo se muestra
+ const orders = useOrdersStore();
++const cart = useCartStore();
+ const seccion = ref('tienda');
++const sinSesion = embebido && !localStorage.getItem('token');
+ 
+ function ir(destino) {
+   seccion.value = destino;
+   if (destino === 'pedidos') orders.load(0);
+ }
++
++// «Órdenes» en el Host App abre /carrito/pedidos.
++if (abrirEnPedidos) ir('pedidos');
++
++// «Agregar al carro» en Catálogo abre /carrito?agregar={id}: se agrega una unidad antes de mostrar
++// el carrito, para que CartView lo cargue ya con el producto.
++const porAgregar = tomarProductoAAgregar();
++const agregando = ref(Boolean(porAgregar));
++if (porAgregar) cart.add(porAgregar, 1).finally(() => { agregando.value = false; });
+ </script>
+ 
+ <template>
+   <main>
+-    <h1>Demo Carrito de Compras</h1>
++    <!-- Dentro del Host App el encabezado lo pone el cascarón (contrato v1.2, requisito 3). -->
++    <h1 v-if="!embebido">Demo Carrito de Compras</h1>
++    <p v-if="sinSesion" class="aviso">
++      Inicia sesión para ver tu carrito.
++      <button type="button" @click="pedirLogin">Iniciar sesión</button>
++    </p>
+     <nav class="menu" aria-label="Secciones de la tienda">
+       <button type="button" :disabled="seccion === 'tienda'" @click="ir('tienda')">Tienda</button>
+       <button type="button" :disabled="seccion === 'pedidos'" @click="ir('pedidos')">Mis pedidos</button>
+     </nav>
+ 
+     <PedidosView v-if="seccion === 'pedidos'" />
++    <p v-else-if="agregando">Agregando el producto…</p>
+     <template v-else>
+       <template v-if="co.paso === 'carrito'">
+         <ProductsDemo />
+@@ -39,6 +58,7 @@ function ir(destino) {
+ </template>
+ 
+ <style scoped>
++.aviso { display: flex; gap: .75rem; align-items: center; padding: .75rem 1rem; background: #fff7ed; border: 1px solid #fed7aa; border-radius: .5rem; }
+ .menu { display: flex; gap: .5rem; margin-bottom: 1rem; }
+ .menu button { padding: .55rem .9rem; color: #173c78; background: #fff; border: 1px solid #cbd5e1; border-radius: .5rem; cursor: pointer; }
+ .menu button:disabled { color: #fff; background: #173c78; border-color: #173c78; cursor: default; }
+diff --git a/Frontend/src/main.js b/Frontend/src/main.js
+index 9ca4d49..0988ee0 100644
+--- a/Frontend/src/main.js
++++ b/Frontend/src/main.js
+@@ -1,9 +1,14 @@
+ import { createApp } from 'vue';
+ import { createPinia } from 'pinia';
+ import App from './App.vue';
++import { embebido, recibirSesion } from './hostApp';
+ import './style.css';
+ 
+ // Solo desarrollo: el token de prueba se guarda en .env.local
+ if (import.meta.env.VITE_DEV_TOKEN) localStorage.setItem('token', import.meta.env.VITE_DEV_TOKEN);
+ 
++// Dentro del Host App, el token es el del login de Keycloak: se espera antes de montar, para que la
++// primera llamada al backend ya salga con el usuario correcto.
++if (embebido) await recibirSesion();
++
+ createApp(App).use(createPinia()).mount('#app');
+diff --git a/Frontend/vite.config.js b/Frontend/vite.config.js
+index 07266d0..403a5d4 100644
+--- a/Frontend/vite.config.js
++++ b/Frontend/vite.config.js
+@@ -6,7 +6,9 @@ const apiTarget = process.env.CARRITO_API_PROXY || 'http://localhost:8000';
+ export default defineConfig({
+   plugins: [vue()],
+   server: {
+-    port: 5173,
++    // Puerto fijo del contrato del Host App v1.2: el 5173 es de Catálogo.
++    port: 5175,
++    strictPort: true,
+     // Permite usar Kong en el puerto estándar o en un puerto QA aislado.
+     proxy: { '/api': { target: apiTarget, changeOrigin: true } },
+   },
+diff --git a/src/config/env.js b/src/config/env.js
+index 84f25c4..992d29e 100644
+--- a/src/config/env.js
++++ b/src/config/env.js
+@@ -21,6 +21,10 @@ const config = {
+   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 60000,
+   shutdownTimeoutMs: Number(process.env.SHUTDOWN_TIMEOUT_MS) || 10000,
+   jwtSecret: process.env.JWT_SECRET || 'dev-secret-change-me',
++  // ---- Login con Keycloak (contrato del Host App v1.3; contrato de Catálogo v2.5, sección 10.6) ----
++  // Vacío = solo se aceptan los tokens HS256 firmados con JWT_SECRET, como antes.
++  keycloakLlaves: process.env.KEYCLOAK_LLAVES || '', // http://keycloak:8080/realms/tienda/protocol/openid-connect/certs
++  keycloakEmisor: process.env.KEYCLOAK_EMISOR || 'http://localhost:8180/realms/tienda',
+ };
+ 
+ // En producción no se acepta el secreto de pruebas
+diff --git a/src/middlewares/authJwt.js b/src/middlewares/authJwt.js
+index 7b45fc7..1f300f3 100644
+--- a/src/middlewares/authJwt.js
++++ b/src/middlewares/authJwt.js
+@@ -1,29 +1,63 @@
++const crypto = require('crypto');
+ const jwt = require('jsonwebtoken');
+-const { jwtSecret } = require('../config/env');
++const { jwtSecret, keycloakLlaves, keycloakEmisor } = require('../config/env');
+ const AppError = require('../errors/AppError');
+ 
+-function authJwt(req, res, next) {
++// Acepta dos clases de token:
++//  - El de Keycloak (RS256), que llega del login del Host App. Se comprueba con la llave pública del
++//    realm "tienda", que se descarga una vez y se guarda en memoria.
++//  - El de pruebas (HS256, firmado con JWT_SECRET), como antes. Así las pruebas y VITE_DEV_TOKEN siguen
++//    funcionando igual.
++// En los dos casos el usuario sale del claim "sub" (RNF-02).
++
++let llaves = null; // kid → llave pública
++
++async function llaveDeKeycloak(kid) {
++  if (!llaves || !llaves.has(kid)) {
++    const respuesta = await fetch(keycloakLlaves);
++    if (!respuesta.ok) throw new Error(`Keycloak respondió ${respuesta.status} al pedir las llaves`);
++    const { keys } = await respuesta.json();
++    llaves = new Map(
++      keys
++        .filter((k) => k.kty === 'RSA' && k.use === 'sig')
++        .map((k) => [k.kid, crypto.createPublicKey({ key: k, format: 'jwk' })])
++    );
++  }
++  return llaves.get(kid);
++}
++
++async function verificar(token) {
++  const cabecera = jwt.decode(token, { complete: true })?.header;
++  if (cabecera?.alg === 'RS256' && keycloakLlaves) {
++    const llave = await llaveDeKeycloak(cabecera.kid);
++    if (!llave) throw new Error('Llave de Keycloak desconocida');
++    return jwt.verify(token, llave, { algorithms: ['RS256'], issuer: keycloakEmisor });
++  }
++  return jwt.verify(token, jwtSecret, { algorithms: ['HS256'] });
++}
++
++async function authJwt(req, res, next) {
+   const authHeader = req.headers.authorization;
+ 
+   if (!authHeader) {
+-    throw new AppError(401, 'NO_AUTORIZADO', 'Token no proporcionado');
++    return next(new AppError(401, 'NO_AUTORIZADO', 'Token no proporcionado'));
+   }
+ 
+   const [scheme, token] = authHeader.split(' ');
+ 
+   if (scheme !== 'Bearer' || !token) {
+-    throw new AppError(401, 'NO_AUTORIZADO', 'Formato de token inválido');
++    return next(new AppError(401, 'NO_AUTORIZADO', 'Formato de token inválido'));
+   }
+ 
+   let payload;
+   try {
+-    payload = jwt.verify(token, jwtSecret, { algorithms: ['HS256'] });
++    payload = await verificar(token);
+   } catch (err) {
+-    throw new AppError(401, 'NO_AUTORIZADO', 'Token inválido o expirado');
++    return next(new AppError(401, 'NO_AUTORIZADO', 'Token inválido o expirado'));
+   }
+ 
+   if (typeof payload.sub !== 'string' || !payload.sub.trim()) {
+-    throw new AppError(401, 'NO_AUTORIZADO', 'El token no identifica al usuario (sub)');
++    return next(new AppError(401, 'NO_AUTORIZADO', 'El token no identifica al usuario (sub)'));
+   }
+ 
+   req.userId = payload.sub;
+diff --git a/Frontend/src/hostApp.js b/Frontend/src/hostApp.js
+new file mode 100644
+index 0000000..74c206c
+--- /dev/null
++++ b/Frontend/src/hostApp.js
+@@ -0,0 +1,49 @@
++// Integración con el Host App (contrato del Host App v1.2 y v1.3). Todo lo que este módulo sabe del
++// cascarón está aquí.
++
++const HOST_APP = import.meta.env.VITE_HOST_APP || 'http://localhost:5050';
++
++/** Dentro del Host App el módulo corre en un iframe: su ventana no es la de más arriba. */
++export const embebido = window.self !== window.top;
++
++/**
++ * Espera la sesión que manda el Host App (mensaje "sesion") y deja el token donde lo lee cartApi.js
++ * (localStorage 'token'). Solo se acepta del origen del Host App. También se queda escuchando: el
++ * Host App vuelve a mandar la sesión cuando renueva el token, cada ~4 minutos.
++ *
++ * Resuelve con el primer mensaje, o a los 2 segundos si no llega ninguno.
++ */
++export function recibirSesion() {
++  return new Promise((resolve) => {
++    window.addEventListener('message', (e) => {
++      if (e.origin !== HOST_APP || e.data?.tipo !== 'sesion') return;
++      if (e.data.token) localStorage.setItem('token', e.data.token);
++      else localStorage.removeItem('token');
++      resolve();
++    });
++    window.parent.postMessage({ tipo: 'pedir-sesion' }, HOST_APP);
++    setTimeout(resolve, 2000);
++  });
++}
++
++/** Le pide al Host App que lleve al usuario a iniciar sesión. */
++export function pedirLogin() {
++  window.parent.postMessage({ tipo: 'iniciar-sesion' }, HOST_APP);
++}
++
++/**
++ * Lee ?agregar={id} de la dirección (contrato del Host App v1.2, sección 9.1) y lo quita, para que
++ * recargar la página no agregue el producto otra vez.
++ */
++export function tomarProductoAAgregar() {
++  const parametros = new URLSearchParams(window.location.search);
++  const id = parametros.get('agregar');
++  if (!id) return null;
++  parametros.delete('agregar');
++  const resto = parametros.toString();
++  window.history.replaceState(null, '', window.location.pathname + (resto ? `?${resto}` : ''));
++  return id;
++}
++
++/** /carrito/pedidos abre directamente el historial: es la entrada «Órdenes» del Host App. */
++export const abrirEnPedidos = window.location.pathname.startsWith('/carrito/pedidos');
+diff --git a/tests/authKeycloak.test.js b/tests/authKeycloak.test.js
+new file mode 100644
+index 0000000..6e39910
+--- /dev/null
++++ b/tests/authKeycloak.test.js
+@@ -0,0 +1,70 @@
++// Tokens de Keycloak (RS256). No necesita Keycloak: se genera un par de llaves de prueba y se simula
++// la respuesta de su endpoint de llaves (JWKS).
++const crypto = require('crypto');
++const jwt = require('jsonwebtoken');
++const request = require('supertest');
++const express = require('express');
++
++const EMISOR = 'http://localhost:8180/realms/tienda';
++process.env.KEYCLOAK_LLAVES = 'http://keycloak:8080/realms/tienda/protocol/openid-connect/certs';
++process.env.KEYCLOAK_EMISOR = EMISOR;
++
++const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 });
++const jwk = { ...publicKey.export({ format: 'jwk' }), kid: 'llave-1', use: 'sig', alg: 'RS256' };
++
++const { notFound, errorHandler } = require('../src/middlewares/errorHandler');
++const { authJwt } = require('../src/middlewares/authJwt');
++const { makeToken } = require('./helpers/token');
++
++function createApp() {
++  const app = express();
++  app.use('/api/carrito', authJwt);
++  app.get('/api/carrito', (req, res) => res.json({ userId: req.userId }));
++  app.use(notFound);
++  app.use(errorHandler);
++  return app;
++}
++
++const tokenKeycloak = (datos = {}, opciones = {}) =>
++  jwt.sign({ sub: 'uuid-de-keycloak', ...datos }, privateKey, {
++    algorithm: 'RS256', keyid: 'llave-1', issuer: EMISOR, expiresIn: '5m', ...opciones,
++  });
++
++beforeAll(() => {
++  global.fetch = jest.fn(async () => ({ ok: true, json: async () => ({ keys: [jwk] }) }));
++});
++
++test('acepta un token de Keycloak y el usuario sale de sub', async () => {
++  const res = await request(createApp()).get('/api/carrito').set('Authorization', `Bearer ${tokenKeycloak()}`);
++  expect(res.status).toBe(200);
++  expect(res.body.userId).toBe('uuid-de-keycloak');
++});
++
++test('sigue aceptando el token de pruebas HS256', async () => {
++  const res = await request(createApp()).get('/api/carrito').set('Authorization', `Bearer ${makeToken('usr_dev')}`);
++  expect(res.status).toBe(200);
++  expect(res.body.userId).toBe('usr_dev');
++});
++
++test('rechaza un token de Keycloak de otro emisor', async () => {
++  const token = tokenKeycloak({}, { issuer: 'http://otro-keycloak/realms/tienda' });
++  const res = await request(createApp()).get('/api/carrito').set('Authorization', `Bearer ${token}`);
++  expect(res.status).toBe(401);
++  expect(res.body.codigo).toBe('NO_AUTORIZADO');
++});
++
++test('rechaza un token RS256 firmado con otra llave', async () => {
++  const otra = crypto.generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey;
++  const token = jwt.sign({ sub: 'intruso' }, otra, { algorithm: 'RS256', keyid: 'llave-1', issuer: EMISOR });
++  const res = await request(createApp()).get('/api/carrito').set('Authorization', `Bearer ${token}`);
++  expect(res.status).toBe(401);
++});
++
++test('rechaza un token de Keycloak vencido', async () => {
++  const hace10Minutos = Math.floor(Date.now() / 1000) - 600;
++  const token = jwt.sign({ sub: 'uuid-de-keycloak', iat: hace10Minutos, exp: hace10Minutos + 300 }, privateKey, {
++    algorithm: 'RS256', keyid: 'llave-1', issuer: EMISOR,
++  });
++  const res = await request(createApp()).get('/api/carrito').set('Authorization', `Bearer ${token}`);
++  expect(res.status).toBe(401);
++});
