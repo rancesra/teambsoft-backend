@@ -1,5 +1,6 @@
 package co.edu.uis.catalogo.controller;
 
+import static co.edu.uis.catalogo.config.TokensDePrueba.admin;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,12 +19,14 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+import co.edu.uis.catalogo.config.SeguridadConfig;
 import co.edu.uis.catalogo.dto.DescuentoStockResponse;
 import co.edu.uis.catalogo.dto.ProductoResponse;
 import co.edu.uis.catalogo.error.ProductoNoEncontradoException;
@@ -36,6 +39,7 @@ import co.edu.uis.catalogo.service.ProductoService;
  * los errores.
  */
 @WebMvcTest(ProductoController.class)
+@Import(SeguridadConfig.class)
 class ProductoControllerTest {
 
 	@Autowired
@@ -60,7 +64,7 @@ class ProductoControllerTest {
 	void postValidoResponde201() throws Exception {
 		given(productoService.crear(any())).willReturn(ejemplo(true));
 
-		mockMvc.perform(post("/productos").contentType(MediaType.APPLICATION_JSON).content(CUERPO_VALIDO))
+		mockMvc.perform(post("/productos").with(admin()).contentType(MediaType.APPLICATION_JSON).content(CUERPO_VALIDO))
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.id").value("abc123"))
 				.andExpect(jsonPath("$.activo").value(true));
@@ -68,7 +72,7 @@ class ProductoControllerTest {
 
 	@Test
 	void postSinNombreResponde400() throws Exception {
-		mockMvc.perform(post("/productos").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post("/productos").with(admin()).contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"nombre":"","precio":49900,"categoria":"cat-ropa","stock":10}"""))
 				.andExpect(status().isBadRequest())
@@ -78,7 +82,7 @@ class ProductoControllerTest {
 
 	@Test
 	void postConPrecioCeroResponde400() throws Exception {
-		mockMvc.perform(post("/productos").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post("/productos").with(admin()).contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"nombre":"Camiseta","precio":0,"categoria":"cat-ropa","stock":10}"""))
 				.andExpect(status().isBadRequest())
@@ -87,7 +91,7 @@ class ProductoControllerTest {
 
 	@Test
 	void postConStockNegativoResponde400() throws Exception {
-		mockMvc.perform(post("/productos").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post("/productos").with(admin()).contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{"nombre":"Camiseta","precio":100,"categoria":"cat-ropa","stock":-1}"""))
 				.andExpect(status().isBadRequest())
@@ -98,7 +102,7 @@ class ProductoControllerTest {
 	void putValidoResponde200() throws Exception {
 		given(productoService.actualizar(eq("abc123"), any())).willReturn(ejemplo(true));
 
-		mockMvc.perform(put("/productos/abc123").contentType(MediaType.APPLICATION_JSON).content(CUERPO_VALIDO))
+		mockMvc.perform(put("/productos/abc123").with(admin()).contentType(MediaType.APPLICATION_JSON).content(CUERPO_VALIDO))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.nombre").value("Camiseta"));
 	}
@@ -107,7 +111,7 @@ class ProductoControllerTest {
 	void putAIdInexistenteResponde404() throws Exception {
 		willThrow(new ProductoNoEncontradoException("nada")).given(productoService).actualizar(eq("nada"), any());
 
-		mockMvc.perform(put("/productos/nada").contentType(MediaType.APPLICATION_JSON).content(CUERPO_VALIDO))
+		mockMvc.perform(put("/productos/nada").with(admin()).contentType(MediaType.APPLICATION_JSON).content(CUERPO_VALIDO))
 				.andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.codigo").value("PRODUCTO_NO_ENCONTRADO"));
 	}
@@ -116,7 +120,7 @@ class ProductoControllerTest {
 	void activarResponde200ConElProductoActivo() throws Exception {
 		given(productoService.activar("abc123")).willReturn(ejemplo(true));
 
-		mockMvc.perform(post("/productos/abc123/activar"))
+		mockMvc.perform(post("/productos/abc123/activar").with(admin()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.activo").value(true));
 	}

@@ -42,3 +42,13 @@ management:
       # Muestra en /actuator/health el estado de cada componente (por ejemplo, mongo).
       # Ãštil en desarrollo; hay que restringirlo antes de exponer el servicio a travÃ©s de Kong.
       show-details: always
+# v2.5: Catálogo valida los tokens que emite Keycloak (contrato, sección 2).
+#  - issuer-uri: quién debe haber emitido el token. Es la dirección con la que el NAVEGADOR llega a
+#    Keycloak, porque esa es la que Keycloak escribe en el token (campo "iss").
+#  - jwk-set-uri: dónde descargar la llave pública para comprobar la firma. Dentro de Docker es otra
+#    dirección (http://keycloak:8080/...), por eso se configuran por separado.
+# La llave se descarga con la primera petición que trae token, no al arrancar: Catálogo arranca
+# aunque Keycloak todavía no esté listo.
+spring.security.oauth2.resourceserver.jwt:
+  issuer-uri: ${KEYCLOAK_EMISOR:http://localhost:8180/realms/tienda}
+  jwk-set-uri: ${KEYCLOAK_LLAVES:http://localhost:8180/realms/tienda/protocol/openid-connect/certs}

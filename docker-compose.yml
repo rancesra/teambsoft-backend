@@ -50,6 +50,9 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:?Define RABBITMQ_USER en .env}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:?Define RABBITMQ_PASSWORD en .env}
       EUREKA_CLIENT_ENABLED: "false"
+      # v2.5: la llave pública de Keycloak se descarga por la red de Docker; el emisor ("iss") sigue
+      # siendo localhost:8180, porque es la dirección con la que el navegador pidió el token.
+      KEYCLOAK_LLAVES: http://keycloak:8080/realms/tienda/protocol/openid-connect/certs
     depends_on:
       mongo:
         condition: service_healthy
@@ -61,6 +64,35 @@ services:
       timeout: 5s
       retries: 5
       start_period: 40s
+
+  # --- Identidad (v2.5) -----------------------------------------------------------------------
+  # Keycloak emite los tokens con los que se inicia sesión. Al arrancar importa el realm "tienda"
+  # de keycloak/realm-tienda.json: los roles admin y cliente, el cliente tienda-web del navegador y
+  # dos usuarios de prueba. No guarda nada entre reinicios: cada arranque vuelve a ese estado.
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.0
+    container_name: catalogo-keycloak
+    command: ["start-dev", "--import-realm"]
+    environment:
+      # Usuario de la consola de administración (http://localhost:8180/admin). Solo desarrollo.
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      # El emisor de los tokens queda fijo en la dirección del navegador, aunque un servicio llegue
+      # por http://keycloak:8080. Sin esto, el "iss" cambiaría según quién pregunte.
+      KC_HOSTNAME: http://localhost:8180
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+    ports:
+      - "127.0.0.1:8180:8080"
+    healthcheck:
+      # La imagen no trae curl: se pregunta por el puerto de administración (9000) con bash.
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q UP <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   # --- Infraestructura del ecosistema ---------------------------------------------------------
   # Kong es la única puerta de entrada al sistema: todo el tráfico del cliente pasa por aquí.
