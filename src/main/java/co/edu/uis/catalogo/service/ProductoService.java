@@ -3,7 +3,10 @@ package co.edu.uis.catalogo.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,11 +19,14 @@ import co.edu.uis.catalogo.dto.ProductoListadoResponse;
 import co.edu.uis.catalogo.dto.ProductoRequest;
 import co.edu.uis.catalogo.dto.ProductoResponse;
 import co.edu.uis.catalogo.error.ProductoNoEncontradoException;
+import co.edu.uis.catalogo.error.ReferenciaEnUsoException;
 import co.edu.uis.catalogo.error.StockInsuficienteException;
 import co.edu.uis.catalogo.error.ValidacionFallidaException;
 import co.edu.uis.catalogo.evento.PublicadorEventos;
+import co.edu.uis.catalogo.model.DescuentoStock;
 import co.edu.uis.catalogo.model.Producto;
 import co.edu.uis.catalogo.repository.CategoriaRepository;
+import co.edu.uis.catalogo.repository.DescuentoStockRepository;
 import co.edu.uis.catalogo.repository.ProductoRepository;
 import co.edu.uis.catalogo.repository.ProductoStockRepository;
 
@@ -42,14 +48,19 @@ public class ProductoService {
 	/** Para el descuento atómico de stock, que MongoRepository no sabe hacer. */
 	private final ProductoStockRepository productoStockRepository;
 
+	/** Para la idempotencia por referencia y la devolución de stock (v2.4). */
+	private final DescuentoStockRepository descuentoStockRepository;
+
 	/** Avisa a Búsqueda y a Carro de cada cambio del catálogo (contrato, sección 5). */
 	private final PublicadorEventos publicadorEventos;
 
 	public ProductoService(ProductoRepository productoRepository, CategoriaRepository categoriaRepository,
-			ProductoStockRepository productoStockRepository, PublicadorEventos publicadorEventos) {
+			ProductoStockRepository productoStockRepository, DescuentoStockRepository descuentoStockRepository,
+			PublicadorEventos publicadorEventos) {
 		this.productoRepository = productoRepository;
 		this.categoriaRepository = categoriaRepository;
 		this.productoStockRepository = productoStockRepository;
+		this.descuentoStockRepository = descuentoStockRepository;
 		this.publicadorEventos = publicadorEventos;
 	}
 
@@ -171,49 +182,156 @@ public class ProductoService {
 	}
 
 	/**
-	 * Descuenta stock de varios productos al confirmar un checkout (contrato v2.3, sección 2).
+	 * Descuenta stock de varios productos al confirmar un checkout (contrato v2.4, sección 2).
 	 *
 	 * <p>La regla es <b>o pasa todo, o no pasa nada</b>. Como esta entrega corre un MongoDB de un solo
 	 * nodo, no hay transacciones entre documentos: si un ítem no alcanza, hay que devolver a mano lo que
-	 * ya se descontó. Por eso se va guardando en {@code descontados} lo que va saliendo bien.
+	 * ya se descontó.
 	 *
-	 * <p>Los eventos de actualización solo se publican después de que todos los descuentos hayan
-	 * terminado con éxito. Si algún descuento falla, se revierten los anteriores y no se publica
-	 * ningún evento para esa operación fallida.
+	 * <p>El orden de los pasos importa:
+	 * <ol>
+	 * <li>Si viene {@code referencia} y ya se usó, se responde según el registro, sin tocar el stock
+	 * (idempotencia).</li>
+	 * <li>Se valida que todos los productos existan y estén activos <b>antes</b> de descontar nada, para
+	 * que un 404 o un 400 nunca deje un descuento a medias.</li>
+	 * <li>Se descuenta cada ítem. Si alguno no alcanza, se revierten los que sí, y el 409 lista todos
+	 * los que no alcanzaron, no solo el primero.</li>
+	 * <li>Si viene {@code referencia}, se registra. Un descuento que falla no llega aquí, así que no
+	 * registra la referencia y se puede reintentar con la misma.</li>
+	 * <li>Por último, los eventos. Si algo falló antes, no se publica ninguno.</li>
+	 * </ol>
 	 */
 	public DescuentoStockResponse descontarStock(DescuentoStockRequest peticion) {
 		validarSinRepetidos(peticion.items());
+		String referencia = peticion.referencia();
 
-		List<DescuentoStockRequest.Item> descontados = new ArrayList<>();
-		List<DescuentoStockResponse.Item> resultado = new ArrayList<>();
-
-		for (DescuentoStockRequest.Item item : peticion.items()) {
-			Producto producto = buscarExistente(item.id());
-
-			if (!producto.isActivo()) {
-				devolver(descontados);
-				throw new ValidacionFallidaException(
-						"El producto " + item.id() + " está desactivado y no se puede vender");
+		if (referencia != null) {
+			Optional<DescuentoStockResponse> previa = respuestaPrevia(referencia, peticion.items());
+			if (previa.isPresent()) {
+				return previa.get();
 			}
-
-			Integer restante = productoStockRepository.descontar(item.id(), item.cantidad());
-
-			if (restante == null) {
-				devolver(descontados);
-				throw new StockInsuficienteException("No hay stock suficiente del producto " + item.id()
-						+ ": se pidieron " + item.cantidad() + " unidades");
-			}
-
-			descontados.add(item);
-			resultado.add(new DescuentoStockResponse.Item(item.id(), restante));
 		}
 
-		// Solo publicamos después de que todos los descuentos hayan tenido éxito.
-		for (DescuentoStockRequest.Item item : descontados) {
+		validarVendibles(peticion.items());
+		List<DescuentoStockResponse.Item> resultado = descontarTodos(peticion.items());
+
+		if (referencia != null && !registrar(referencia, peticion.items(), resultado)) {
+			// Otra petición con la misma referencia se registró mientras esta descontaba. Esta deshace
+			// su descuento y responde lo que diga el registro de la otra, como un reintento cualquiera.
+			devolver(peticion.items());
+			return respuestaPrevia(referencia, peticion.items())
+					.orElseThrow(() -> new IllegalStateException("La referencia " + referencia
+							+ " no se pudo registrar ni encontrar"));
+		}
+
+		for (DescuentoStockRequest.Item item : peticion.items()) {
 			productoRepository.findById(item.id()).ifPresent(publicadorEventos::productoActualizado);
 		}
 
-		return new DescuentoStockResponse(resultado);
+		return new DescuentoStockResponse(referencia, resultado);
+	}
+
+	/**
+	 * Devuelve el stock de un descuento hecho con {@code referencia} (contrato v2.4, sección 2). Lo
+	 * llama Carro si falla guardar el pedido después de descontar.
+	 *
+	 * <p>Es idempotente: si la referencia no existe o ya se devolvió, no hace nada. Devuelve las unidades
+	 * aunque el producto se haya desactivado entretanto, porque las unidades existen igual. Publica
+	 * {@code producto.actualizado} por cada producto, como cualquier cambio de stock.
+	 */
+	public void devolverStock(String referencia) {
+		descuentoStockRepository.marcarDevuelto(referencia).ifPresent(descuento -> {
+			for (DescuentoStock.Linea linea : descuento.getItems()) {
+				productoStockRepository.devolver(linea.producto(), linea.cantidad());
+			}
+			for (DescuentoStock.Linea linea : descuento.getItems()) {
+				productoRepository.findById(linea.producto()).ifPresent(publicadorEventos::productoActualizado);
+			}
+		});
+	}
+
+	/**
+	 * Qué responder si la referencia ya se usó: la misma respuesta de la primera vez, si los ítems son
+	 * los mismos, o 409 {@code REFERENCIA_EN_USO} si son otros o si ya se devolvió.
+	 *
+	 * @return vacío si la referencia no se ha usado.
+	 */
+	private Optional<DescuentoStockResponse> respuestaPrevia(String referencia,
+			List<DescuentoStockRequest.Item> items) {
+		Optional<DescuentoStock> registro = descuentoStockRepository.buscar(referencia);
+		if (registro.isEmpty()) {
+			return Optional.empty();
+		}
+
+		DescuentoStock descuento = registro.get();
+		if (descuento.isDevuelto()) {
+			throw new ReferenciaEnUsoException("La referencia " + referencia
+					+ " ya se devolvió. Para comprar de nuevo, usa una referencia nueva");
+		}
+		if (!descuento.tieneLosMismosItems(cantidadesPorProducto(items))) {
+			throw new ReferenciaEnUsoException("La referencia " + referencia
+					+ " ya se usó con otros productos o cantidades");
+		}
+
+		List<DescuentoStockResponse.Item> respuesta = descuento.getItems().stream()
+				.map(linea -> new DescuentoStockResponse.Item(linea.producto(), linea.stockRestante()))
+				.toList();
+		return Optional.of(new DescuentoStockResponse(referencia, respuesta));
+	}
+
+	/** Todos los productos tienen que existir (si no, 404) y estar activos (si no, 400). */
+	private void validarVendibles(List<DescuentoStockRequest.Item> items) {
+		for (DescuentoStockRequest.Item item : items) {
+			if (!buscarExistente(item.id()).isActivo()) {
+				throw new ValidacionFallidaException(
+						"El producto " + item.id() + " está desactivado y no se puede vender");
+			}
+		}
+	}
+
+	/**
+	 * Descuenta cada ítem con la operación atómica de {@link ProductoStockRepository}. Si alguno no
+	 * alcanza, sigue revisando los demás para poder decir en el 409 cuáles fallaron, y al final revierte
+	 * los que sí se descontaron.
+	 */
+	private List<DescuentoStockResponse.Item> descontarTodos(List<DescuentoStockRequest.Item> items) {
+		List<DescuentoStockRequest.Item> descontados = new ArrayList<>();
+		List<DescuentoStockResponse.Item> resultado = new ArrayList<>();
+		List<StockInsuficienteException.Faltante> faltantes = new ArrayList<>();
+
+		for (DescuentoStockRequest.Item item : items) {
+			Integer restante = productoStockRepository.descontar(item.id(), item.cantidad());
+
+			if (restante == null) {
+				int stockActual = productoRepository.findById(item.id()).map(Producto::getStock).orElse(0);
+				faltantes.add(new StockInsuficienteException.Faltante(item.id(), item.cantidad(), stockActual));
+			} else {
+				descontados.add(item);
+				resultado.add(new DescuentoStockResponse.Item(item.id(), restante));
+			}
+		}
+
+		if (!faltantes.isEmpty()) {
+			devolver(descontados);
+			throw new StockInsuficienteException(faltantes);
+		}
+		return resultado;
+	}
+
+	/** @return {@code false} si otra petición ya registró esa referencia. */
+	private boolean registrar(String referencia, List<DescuentoStockRequest.Item> items,
+			List<DescuentoStockResponse.Item> resultado) {
+		List<DescuentoStock.Linea> lineas = new ArrayList<>();
+		for (int i = 0; i < items.size(); i++) {
+			lineas.add(new DescuentoStock.Linea(items.get(i).id(), items.get(i).cantidad(),
+					resultado.get(i).stockRestante()));
+		}
+		return descuentoStockRepository.registrar(new DescuentoStock(referencia, lineas));
+	}
+
+	private static Map<String, Integer> cantidadesPorProducto(List<DescuentoStockRequest.Item> items) {
+		return items.stream()
+				.collect(Collectors.toMap(DescuentoStockRequest.Item::id, DescuentoStockRequest.Item::cantidad));
 	}
 
 	/**
@@ -226,7 +344,10 @@ public class ProductoService {
 		}
 	}
 
-	/** Deshace los descuentos de una petición que terminó fallando. */
+	/**
+	 * Deshace los descuentos de una petición que terminó fallando, o que llegó segunda con una
+	 * referencia que otra petición registró primero.
+	 */
 	private void devolver(List<DescuentoStockRequest.Item> descontados) {
 		for (DescuentoStockRequest.Item item : descontados) {
 			productoStockRepository.devolver(item.id(), item.cantidad());

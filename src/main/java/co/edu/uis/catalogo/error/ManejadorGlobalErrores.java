@@ -33,6 +33,7 @@ public class ManejadorGlobalErrores {
 	private static final String PRODUCTO_NO_ENCONTRADO = "PRODUCTO_NO_ENCONTRADO";
 	private static final String VALIDACION_FALLIDA = "VALIDACION_FALLIDA";
 	private static final String STOCK_INSUFICIENTE = "STOCK_INSUFICIENTE";
+	private static final String REFERENCIA_EN_USO = "REFERENCIA_EN_USO";
 
 	/** 404: se pidió un producto que no existe. */
 	@ExceptionHandler(ProductoNoEncontradoException.class)
@@ -50,11 +51,19 @@ public class ManejadorGlobalErrores {
 
 	/**
 	 * 409: stock insuficiente para descontar. No es error de formato, es conflicto con el estado actual.
+	 * Desde la v2.4 trae {@code items}: los productos que no alcanzaron.
 	 */
 	@ExceptionHandler(StockInsuficienteException.class)
 	@ResponseStatus(HttpStatus.CONFLICT)
 	public ErrorResponse stockInsuficiente(StockInsuficienteException e) {
-		return new ErrorResponse(STOCK_INSUFICIENTE, e.getMessage());
+		return new ErrorResponse(STOCK_INSUFICIENTE, e.getMessage(), e.getItems());
+	}
+
+	/** 409: la referencia del descuento ya se usó con otros ítems, o ya se devolvió (v2.4). */
+	@ExceptionHandler(ReferenciaEnUsoException.class)
+	@ResponseStatus(HttpStatus.CONFLICT)
+	public ErrorResponse referenciaEnUso(ReferenciaEnUsoException e) {
+		return new ErrorResponse(REFERENCIA_EN_USO, e.getMessage());
 	}
 
 	/**

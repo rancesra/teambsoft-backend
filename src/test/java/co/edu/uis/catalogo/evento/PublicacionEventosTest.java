@@ -20,6 +20,9 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.ActiveProfiles;
 
 import co.edu.uis.catalogo.config.ConfiguracionEventos;
@@ -27,6 +30,7 @@ import co.edu.uis.catalogo.dto.DescuentoStockRequest;
 import co.edu.uis.catalogo.dto.ProductoRequest;
 import co.edu.uis.catalogo.error.ProductoNoEncontradoException;
 import co.edu.uis.catalogo.error.StockInsuficienteException;
+import co.edu.uis.catalogo.model.DescuentoStock;
 import co.edu.uis.catalogo.repository.ProductoRepository;
 import co.edu.uis.catalogo.service.ProductoService;
 
@@ -50,6 +54,9 @@ class PublicacionEventosTest {
 	private static final long ESPERA_SIN_MENSAJE_MS = 1000;
 	private static final String NOMBRE = "Producto de prueba de eventos";
 
+	/** ISO-8601 en UTC, con o sin milisegundos: {@code 2026-11-12T15:30:00Z} o {@code ...:00.123Z}. */
+	private static final String FECHA_ISO = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,3})?Z";
+
 	@Autowired
 	private ProductoService productoService;
 
@@ -62,11 +69,18 @@ class PublicacionEventosTest {
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 
+	@Autowired
+	private MongoTemplate mongoTemplate;
+
 	private String cola;
 	private String idProducto;
 
+	/** Una por prueba, para que una no vea el registro de descuento de otra. */
+	private String referencia;
+
 	@BeforeEach
 	void crearColaDePrueba() {
+		referencia = "prueba-" + UUID.randomUUID();
 		cola = "prueba.eventos." + UUID.randomUUID();
 		// RabbitMQ 4 ya no acepta colas no durables y no exclusivas, y una cola con autoDelete se
 		// borraría después de la primera lectura. Por eso es durable, se borra en limpiar() y, si la
@@ -82,6 +96,7 @@ class PublicacionEventosTest {
 	@AfterEach
 	void limpiar() {
 		amqpAdmin.deleteQueue(cola);
+		mongoTemplate.remove(Query.query(Criteria.where("_id").is(referencia)), DescuentoStock.class);
 		if (idProducto != null) {
 			productoRepository.deleteById(idProducto);
 		}
@@ -100,6 +115,23 @@ class PublicacionEventosTest {
 		assertThat(cuerpo).contains("\"categoria\":\"cat-ropa\"");
 		// v2.3: Búsqueda necesita la descripción y el stock.
 		assertThat(cuerpo).contains("\"precio\"", "\"stock\":10", "\"descripcion\"");
+		// v2.4: el estado y la fecha del evento.
+		assertThat(cuerpo).contains("\"activo\":true");
+		assertThat(cuerpo).containsPattern("\"fecha\":\"" + FECHA_ISO + "\"");
+	}
+
+	/** v2.4: un PUT sobre un producto desactivado publica actualizado, pero con activo en false. */
+	@Test
+	void actualizarUnoDesactivadoPublicaActivoFalse() {
+		idProducto = crearProductoDePrueba(10);
+		productoService.desactivar(idProducto);
+		vaciarCola();
+
+		productoService.actualizar(idProducto, datos(25));
+
+		Message mensaje = siguienteMensaje();
+		assertThat(clave(mensaje)).isEqualTo("producto.actualizado");
+		assertThat(cuerpo(mensaje)).contains("\"activo\":false", "\"stock\":25");
 	}
 
 	@Test
@@ -123,8 +155,8 @@ class PublicacionEventosTest {
 
 		Message mensaje = siguienteMensaje();
 		assertThat(clave(mensaje)).isEqualTo("producto.desactivado");
-		// El contrato promete solo el id: ningún otro campo, ni siquiera en null.
-		assertThat(cuerpo(mensaje)).isEqualTo("{\"id\":\"" + idProducto + "\"}");
+		// El contrato promete el id y la fecha: ningún otro campo, ni siquiera en null.
+		assertThat(cuerpo(mensaje)).matches("\\{\"id\":\"" + idProducto + "\",\"fecha\":\"" + FECHA_ISO + "\"\\}");
 	}
 
 	@Test
@@ -183,7 +215,39 @@ class PublicacionEventosTest {
 		assertThat(hayMensaje()).isFalse();
 	}
 
+	/** v2.4: el reintento con la misma referencia no descuenta ni avisa otra vez. */
+	@Test
+	void descontarConReferenciaRepetidaPublicaUnaSolaVez() {
+		idProducto = crearProductoDePrueba(10);
+		siguienteMensaje();
+
+		productoService.descontarStock(descuentoConReferencia(3));
+		assertThat(cuerpo(siguienteMensaje())).contains("\"stock\":7");
+
+		productoService.descontarStock(descuentoConReferencia(3));
+		assertThat(hayMensaje()).isFalse();
+	}
+
+	/** v2.4: devolver el stock es un cambio de stock, y se anuncia como tal. */
+	@Test
+	void devolverStockPublicaProductoActualizado() {
+		idProducto = crearProductoDePrueba(10);
+		productoService.descontarStock(descuentoConReferencia(3));
+		vaciarCola();
+
+		productoService.devolverStock(referencia);
+
+		Message mensaje = siguienteMensaje();
+		assertThat(clave(mensaje)).isEqualTo("producto.actualizado");
+		assertThat(cuerpo(mensaje)).contains("\"stock\":10");
+	}
+
 	// ---- ayudas ----
+
+	private DescuentoStockRequest descuentoConReferencia(int cantidad) {
+		return new DescuentoStockRequest(referencia,
+				List.of(new DescuentoStockRequest.Item(idProducto, cantidad)));
+	}
 
 	private String crearProductoDePrueba(int stock) {
 		return productoService.crear(datos(stock)).id();
