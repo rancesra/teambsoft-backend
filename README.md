@@ -32,6 +32,8 @@ graph LR
     Catalogo -->|eventos| Rabbit[["RabbitMQ<br/>catalogo.eventos"]]
     Rabbit --> Busqueda["Búsqueda<br/>(Equipo A)"]
     Catalogo -.->|registro| Eureka[Eureka]
+    Web -->|login| Keycloak["Keycloak<br/>realm tienda"]
+    Catalogo -.->|valida el token| Keycloak
 ```
 
 El detalle de las capas internas está en [ARQUITECTURA-CATALOGO.md](docs/ARQUITECTURA-CATALOGO.md).
@@ -116,6 +118,32 @@ Para comprobar que todo funciona, abre http://localhost:8080/actuator/health: de
 
 > Esta sección se irá actualizando a medida que se integren RabbitMQ, Eureka y Kong.
 
+### El login (contrato v2.5)
+
+Crear, editar, desactivar, reactivar y ver los desactivados piden un token de **Keycloak** con el rol `admin`; sin token responde `401 NO_AUTENTICADO` y sin el rol, `403 SIN_PERMISO`. Las lecturas siguen públicas. Las reglas están en [SeguridadConfig.java](src/main/java/co/edu/uis/catalogo/config/SeguridadConfig.java).
+
+Keycloak viene en el `docker-compose.yml` e importa el realm de [keycloak/realm-tienda.json](keycloak/realm-tienda.json), con dos usuarios de prueba: `admin` / `admin123` y `cliente` / `cliente123`.
+
+```bash
+docker compose up -d keycloak    # http://localhost:8180
+```
+
+Para probar con curl, pide un token y úsalo en la cabecera:
+
+```bash
+TOKEN=$(curl -s -d grant_type=password -d client_id=tienda-pruebas -d username=admin -d password=admin123 http://localhost:8180/realms/tienda/protocol/openid-connect/token | jq -r .access_token)
+curl -H "Authorization: Bearer $TOKEN" "http://localhost:8080/productos?activo=false"
+```
+
+En PowerShell:
+
+```powershell
+$TOKEN = (Invoke-RestMethod -Method Post http://localhost:8180/realms/tienda/protocol/openid-connect/token -Body @{grant_type="password"; client_id="tienda-pruebas"; username="admin"; password="admin123"}).access_token
+Invoke-RestMethod -Headers @{Authorization="Bearer $TOKEN"} "http://localhost:8080/productos?activo=false"
+```
+
+En las pruebas no hace falta Keycloak: `TokensDePrueba.admin()` simula el token en MockMvc.
+
 ## Estado — Segunda entrega
 
 - [x] Documentación: historias, arquitectura y contrato
@@ -131,6 +159,7 @@ Para comprobar que todo funciona, abre http://localhost:8080/actuator/health: de
 - [x] Historia 7 — Reactivar producto
 - [x] Historia 8 — Ver los productos desactivados
 - [x] Descuento de stock en el checkout
+- [x] Login con Keycloak: los endpoints de administración validan el token (contrato v2.5)
 - [ ] Publicación de eventos en RabbitMQ
 - [ ] Registro en Eureka
 - [ ] Integración con Kong

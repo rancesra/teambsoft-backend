@@ -1,0 +1,85 @@
+{
+  "realm": "tienda",
+  "displayName": "Tienda Virtual",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["es"],
+  "defaultLocale": "es",
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Administra el catálogo: crea, edita, desactiva y reactiva productos"
+      },
+      {
+        "name": "cliente",
+        "description": "Compra en la tienda: carrito y pedidos"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "tienda-web",
+      "name": "Tienda Virtual (navegador)",
+      "description": "El Host App y los módulos. Cliente público con PKCE: no guarda ningún secreto",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:5050/*",
+        "http://localhost:5173/*",
+        "http://localhost:5174/*",
+        "http://localhost:5175/*"
+      ],
+      "webOrigins": ["+"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5050/*##http://localhost:5173/*##http://localhost:5174/*##http://localhost:5175/*"
+      }
+    },
+    {
+      "clientId": "tienda-pruebas",
+      "name": "Pruebas con curl o Postman (solo desarrollo)",
+      "description": "Permite pedir un token con usuario y contraseña, sin navegador. No se usa desde ningún frontend",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@tienda.test",
+      "emailVerified": true,
+      "firstName": "Ana",
+      "lastName": "Administradora",
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }],
+      "realmRoles": ["admin", "cliente"]
+    },
+    {
+      "username": "cliente",
+      "enabled": true,
+      "email": "cliente@tienda.test",
+      "emailVerified": true,
+      "firstName": "Carlos",
+      "lastName": "Cliente",
+      "credentials": [{ "type": "password", "value": "cliente123", "temporary": false }],
+      "realmRoles": ["cliente"]
+    }
+  ]
+}

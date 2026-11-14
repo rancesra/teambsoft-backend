@@ -1,5 +1,6 @@
 package co.edu.uis.catalogo.controller;
 
+import static co.edu.uis.catalogo.config.TokensDePrueba.admin;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -19,11 +20,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+import co.edu.uis.catalogo.config.SeguridadConfig;
 import co.edu.uis.catalogo.dto.ProductoListadoResponse;
 import co.edu.uis.catalogo.dto.ProductoResponse;
 import co.edu.uis.catalogo.error.ProductoNoEncontradoException;
@@ -39,6 +42,7 @@ import co.edu.uis.catalogo.service.ProductoService;
  * {@code ProductoControllerTest}, que es de B2.
  */
 @WebMvcTest(ProductoController.class)
+@Import(SeguridadConfig.class)
 class ProductoLecturaControllerTest {
 
 	@Autowired
@@ -134,7 +138,7 @@ class ProductoLecturaControllerTest {
 		willThrow(new ValidacionFallidaException("activo: debe ser true, false o todos"))
 				.given(productoService).listar(anyInt(), anyInt(), any(), eq("quizas"));
 
-		mockMvc.perform(get("/productos").param("activo", "quizas"))
+		mockMvc.perform(get("/productos").param("activo", "quizas").with(admin()))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.codigo").value("VALIDACION_FALLIDA"))
 				.andExpect(jsonPath("$.mensaje").value("activo: debe ser true, false o todos"));
@@ -167,7 +171,7 @@ class ProductoLecturaControllerTest {
 		given(productoService.listar(1, 20, null, "false"))
 				.willReturn(new ProductoListadoResponse(List.of(PRODUCTO_INACTIVO), 5L, 1, 20));
 
-		mockMvc.perform(get("/productos").param("activo", "false"))
+		mockMvc.perform(get("/productos").param("activo", "false").with(admin()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.total").value(5))
 				.andExpect(jsonPath("$.productos[0].activo").value(false));
@@ -178,7 +182,7 @@ class ProductoLecturaControllerTest {
 		given(productoService.listar(1, 20, null, "todos"))
 				.willReturn(new ProductoListadoResponse(List.of(PRODUCTO_ACTIVO, PRODUCTO_INACTIVO), 2L, 1, 20));
 
-		mockMvc.perform(get("/productos").param("activo", "todos"))
+		mockMvc.perform(get("/productos").param("activo", "todos").with(admin()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.total").value(2))
 				.andExpect(jsonPath("$.productos.length()").value(2));
@@ -222,7 +226,7 @@ class ProductoLecturaControllerTest {
 	void borrarProductoActivoResponde204SinCuerpo() throws Exception {
 		given(productoService.desactivar("prod-1")).willReturn(true);
 
-		mockMvc.perform(delete("/productos/prod-1")).andExpect(status().isNoContent());
+		mockMvc.perform(delete("/productos/prod-1").with(admin())).andExpect(status().isNoContent());
 
 		verify(productoService, times(1)).desactivar("prod-1");
 	}
@@ -231,7 +235,7 @@ class ProductoLecturaControllerTest {
 	void borrarProductoYaInactivoResponde204Igual() throws Exception {
 		given(productoService.desactivar("prod-2")).willReturn(false);
 
-		mockMvc.perform(delete("/productos/prod-2")).andExpect(status().isNoContent());
+		mockMvc.perform(delete("/productos/prod-2").with(admin())).andExpect(status().isNoContent());
 
 		verify(productoService, times(1)).desactivar("prod-2");
 	}
@@ -241,7 +245,7 @@ class ProductoLecturaControllerTest {
 		willThrow(new ProductoNoEncontradoException("inexistente")).given(productoService)
 				.desactivar("inexistente");
 
-		mockMvc.perform(delete("/productos/inexistente"))
+		mockMvc.perform(delete("/productos/inexistente").with(admin()))
 				.andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.codigo").value("PRODUCTO_NO_ENCONTRADO"));
 	}
