@@ -1,0 +1,309 @@
+diff --git a/busqueda-frontend/src/App.vue b/busqueda-frontend/src/App.vue
+index 1781888..b730b68 100644
+--- a/busqueda-frontend/src/App.vue
++++ b/busqueda-frontend/src/App.vue
+@@ -10,6 +10,14 @@ import DrawerFiltros from './components/DrawerFiltros.vue'
+ import { useBusqueda } from './composables/useBusqueda'
+ 
+ const { filtros, resultado, cargando, error, buscar, limpiarFiltros } = useBusqueda()
++
++// Dentro del Host App el módulo corre en un iframe: el encabezado lo pone el Host App.
++const embebido = window.self !== window.top
++
++// Al pulsar un resultado, el Host App abre su detalle en Catálogo (mensaje "navegar").
++function verProducto(producto) {
++  if (embebido) window.parent.postMessage({ tipo: 'navegar', ruta: '/catalogo/' + producto.id }, '*')
++}
+ const consultaRealizada = ref(false)
+ 
+ const formatoPrecio = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 })
+@@ -86,7 +94,7 @@ function etiquetaCategoria(c) {
+ 
+ <template>
+   <main class="busqueda">
+-    <h1>Búsqueda de productos</h1>
++    <h1 v-if="!embebido">Búsqueda de productos</h1>
+     <SearchBar @buscar="onBuscar" />
+ 
+     <FiltrosActivos
+@@ -115,7 +123,13 @@ function etiquetaCategoria(c) {
+         <p v-else-if="error">{{ error }}</p>
+         <template v-else-if="resultado.total > 0">
+           <ul class="productos">
+-            <li v-for="producto in resultado.productos" :key="producto.id" class="tarjeta">
++            <li
++              v-for="producto in resultado.productos"
++              :key="producto.id"
++              class="tarjeta"
++              :class="{ enlace: embebido }"
++              @click="verProducto(producto)"
++            >
+               <strong class="nombre">{{ producto.nombre }}</strong>
+               <span class="precio">{{ formatoPrecio.format(producto.precio) }}</span>
+               <span v-if="producto.categoria" class="categoria">{{ String(producto.categoria).replace(/^cat-/, '') }}</span>
+@@ -198,6 +212,10 @@ main.busqueda .search-bar {
+   background: var(--code-bg);
+ }
+ 
++.tarjeta.enlace {
++  cursor: pointer;
++}
++
+ .tarjeta .nombre {
+   color: var(--text-h);
+ }
+diff --git a/busqueda-frontend/src/composables/useBusqueda.js b/busqueda-frontend/src/composables/useBusqueda.js
+index 1149e6a..84b8bb9 100644
+--- a/busqueda-frontend/src/composables/useBusqueda.js
++++ b/busqueda-frontend/src/composables/useBusqueda.js
+@@ -3,7 +3,8 @@
+ // y llaman a `buscar()`; no deben tocar este archivo (si falta algo, pídelo al SM).
+ import { ref, reactive } from "vue";
+ 
+-const API = import.meta.env.VITE_API_URL || "http://localhost:3000/api/busqueda";
++// Por Kong, el API Gateway de la tienda. VITE_API_URL lo cambia (por ejemplo, para ir directo al 3000).
++const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api/busqueda";
+ 
+ export function useBusqueda() {
+   const filtros = reactive({
+diff --git a/busqueda-frontend/vite.config.js b/busqueda-frontend/vite.config.js
+index 7ba572c..6e3efb7 100644
+--- a/busqueda-frontend/vite.config.js
++++ b/busqueda-frontend/vite.config.js
+@@ -4,4 +4,6 @@ import { defineConfig } from 'vite'
+ // https://vite.dev/config/
+ export default defineConfig({
+   plugins: [vue()],
++  // Puerto fijo del módulo de Búsqueda (contrato del Host App, sección 3): el 5173 es de Catálogo.
++  server: { port: 5174, strictPort: true },
+ })
+diff --git a/src/infrastructure/cache/cacheBusqueda.js b/src/infrastructure/cache/cacheBusqueda.js
+index 9dd18bb..90ca644 100644
+--- a/src/infrastructure/cache/cacheBusqueda.js
++++ b/src/infrastructure/cache/cacheBusqueda.js
+@@ -169,9 +169,33 @@ async function invalidarCachePorProducto(productoId) {
+   }
+ }
+ 
++// Un producto que entra al índice (creado o reactivado) puede aparecer en cualquier búsqueda,
++// también en las que hoy están guardadas con 0 resultados. Esas no están en el índice por producto,
++// así que se borran todas las búsquedas guardadas.
++async function invalidarTodaLaBusqueda() {
++  try {
++    const client = await getClient();
++    if (!client || typeof client.scanIterator !== "function") {
++      return false;
++    }
++    const claves = [];
++    for await (const clave of client.scanIterator({ MATCH: `${PREFIX_BUSQUEDA}:*`, COUNT: 100 })) {
++      claves.push(clave);
++    }
++    for (const clave of claves) {
++      await client.del(clave);
++    }
++    return true;
++  } catch (err) {
++    console.warn("[cacheBusqueda] invalidarTodaLaBusqueda fallo (graceful):", err && err.message ? err.message : err);
++    return false;
++  }
++}
++
+ module.exports = {
+   obtenerBusqueda,
+   guardarBusqueda,
+   generarClave,
+   invalidarCachePorProducto,
++  invalidarTodaLaBusqueda,
+ };
+diff --git a/src/infrastructure/rabbitmq/catalogoConsumer.js b/src/infrastructure/rabbitmq/catalogoConsumer.js
+index 84f9d02..8a3627b 100644
+--- a/src/infrastructure/rabbitmq/catalogoConsumer.js
++++ b/src/infrastructure/rabbitmq/catalogoConsumer.js
+@@ -1,17 +1,32 @@
+ const amqp = require("amqplib");
+ const esClient = require("../elasticsearch/client");
+-const { invalidarCachePorProducto } = require("../../infrastructure/cache/cacheBusqueda");
++const { invalidarCachePorProducto, invalidarTodaLaBusqueda } = require("../../infrastructure/cache/cacheBusqueda");
+  
+-// Decidido en la reunión de planificación del Sprint 1:
+-const EXCHANGE = "catalogo.events";
++// Exchange y routing keys del contrato de Catálogo (sección 5).
++const EXCHANGE = "catalogo.eventos";
+ const EXCHANGE_TYPE = "topic";
+ const QUEUE = "busqueda.catalogo.eventos";
+ const ROUTING_KEYS = {
+-  "catalogo.producto.creado": "ProductoCreado",
+-  "catalogo.producto.actualizado": "ProductoActualizado",
+-  "catalogo.producto.desactivado": "ProductoDesactivado",
++  "producto.creado": "ProductoCreado",
++  "producto.actualizado": "ProductoActualizado",
++  "producto.desactivado": "ProductoDesactivado",
++  "producto.reactivado": "ProductoReactivado",
+ };
+ 
++// El documento que se guarda en Elasticsearch para un evento con el producto completo
++// (creado, actualizado y reactivado). El estado sale del evento: un producto desactivado que se
++// edita publica "producto.actualizado" con activo: false y no debe volver a la búsqueda.
++function documentoDeProducto(payload, ahora = new Date()) {
++  return {
++    ...payload,
++    activo: payload.activo !== false,
++    actualizadoEn: ahora.toISOString(),
++    sugerencia: {
++      input: [payload.nombre, ...String(payload.nombre || "").split(/\s+/).filter(Boolean)],
++    },
++  };
++}
++
+ const DLX_EXCHANGE = "busqueda.dlx";
+ const DLX_ROUTING_KEY = "busqueda.dlq.key";
+ const DLQ_QUEUE = "busqueda.catalogo.events.dlq";
+@@ -43,21 +58,16 @@ async function iniciarConsumidor() {
+       switch (tipoEvento) {
+         case "ProductoCreado":
+         case "ProductoActualizado":
+-          // id, nombre, precio, categoria confirmados. descripcion/stock aún no llegan
++        case "ProductoReactivado":
+           await esClient.update({
+             index: "productos", id: payload.id,
+-            doc: {
+-              ...payload,
+-              activo: true,
+-              actualizadoEn: new Date().toISOString(),
+-              sugerencia: {
+-                input: [payload.nombre, ...String(payload.nombre || "").split(/\s+/).filter(Boolean)],
+-              },
+-            },
++            doc: documentoDeProducto(payload),
+             doc_as_upsert: true,
+           });
+-          if (payload.id) {
++          if (tipoEvento === "ProductoActualizado") {
+             await invalidarCachePorProducto(payload.id);
++          } else {
++            await invalidarTodaLaBusqueda();
+           }
+           break;
+         case "ProductoDesactivado":
+@@ -79,4 +89,4 @@ async function iniciarConsumidor() {
+     }
+   });
+ }
+-module.exports = { iniciarConsumidor };
++module.exports = { iniciarConsumidor, documentoDeProducto, EXCHANGE, ROUTING_KEYS };
+diff --git a/tests/cacheInvalidacion.test.js b/tests/cacheInvalidacion.test.js
+index f4ba1cb..5ed3f4c 100644
+--- a/tests/cacheInvalidacion.test.js
++++ b/tests/cacheInvalidacion.test.js
+@@ -154,6 +154,7 @@ describe("Invalidación de caché por evento y DLQ", () => {
+     const invalidarCachePorProductoMock = jest.fn(async () => true);
+     jest.doMock("../src/infrastructure/cache/cacheBusqueda", () => ({
+       invalidarCachePorProducto: invalidarCachePorProductoMock,
++      invalidarTodaLaBusqueda: jest.fn(async () => true),
+     }));
+     jest.doMock("../src/infrastructure/elasticsearch/client", () => ({
+       update: jest.fn(async () => ({})),
+@@ -168,7 +169,7 @@ describe("Invalidación de caché por evento y DLQ", () => {
+ 
+     const msg = {
+       content: Buffer.from(JSON.stringify({ id: "P123", nombre: "Test" })),
+-      fields: { routingKey: "catalogo.producto.actualizado" },
++      fields: { routingKey: "producto.actualizado" },
+     };
+ 
+     await callback(msg);
+diff --git a/tests/catalogoConsumer.test.js b/tests/catalogoConsumer.test.js
+new file mode 100644
+index 0000000..0e20ceb
+--- /dev/null
++++ b/tests/catalogoConsumer.test.js
+@@ -0,0 +1,89 @@
++// Contrato de Catálogo, sección 5: exchange, routing keys y el campo "activo" de cada evento.
++const {
++  documentoDeProducto,
++  EXCHANGE,
++  ROUTING_KEYS,
++} = require("../src/infrastructure/rabbitmq/catalogoConsumer");
++
++const camiseta = {
++  id: "674000000000000000000001",
++  nombre: "Camiseta básica algodón",
++  descripcion: "Camiseta unisex 100% algodón.",
++  precio: 49900,
++  categoria: "cat-ropa",
++  stock: 100,
++  activo: true,
++  fecha: "2026-11-13T15:30:00Z",
++};
++
++describe("consumidor de eventos de Catálogo", () => {
++  test("escucha el exchange del contrato", () => {
++    expect(EXCHANGE).toBe("catalogo.eventos");
++  });
++
++  test("se enlaza a las cuatro routing keys del contrato", () => {
++    expect(Object.keys(ROUTING_KEYS).sort()).toEqual([
++      "producto.actualizado",
++      "producto.creado",
++      "producto.desactivado",
++      "producto.reactivado",
++    ]);
++  });
++
++  test("un producto activo queda activo", () => {
++    expect(documentoDeProducto(camiseta).activo).toBe(true);
++  });
++
++  test("un producto desactivado que se edita sigue fuera de la búsqueda", () => {
++    expect(documentoDeProducto({ ...camiseta, activo: false }).activo).toBe(false);
++  });
++
++  test("guarda todos los campos del evento y la sugerencia", () => {
++    const doc = documentoDeProducto(camiseta, new Date("2026-11-13T16:00:00Z"));
++    expect(doc).toMatchObject({ stock: 100, descripcion: camiseta.descripcion, precio: 49900 });
++    expect(doc.actualizadoEn).toBe("2026-11-13T16:00:00.000Z");
++    expect(doc.sugerencia.input).toEqual(["Camiseta básica algodón", "Camiseta", "básica", "algodón"]);
++  });
++});
++
++describe("caché al recibir eventos", () => {
++  beforeEach(() => jest.resetModules());
++
++  async function procesar(routingKey, payload) {
++    const invalidarCachePorProducto = jest.fn(async () => true);
++    const invalidarTodaLaBusqueda = jest.fn(async () => true);
++    let alConsumir;
++    const canal = {
++      assertExchange: jest.fn(async () => ({})),
++      assertQueue: jest.fn(async () => ({})),
++      bindQueue: jest.fn(async () => ({})),
++      consume: jest.fn(async (cola, fn) => { alConsumir = fn; }),
++      ack: jest.fn(),
++      nack: jest.fn(),
++    };
++    jest.doMock("amqplib", () => ({ connect: async () => ({ createChannel: async () => canal }) }));
++    jest.doMock("../src/infrastructure/elasticsearch/client", () => ({ update: jest.fn(async () => ({})) }));
++    jest.doMock("../src/infrastructure/cache/cacheBusqueda", () => ({ invalidarCachePorProducto, invalidarTodaLaBusqueda }));
++    const { iniciarConsumidor } = require("../src/infrastructure/rabbitmq/catalogoConsumer");
++    await iniciarConsumidor();
++    await alConsumir({ content: Buffer.from(JSON.stringify(payload)), fields: { routingKey } });
++    expect(canal.ack).toHaveBeenCalled();
++    return { invalidarCachePorProducto, invalidarTodaLaBusqueda };
++  }
++
++  test("un producto reactivado borra todas las búsquedas guardadas", async () => {
++    const { invalidarTodaLaBusqueda } = await procesar("producto.reactivado", camiseta);
++    expect(invalidarTodaLaBusqueda).toHaveBeenCalled();
++  });
++
++  test("un producto creado borra todas las búsquedas guardadas", async () => {
++    const { invalidarTodaLaBusqueda } = await procesar("producto.creado", camiseta);
++    expect(invalidarTodaLaBusqueda).toHaveBeenCalled();
++  });
++
++  test("un producto actualizado solo borra las búsquedas donde aparecía", async () => {
++    const r = await procesar("producto.actualizado", camiseta);
++    expect(r.invalidarCachePorProducto).toHaveBeenCalledWith(camiseta.id);
++    expect(r.invalidarTodaLaBusqueda).not.toHaveBeenCalled();
++  });
++});
