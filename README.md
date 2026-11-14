@@ -88,7 +88,10 @@ Los mockups son HTML: GitHub los muestra como código, hay que abrirlos en el na
 ```
 ├── src/                     Código del microservicio (Spring Boot)
 ├── pom.xml                  Dependencias y compilación (Maven)
-├── docker-compose.yml       MongoDB para desarrollo
+├── docker-compose.yml       Catálogo con MongoDB, RabbitMQ, Keycloak, Eureka y Kong
+├── eureka/                  Servidor de Eureka (proyecto Spring Boot aparte)
+├── keycloak/                Realm "tienda" que importa Keycloak
+├── kong/                    Rutas de Kong para desarrollar Catálogo solo
 └── docs/                    Toda la documentación
     ├── CONTRATO-CATALOGO.md
     ├── HISTORIAS.md
@@ -116,8 +119,6 @@ En Windows (PowerShell) usa `.\mvnw.cmd` en lugar de `./mvnw`.
 
 Para comprobar que todo funciona, abre http://localhost:8080/actuator/health: debe decir `"status":"UP"`, también en `mongo`.
 
-> Esta sección se irá actualizando a medida que se integren RabbitMQ, Eureka y Kong.
-
 ### El login (contrato v2.5)
 
 Crear, editar, desactivar, reactivar y ver los desactivados piden un token de **Keycloak** con el rol `admin`; sin token responde `401 NO_AUTENTICADO` y sin el rol, `403 SIN_PERMISO`. Las lecturas siguen públicas. Las reglas están en [SeguridadConfig.java](src/main/java/co/edu/uis/catalogo/config/SeguridadConfig.java).
@@ -144,6 +145,21 @@ Invoke-RestMethod -Headers @{Authorization="Bearer $TOKEN"} "http://localhost:80
 
 En las pruebas no hace falta Keycloak: `TokensDePrueba.admin()` simula el token en MockMvc.
 
+### Eureka (registro de servicios)
+
+El servidor está en [eureka/](eureka), como un proyecto Spring Boot aparte con su propio `mvnw`. Con `docker compose up -d` se construye y arranca solo, y Catálogo se registra en él al arrancar.
+
+Abre http://localhost:8761: en *Instances currently registered with Eureka* debe aparecer `CATALOGO` en `UP`. Si se detiene MongoDB, pasa a `DOWN`, porque el estado sale de `/actuator/health`. Si se detiene Catálogo, sale de la lista unos 30 segundos después.
+
+Para correr sus pruebas:
+
+```bash
+cd eureka
+./mvnw test
+```
+
+Si arrancas Catálogo desde VS Code sin Eureka, funciona igual y solo escribe en el log que no lo encuentra.
+
 ## Estado — Segunda entrega
 
 - [x] Documentación: historias, arquitectura y contrato
@@ -160,9 +176,9 @@ En las pruebas no hace falta Keycloak: `TokensDePrueba.admin()` simula el token 
 - [x] Historia 8 — Ver los productos desactivados
 - [x] Descuento de stock en el checkout
 - [x] Login con Keycloak: los endpoints de administración validan el token (contrato v2.5)
-- [ ] Publicación de eventos en RabbitMQ
-- [ ] Registro en Eureka
-- [ ] Integración con Kong
+- [x] Publicación de eventos en RabbitMQ
+- [x] Registro en Eureka, con servidor propio en `eureka/`
+- [x] Integración con Kong
 
 ## Equipo B
 
