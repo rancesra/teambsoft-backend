@@ -148,3 +148,29 @@ Después, cuatro terminales con `npm run dev`:
 | API Gateway | El frontend llama por Kong, en `/api/busqueda` |
 | Micro-frontend | Su frontend, en su puerto, dentro del Host App, y conectado con Catálogo por `navegar` |
 | Docker | Su backend, Elasticsearch y Redis en el `docker-compose` de integración |
+
+## 9. Agregado el 14 de noviembre: registro en Eureka
+
+El diagrama del profesor tiene a **todos los servicios registrados en Eureka**, el registro de servicios. Ya está en el `docker-compose` de integración (consola en `http://localhost:8761`) y Catálogo ya se registra. Para que también aparezca Búsqueda, hay un **segundo parche, pequeño e independiente**: [`busqueda-eureka.patch`](busqueda-eureka.patch).
+
+| Qué hace | Detalle |
+|---|---|
+| Se registra como `BUSQUEDA` | Con su IP y su puerto dentro de Docker. Usa la API REST de Eureka, **sin librerías nuevas** |
+| Mantiene el registro | Un latido cada 10 segundos. Si Eureka se reinicia, se vuelve a registrar solo |
+| Publica su estado | `UP` o `DOWN` según un ping a su Elasticsearch: si se cae, aparece `DOWN` |
+| Se despide al apagarse | Sale de la lista al instante |
+| Sin `EUREKA_URL` no hace nada | Sus pruebas y el desarrollo sin Docker no cambian. El `docker-compose` de integración ya la pasa |
+
+Archivos: `src/infrastructure/eureka/registroEureka.js` (nuevo), unas líneas en `src/index.js` y `tests/registroEureka.test.js` (6 pruebas nuevas, contra un Eureka falso).
+
+**Cómo aplicarlo**, en la misma rama del primer parche:
+
+```bash
+git apply busqueda-eureka.patch
+npm test
+```
+
+Se aplica limpio con o sin el primer parche.
+
+**Qué comprobamos:** **56 de 56 en verde** (las 50 de antes y 6 nuevas). Con la tienda completa, los tres servicios aparecen en `UP` en `http://localhost:8761`. También probamos que pasa a `DOWN` si se cae su base de datos, que vuelve a `UP` cuando vuelve, y que sale de la lista al apagarse.
+

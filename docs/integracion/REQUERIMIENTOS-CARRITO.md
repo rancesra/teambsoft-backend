@@ -146,3 +146,29 @@ Hoy los tres están en Catálogo v2.4, y desde la v2.5 hay un solo Kong y Keyclo
 | Seguridad | Token de Keycloak, validado con la llave pública del realm |
 | Micro-frontend | Su frontend, en su puerto, dentro del Host App |
 | Docker | Su backend y sus bases en el `docker-compose` de integración |
+
+## 9. Agregado el 14 de noviembre: registro en Eureka
+
+El diagrama del profesor tiene a **todos los servicios registrados en Eureka**, el registro de servicios. Ya está en el `docker-compose` de integración (consola en `http://localhost:8761`) y Catálogo ya se registra. Para que también aparezca Carrito, hay un **segundo parche, pequeño e independiente**: [`carrito-eureka.patch`](carrito-eureka.patch).
+
+| Qué hace | Detalle |
+|---|---|
+| Se registra como `CARRITO` | Con su IP y su puerto dentro de Docker. Usa la API REST de Eureka, **sin librerías nuevas** |
+| Mantiene el registro | Un latido cada 10 segundos. Si Eureka se reinicia, se vuelve a registrar solo |
+| Publica su estado | `UP` o `DOWN` según su `/ready`: si se cae Redis, aparece `DOWN` |
+| Se despide al apagarse | Sale de la lista al instante |
+| Sin `EUREKA_URL` no hace nada | Sus pruebas y el desarrollo sin Docker no cambian. El `docker-compose` de integración ya la pasa |
+
+Archivos: `src/clients/registroEureka.js` (nuevo), unas líneas en `src/server.js` y `tests/registroEureka.test.js` (6 pruebas nuevas, contra un Eureka falso).
+
+**Cómo aplicarlo**, en la misma rama del primer parche:
+
+```bash
+git apply carrito-eureka.patch
+npm test
+```
+
+Se aplica limpio con o sin el primer parche.
+
+**Qué comprobamos:** **204 pruebas en verde** (las 198 de antes y 6 nuevas). Con la tienda completa, los tres servicios aparecen en `UP` en `http://localhost:8761`. También probamos que pasa a `DOWN` si se cae su base de datos, que vuelve a `UP` cuando vuelve, y que sale de la lista al apagarse.
+
