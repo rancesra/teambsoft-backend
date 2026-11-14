@@ -1,0 +1,287 @@
+diff --git a/src/clients/registroEureka.js b/src/clients/registroEureka.js
+new file mode 100644
+index 0000000..36cc534
+--- /dev/null
++++ b/src/clients/registroEureka.js
+@@ -0,0 +1,132 @@
++// Registro en Eureka, el registro de servicios de la tienda (lo levanta el docker-compose de
++// integración; consola en http://localhost:8761).
++//
++// Usa la API REST de Eureka directamente, sin librerías:
++//   POST   /apps/{APP}                       se anuncia: nombre, IP y puerto
++//   PUT    /apps/{APP}/{id}                  latido cada 10 s; si pasan 30 sin latido, Eureka lo saca
++//   PUT    /apps/{APP}/{id}/status?value=…   UP o DOWN, según la salud del servicio
++//   DELETE /apps/{APP}/{id}                  se despide al apagarse
++//
++// Si EUREKA_URL no está definida no hace nada: las pruebas y el desarrollo sin Docker no cambian.
++// Si Eureka no responde, el servicio sigue funcionando y lo vuelve a intentar en el siguiente latido.
++
++const os = require("os");
++
++/** La IP de este contenedor en la red de Docker (la primera IPv4 que no es localhost). */
++function ipPropia() {
++  for (const interfaces of Object.values(os.networkInterfaces())) {
++    for (const red of interfaces || []) {
++      if (red.family === "IPv4" && !red.internal) return red.address;
++    }
++  }
++  return "127.0.0.1";
++}
++
++/** Lo que Eureka necesita saber de la instancia, en el formato que espera. */
++function datosDeInstancia({ app, puerto, ip, rutaSalud }) {
++  const base = `http://${ip}:${puerto}`;
++  return {
++    instance: {
++      instanceId: `${os.hostname()}:${app.toLowerCase()}:${puerto}`,
++      app: app.toUpperCase(),
++      hostName: ip,
++      ipAddr: ip,
++      vipAddress: app.toLowerCase(),
++      status: "UP",
++      port: { $: puerto, "@enabled": "true" },
++      securePort: { $: 443, "@enabled": "false" },
++      homePageUrl: `${base}/`,
++      statusPageUrl: `${base}${rutaSalud}`,
++      healthCheckUrl: `${base}${rutaSalud}`,
++      dataCenterInfo: {
++        "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
++        name: "MyOwn",
++      },
++      leaseInfo: { renewalIntervalInSecs: 10, durationInSecs: 30 },
++    },
++  };
++}
++
++/**
++ * Registra el servicio y lo mantiene registrado.
++ *
++ * @param {object} opciones
++ * @param {string} opciones.app             nombre del servicio en Eureka (por ejemplo "busqueda")
++ * @param {number} opciones.puerto          puerto en el que escucha dentro de Docker
++ * @param {string} [opciones.rutaSalud]     ruta de salud que muestra la consola de Eureka
++ * @param {() => Promise<boolean>} [opciones.comprobarSalud]  true = UP, false = DOWN
++ * @returns {{ detener: () => Promise<void> } | null}  null si no hay EUREKA_URL
++ */
++function registrarEnEureka({
++  app,
++  puerto,
++  rutaSalud = "/",
++  comprobarSalud = async () => true,
++  url = process.env.EUREKA_URL,
++  intervaloMs = 10000,
++  ip = ipPropia(),
++} = {}) {
++  if (!url) return null;
++
++  const servidor = url.replace(/\/+$/, "");
++  const datos = datosDeInstancia({ app, puerto: Number(puerto), ip, rutaSalud });
++  const nombre = datos.instance.app;
++  const id = encodeURIComponent(datos.instance.instanceId);
++  const instancia = `${servidor}/apps/${nombre}/${id}`;
++
++  let registrado = false;
++  let estadoPublicado = "UP";
++  let avisoDeFalla = false;
++
++  async function registrar() {
++    const respuesta = await fetch(`${servidor}/apps/${nombre}`, {
++      method: "POST",
++      headers: { "Content-Type": "application/json" },
++      body: JSON.stringify(datos),
++    });
++    if (!respuesta.ok) throw new Error(`Eureka respondió ${respuesta.status} al registrar`);
++    registrado = true;
++    estadoPublicado = "UP";
++    console.log(`[eureka] ${nombre} registrado en ${servidor} como ${datos.instance.instanceId}`);
++  }
++
++  async function latido() {
++    try {
++      if (!registrado) await registrar();
++
++      const respuesta = await fetch(instancia, { method: "PUT" });
++      // 404: Eureka no conoce esta instancia (se reinició, o la sacó por falta de latidos).
++      if (respuesta.status === 404) await registrar();
++
++      const sano = await comprobarSalud().catch(() => false);
++      const estado = sano ? "UP" : "DOWN";
++      if (estado !== estadoPublicado) {
++        await fetch(`${instancia}/status?value=${estado}`, { method: "PUT" });
++        estadoPublicado = estado;
++        console.log(`[eureka] ${nombre} ahora está ${estado}`);
++      }
++      avisoDeFalla = false;
++    } catch (error) {
++      registrado = false;
++      // Se avisa una sola vez, no en cada latido.
++      if (!avisoDeFalla) console.warn(`[eureka] Sin conexión con Eureka (${error.message}); se reintenta`);
++      avisoDeFalla = true;
++    }
++  }
++
++  latido();
++  const temporizador = setInterval(latido, intervaloMs);
++  // El temporizador no mantiene vivo el proceso por sí solo.
++  temporizador.unref();
++
++  return {
++    async detener() {
++      clearInterval(temporizador);
++      if (!registrado) return;
++      await fetch(instancia, { method: "DELETE" }).catch(() => {});
++      registrado = false;
++    },
++  };
++}
++
++module.exports = { registrarEnEureka, datosDeInstancia, ipPropia };
+diff --git a/src/server.js b/src/server.js
+index 3e7fcb5..4c06e94 100644
+--- a/src/server.js
++++ b/src/server.js
+@@ -3,6 +3,7 @@ const { port, autoMigrate, shutdownTimeoutMs } = require('./config/env');
+ const { connectRedis, disconnectRedis } = require('./redis/redisClient');
+ const { connectDb, pool } = require('./db/pool');
+ const { runMigrations } = require('./db/migrate');
++const { registrarEnEureka } = require('./clients/registroEureka');
+ 
+ async function start() {
+   await connectRedis(); // obligatorio: sin Redis no hay carrito
+@@ -17,6 +18,14 @@ async function start() {
+ 
+   const server = app.listen(port, () => console.log(`Carrito escuchando en :${port}`));
+ 
++  // Se anuncia en Eureka (solo si EUREKA_URL está definida). El estado sale de /ready: DOWN si se cae Redis.
++  const registro = registrarEnEureka({
++    app: 'carrito',
++    puerto: port,
++    rutaSalud: '/ready',
++    comprobarSalud: () => fetch(`http://localhost:${port}/ready`).then((r) => r.ok, () => false),
++  });
++
+   // Cierre ordenado: deja de aceptar peticiones, termina las que están en curso y cierra Redis y PostgreSQL
+   let cerrando = false;
+   function shutdown(senal) {
+@@ -28,8 +37,10 @@ async function start() {
+       process.exit(1);
+     }, shutdownTimeoutMs);
+     forzar.unref();
++    // Se despide de Eureka primero, para que nadie más lo busque mientras termina.
++    const despedida = registro ? registro.detener() : Promise.resolve();
+     server.close(async () => {
+-      await Promise.allSettled([disconnectRedis(), pool.end()]);
++      await Promise.allSettled([despedida, disconnectRedis(), pool.end()]);
+       clearTimeout(forzar);
+       process.exit(0);
+     });
+diff --git a/tests/registroEureka.test.js b/tests/registroEureka.test.js
+new file mode 100644
+index 0000000..a15414d
+--- /dev/null
++++ b/tests/registroEureka.test.js
+@@ -0,0 +1,104 @@
++// Registro en Eureka: se prueba contra un Eureka falso (un servidor HTTP que anota lo que recibe).
++const http = require("http");
++const { registrarEnEureka } = require("../src/clients/registroEureka");
++
++const APP = "carrito";
++
++function eurekaFalso() {
++  const pedidos = [];
++  const estado = { latidoResponde: 200 };
++  const servidor = http.createServer((req, res) => {
++    let cuerpo = "";
++    req.on("data", (parte) => (cuerpo += parte));
++    req.on("end", () => {
++      pedidos.push({ metodo: req.method, ruta: req.url, cuerpo: cuerpo ? JSON.parse(cuerpo) : null });
++      const esLatido = req.method === "PUT" && !req.url.includes("/status");
++      res.statusCode = esLatido ? estado.latidoResponde : req.method === "POST" ? 204 : 200;
++      res.end();
++    });
++  });
++  return new Promise((resolver) =>
++    servidor.listen(0, () => resolver({ servidor, pedidos, estado, url: `http://localhost:${servidor.address().port}/eureka` }))
++  );
++}
++
++const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
++
++describe("registro en Eureka", () => {
++  let eureka;
++  let registro;
++
++  beforeEach(async () => {
++    eureka = await eurekaFalso();
++    jest.spyOn(console, "log").mockImplementation(() => {});
++    jest.spyOn(console, "warn").mockImplementation(() => {});
++  });
++
++  afterEach(async () => {
++    if (registro) await registro.detener();
++    registro = null;
++    await new Promise((r) => eureka.servidor.close(r));
++    jest.restoreAllMocks();
++  });
++
++  test("sin EUREKA_URL no hace nada", () => {
++    expect(registrarEnEureka({ app: APP, puerto: 3000, url: "" })).toBeNull();
++  });
++
++  test("se registra con su nombre, IP y puerto, y después manda latidos", async () => {
++    registro = registrarEnEureka({ app: APP, puerto: 3000, url: eureka.url, ip: "172.20.0.9", intervaloMs: 40 });
++    await esperar(150);
++
++    const [registroInicial] = eureka.pedidos;
++    expect(registroInicial.metodo).toBe("POST");
++    expect(registroInicial.ruta).toBe(`/eureka/apps/${APP.toUpperCase()}`);
++    expect(registroInicial.cuerpo.instance).toMatchObject({
++      app: APP.toUpperCase(),
++      ipAddr: "172.20.0.9",
++      port: { $: 3000, "@enabled": "true" },
++      status: "UP",
++    });
++    const latidos = eureka.pedidos.filter((p) => p.metodo === "PUT" && !p.ruta.includes("/status"));
++    expect(latidos.length).toBeGreaterThanOrEqual(2);
++  });
++
++  test("si Eureka ya no lo conoce (404), se vuelve a registrar", async () => {
++    registro = registrarEnEureka({ app: APP, puerto: 3000, url: eureka.url, intervaloMs: 40 });
++    await esperar(60);
++    eureka.estado.latidoResponde = 404;
++    await esperar(60);
++
++    const registros = eureka.pedidos.filter((p) => p.metodo === "POST");
++    expect(registros.length).toBeGreaterThanOrEqual(2);
++  });
++
++  test("publica DOWN cuando la salud falla y UP cuando vuelve", async () => {
++    let sano = true;
++    registro = registrarEnEureka({
++      app: APP, puerto: 3000, url: eureka.url, intervaloMs: 40, comprobarSalud: async () => sano,
++    });
++    await esperar(60);
++    sano = false;
++    await esperar(80);
++    sano = true;
++    await esperar(80);
++
++    const cambios = eureka.pedidos.filter((p) => p.ruta.includes("/status?value="));
++    expect(cambios.map((p) => p.ruta.split("value=")[1])).toEqual(["DOWN", "UP"]);
++  });
++
++  test("si Eureka no responde, el servicio sigue y no lanza errores", async () => {
++    registro = registrarEnEureka({ app: APP, puerto: 3000, url: "http://localhost:1/eureka", intervaloMs: 40 });
++    await esperar(100);
++    expect(registro).not.toBeNull();
++  });
++
++  test("al detenerse se despide de Eureka", async () => {
++    registro = registrarEnEureka({ app: APP, puerto: 3000, url: eureka.url, intervaloMs: 1000 });
++    await esperar(60);
++    await registro.detener();
++    registro = null;
++
++    expect(eureka.pedidos.at(-1).metodo).toBe("DELETE");
++  });
++});

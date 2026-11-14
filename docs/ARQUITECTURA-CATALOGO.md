@@ -1,8 +1,8 @@
 # Arquitectura — Catálogo (Equipo B)
 
 **Entrega:** Primera entrega — Ciclo 1 (actualizado en Ciclo 2)
-**Versión:** 1.6
-**Fecha:** 2026-11-13
+**Versión:** 1.7
+**Fecha:** 2026-11-14
 
 ## 1. Rol en el sistema
 
@@ -19,7 +19,7 @@ Ahí se ve el Cliente Web con su Host App y los módulos de cada equipo, Kong co
 | Spring Boot 4.1.1 (Java 21) | Framework del microservicio |
 | MongoDB 7.0 | Persistencia de productos y categorías (documento, no relacional) |
 | Spring Data MongoDB | Capa de acceso a datos |
-| Eureka Client | Registro y descubrimiento del servicio |
+| Eureka (Spring Cloud Netflix) | Registro y descubrimiento. Catálogo se registra como cliente; el servidor es un proyecto aparte, en `eureka/` (v1.7) |
 | Docker (Docker Compose) | Empaquetado y entorno reproducible; en desarrollo, MongoDB corre en un contenedor definido en `docker-compose.yml` |
 | RabbitMQ (vía Spring AMQP) | Publicación de eventos de dominio |
 | Spring Security (OAuth2 Resource Server) | Valida los tokens de Keycloak y decide quién puede llamar a cada endpoint (contrato v2.5) |
@@ -60,7 +60,7 @@ Además:
 - Los **DTOs** (`ProductoResponse`, `CategoriaResponse` y, con B2, `ProductoRequest`) definen lo que entra y sale por la API, separados de las entidades que se guardan en Mongo.
 - **ManejadorGlobalErrores** (`@RestControllerAdvice`) atrapa las excepciones de cualquier capa y responde con el formato de error del contrato (§4). Los controllers y services solo lanzan excepciones.
 - **CargaCategorias** guarda las categorías del contrato cada vez que arranca el servicio.
-- El servicio se registra en **Eureka** al arrancar (tarea B4).
+- El servicio se registra en **Eureka** al arrancar con el nombre `catalogo`, su IP y su puerto, y renueva el registro cada 10 segundos. El estado que publica (`UP` o `DOWN`) sale de `/actuator/health`: si pierde MongoDB, Eureka lo muestra caído aunque el proceso siga vivo (v1.7).
 
 > Nota: este diagrama se renderiza automáticamente al ver el archivo en GitHub (soporta Mermaid de forma nativa en Markdown).
 
@@ -82,6 +82,7 @@ Producto y Categoría, con sus campos y reglas de validación, están definidos 
 - **Descuento de stock con una operación atómica de MongoDB, no con transacciones:** `POST /productos/descontar-stock` descuenta con un `updateOne` condicionado (`{_id, activo: true, stock: {$gte: cantidad}}` con `$inc` negativo). MongoDB garantiza atomicidad **por documento**, así que dos checkouts simultáneos sobre el mismo producto no pueden pasar los dos: el segundo no encuentra documento que cumpla la condición y se responde 409. Se descartó usar transacciones multi-documento porque exigen un conjunto de réplicas y esta entrega corre un Mongo de un solo nodo; cuando un ítem falla, el servicio revierte los descuentos ya hechos en esa misma petición, una compensación de mejor esfuerzo que es suficiente para el alcance actual. También se descartó una reserva con retención (apartar stock y liberarlo por tiempo), que arrastra expiraciones y un compensador que hoy no tiene dueño: el equipo de Órdenes no está asignado.
 - **Un repositorio por frente, no uno solo con las dos partes:** el microservicio vive en `teambsoft-backend` y el módulo de frontend en `teambsoft-frontend`. Cada frente tiene su propio ciclo: el backend se compila con Maven y se despliega como contenedor; el frontend se construye con Vite y termina integrándose al Host App. Separarlos deja cada repositorio con la forma que esperan sus herramientas (la raíz del repositorio del backend es la raíz del proyecto Maven) y evita que un cambio de Vue pase por la revisión de Java. El costo es que la documentación no se puede duplicar: el contrato, las historias y este documento viven solo en el repositorio del backend y el del frontend los enlaza. La separación se hizo antes de que existiera código de frontend, que es cuando no obliga a reescribir historial.
 - **Login con Keycloak, y el token lo valida cada servicio, no Kong (v2.5):** Catálogo es un *resource server*: no guarda contraseñas ni inicia sesiones; recibe un JWT firmado por Keycloak y lo comprueba con la llave pública del realm (firma, vencimiento y emisor). Los roles salen de `realm_access.roles`. Se eligió Spring Security sobre el plugin `jwt` de Kong porque hace todo en un solo lugar: con Kong habría que copiar la llave pública en `kong.yml` (y cambiarla a mano si Keycloak la rota), y Kong no sabe revisar roles, así que el rol lo tendría que leer Catálogo de todas formas. Además, las reglas quedan probadas con MockMvc. El costo es que cada equipo valida por su cuenta con su propia librería. La llave se descarga con la primera petición que trae token, así que Catálogo arranca aunque Keycloak no esté listo. `descontar-stock` y `devolver-stock` siguen abiertos en esta entrega: protegerlos exige que Carrito pida su propio token (contrato §8).
+- **Servidor de Eureka propio, en el mismo repositorio, y Kong enruta por nombre de Docker (v1.7):** el servidor es un proyecto Spring Boot de una clase (`@EnableEurekaServer`) en la carpeta `eureka/`, con la misma versión de Spring Cloud que el cliente de Catálogo, así que los dos hablan el mismo protocolo. Se descartó una imagen ya hecha de Docker Hub porque Spring no publica una oficial, y con la de un tercero no controlaríamos su versión ni su contenido. Va en el repositorio del backend y no en uno nuevo porque es Java y lo mantiene el mismo equipo; el `docker-compose` de integración lo construye desde `teambsoft-backend.git#main:eureka`. **Qué resuelve y qué no:** Eureka sabe qué instancias de cada servicio existen, dónde están y si están sanas; es lo que permitiría correr varias copias de Catálogo y repartir la carga entre ellas. Kong (la versión libre) no sabe consultar Eureka, así que sigue llegando a cada servicio por su nombre en la red de Docker (`http://catalogo:8080`), que en un solo computador ya resuelve la dirección. Búsqueda y Carrito, hechos en Node.js, no se registran en esta entrega. En el servidor se apagan la autopreservación (con un solo servicio de cada tipo, dejaría anunciado a uno que se cayó) y la caché de respuestas (para que la consola muestre cada cambio al instante).
 - **Categorías precargadas desde el código, de forma idempotente:** se guardan al arrancar con ids fijos, así que repetir el arranque no crea duplicados. Se descartó un script de Mongo en Docker porque solo se ejecuta cuando el volumen está vacío.
 
 ## 6. Documentos relacionados
@@ -98,5 +99,6 @@ Producto y Categoría, con sus campos y reglas de validación, están definidos 
 | 2026-09-11 | v1.2 — La arquitectura interna refleja lo construido en B1 (categorías, DTOs, manejador global de errores y carga de categorías). Nuevas decisiones: formato de errores, precio como Decimal128, entidades sin setters y carga idempotente de categorías |
 | 2026-09-21 | v1.3 — El módulo se separa en dos repositorios (`teambsoft-backend` y `teambsoft-frontend`) y el proyecto Maven pasa a la raíz del repositorio del backend. Se actualizan las rutas afectadas y se documenta la decisión. El contrato no cambia |
 | 2026-11-13 | v1.6 — Spring Security y Keycloak entran al stack. El diagrama muestra `SeguridadConfig` antes de los controllers, y se documenta la decisión de validar el token en cada servicio y no en Kong. Acompaña al contrato v2.5 |
+| 2026-11-14 | v1.7 — Servidor de Eureka propio en `eureka/`. Catálogo se registra con su estado de salud. Se documenta qué resuelve Eureka y por qué Kong sigue enrutando por nombre de Docker. El contrato no cambia |
 | 2026-09-23 | v1.5 — Se enlaza el diagrama del sistema completo, que estaba en el repositorio sin que ningún documento lo referenciara. Se actualizan las rutas tras mover el plan de trabajo y las guías a `docs/` |
 | 2026-09-21 | v1.4 — Se documenta cómo se descuenta el stock (operación atómica de MongoDB en vez de transacciones) y por qué se descarta la reserva con retención. Acompaña al contrato v2.3 |
