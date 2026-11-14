@@ -46,8 +46,8 @@ Lo que manda. Si el código contradice a alguno de estos, el equivocado es el c�
 
 | Documento | Versión | Contenido |
 |---|---|---|
-| [Contrato de servicio](docs/CONTRATO-CATALOGO.md) | v2.3 | Endpoints, modelos, errores y eventos acordados con los equipos A y C |
-| [Contrato del Host App](https://github.com/rancesra/teambsoft-hostapp/blob/main/CONTRATO-HOSTAPP.md) | v1.1 | Cómo se integra cada módulo al cascarón: rutas, qué expone cada uno y estilo compartido |
+| [Contrato de servicio](docs/CONTRATO-CATALOGO.md) | v2.4 | Endpoints, modelos, errores y eventos acordados con los equipos A y C |
+| [Contrato del Host App](https://github.com/rancesra/teambsoft-hostapp/blob/main/CONTRATO-HOSTAPP.md) | v1.2 | Cómo se integra cada módulo al cascarón: rutas, qué expone cada uno y estilo compartido |
 | [Historias de usuario](docs/HISTORIAS.md) | v1.2 | Las 8 historias con sus criterios de aceptación |
 | [Arquitectura](docs/ARQUITECTURA-CATALOGO.md) | v1.5 | Stack, capas internas y decisiones de diseño |
 | [Plan de trabajo](docs/PLAN-DE-TRABAJO.md) | — | Qué hace cada integrante, en qué orden y cómo verificarlo |
