@@ -1,10 +1,10 @@
 # Contrato de Servicio — Catálogo (Equipo B)
 
-**Versión:** 2.4 — Segunda entrega (Ciclo 2)\
-**Fecha:** 2026-11-05 (revisada el 2026-11-12)\
+**Versión:** 2.5 — Segunda entrega (Ciclo 2)\
+**Fecha:** 2026-11-13\
 **Equipo responsable:** Equipo B\
 **Consumido por:** Equipo A (Búsqueda), Equipo C (Carrito)\
-**Estado:** propuesta. El Equipo C la aceptó el 12 de noviembre. Plazo para objetar: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, queda acordada. Todos los cambios son compatibles con la v2.3.
+**Estado:** propuesta. El Equipo C aceptó la v2.4 el 12 de noviembre. La v2.5 solo cambia los endpoints de administración, que no usan ni A ni C. Plazo para objetar las dos: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, quedan acordadas.
 
 ## 1. Propósito
 
@@ -32,7 +32,17 @@ Se consumen a través del API Gateway (Kong), con el prefijo `/api/catalogo`. Ko
 | POST | /productos/descontar-stock | Descuenta stock al confirmar una compra | Servicio |
 | POST | /productos/devolver-stock | Devuelve el stock de un descuento hecho con `referencia` | Servicio |
 
-> Identity Server (Keycloak) no está integrado en esta entrega. Los endpoints Admin no validan token real todavía — se documenta el contrato final para que Carro y Búsqueda ya sepan qué esperar cuando se conecte.
+**Autenticación (v2.5).** El login lo hace Keycloak (sección 10.6) y Catálogo valida el token en cada petición:
+
+| Acceso | Qué pide | Si falta |
+|---|---|---|
+| **Pública** | Nada. Si llega un token, se ignora | — |
+| **Admin** | Cabecera `Authorization: Bearer <token>`, con un token de Keycloak vigente que tenga el rol `admin` | Sin token, o con uno vencido o mal firmado: `401 NO_AUTENTICADO`. Con un token válido sin el rol: `403 SIN_PERMISO` |
+| **Servicio** | **Nada en esta entrega.** Los llama Carrito, servidor a servidor, y protegerlos exige que Carrito pida su propio token a Keycloak (sección 8) | — |
+
+`GET /productos` con `activo=false` o `activo=todos` es **Admin**: la lista de desactivados es de la administración (ver los parámetros más abajo). Sin `activo`, o con `activo=true`, sigue siendo pública.
+
+Catálogo comprueba la firma del token con la llave pública de Keycloak, que su emisor (`iss`) sea `http://localhost:8180/realms/tienda` y que no esté vencido. Los roles los lee de `realm_access.roles`. Kong no valida tokens: solo enruta.
 
 **GET /productos** → 200
 ```json
@@ -57,6 +67,7 @@ Ejemplo: `GET /productos?categoria=cat-ropa&pagina=2&tamanoPagina=20`
 
 - `total` es la cantidad de productos que cumplen el filtro, no solo los de la página actual.
 - **`activo` existe para la pantalla de administración**, que necesita poder encontrar lo que desactivó. Su valor por defecto es `true`, así que quien no lo envíe sigue recibiendo solo productos activos, exactamente como antes. El escaparate público no debe enviarlo nunca.
+- **Desde la v2.5, `activo` distinto de `true` pide el rol `admin`**: sin token responde `401` y con un token sin el rol, `403`. Un valor inválido, como `activo=quizas`, también cuenta como distinto de `true`: sin token responde `401` antes que `400`.
 - Si `pagina` es mayor que la última página, responde 200 con `productos: []` y el mismo `total`.
 - Si `categoria` no corresponde a ninguna categoría existente, responde 200 con `productos: []` y `total: 0` (un filtro sin resultados no es un error).
 - Valores de `pagina` o `tamanoPagina` fuera de estas reglas → 400 (`VALIDACION_FALLIDA`).
@@ -199,6 +210,8 @@ Códigos de esta entrega:
 | `VALIDACION_FALLIDA` | 400 | La petición no cumple las reglas del contrato |
 | `STOCK_INSUFICIENTE` | 409 | Algún ítem de `descontar-stock` no alcanza |
 | `REFERENCIA_EN_USO` | 409 | La `referencia` ya se usó con otros ítems, o ya se devolvió (v2.4) |
+| `NO_AUTENTICADO` | 401 | Un endpoint Admin sin token, o con uno vencido, mal firmado o de otro emisor (v2.5). Trae también la cabecera estándar `WWW-Authenticate: Bearer` |
+| `SIN_PERMISO` | 403 | Un endpoint Admin con un token válido que no tiene el rol `admin` (v2.5) |
 
 `STOCK_INSUFICIENTE` es 409 y no 400 porque no es un error de formato de la petición, sino un conflicto con el estado actual del recurso: la misma petición puede fallar ahora y funcionar en un minuto. Se usa el mismo código y el mismo número que ya definió Carro en su contrato v1.1.
 
@@ -331,8 +344,9 @@ Carro consume Catálogo por REST, de forma síncrona: necesita el precio, el est
 
 ## 8. Fuera de alcance en esta entrega
 
-- Autenticación real vía Keycloak
-- Descuento y Órdenes (equipo aún sin asignar)
+- **Token de servicio para `descontar-stock` y `devolver-stock`:** desde la v2.5 los endpoints Admin piden token, pero los de Servicio siguen abiertos. Protegerlos exige que Carrito pida un token propio a Keycloak (*client credentials*) y lo envíe al llamarlos. Se propone para una entrega posterior
+- **Registro de usuarios:** los usuarios del realm `tienda` vienen precargados (sección 10.6); no hay pantalla para crear cuentas
+- Descuento (equipo aún sin asignar). Las órdenes no son un servicio aparte: el historial de pedidos lo lleva Carrito (`GET /api/carrito/pedidos`), y el Host App lo muestra en su menú como «Órdenes» (contrato del Host App v1.3)
 - Variantes de producto (talla/color con stock por variante)
 - Filtros y ordenamiento avanzado (solo se filtra por categoría y por `activo` en esta entrega)
 - **Reserva de stock con retención:** `POST /productos/descontar-stock` descuenta en el momento del checkout, pero no aparta unidades mientras el usuario decide, y **un descuento no vence solo**: hacerlo vencer necesita un proceso que lo libere por tiempo, que nadie opera
@@ -362,6 +376,7 @@ Lo esencial para este contrato:
 - El módulo de Catálogo vive bajo el prefijo `/catalogo/*` y no pinta nada fuera de él.
 - **Cada módulo tiene que funcionar solo, sin el Host App.** Es lo que evita que un equipo quede bloqueado esperando a otro, y es el plan B si la integración falla el día de la sustentación.
 - La integración se hace en dos etapas: primero cada módulo se carga en un iframe, que es obligatoria (contrato del Host App v1.1); encima, Module Federation.
+- **El login (v2.5).** Dentro del Host App, el cascarón inicia la sesión y le pasa el token al módulo con el mensaje `sesion` (contrato del Host App v1.3, sección 5). Corriendo solo, el módulo inicia sesión en Keycloak por su cuenta. En los dos casos, el módulo envía el token en cada petición y muestra la administración solo a quien tiene el rol `admin`.
 
 **El botón “Agregar al carro”** (v2.4) funciona así:
 
@@ -410,7 +425,7 @@ Un origen que no está en la lista no puede llamar a Kong desde el navegador. Si
 
 - Vive en [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp) y lo opera el **Equipo B**. Levanta los tres backends, sus bases de datos, el RabbitMQ de 10.1 y el Kong de 10.2.
 - **Construye cada backend desde su repositorio de GitHub**, con el `Dockerfile` de cada equipo: nadie copia código de otro.
-- **Dentro de la red de Docker** cada servicio usa sus puertos de siempre sin chocar (Carrito y Búsqueda pueden seguir los dos en el 3000). **Hacia afuera solo se publican Kong (`8000`) y la consola de RabbitMQ (`15672`).**
+- **Dentro de la red de Docker** cada servicio usa sus puertos de siempre sin chocar (Carrito y Búsqueda pueden seguir los dos en el 3000). **Hacia afuera solo se publican Kong (`8000`), Keycloak (`8180`, v2.5) y la consola de RabbitMQ (`15672`).**
 - Catálogo arranca con el perfil `integracion`, que carga los productos de prueba, y **después de Búsqueda** (sección 10.5).
 - Cada equipo sigue teniendo su propio `docker-compose.yml` para desarrollar solo. El de integración es para probar juntos y para la demostración.
 
@@ -447,11 +462,41 @@ Cómo se cargan:
 
 Los ids son ObjectId válidos de 24 caracteres hexadecimales, como los de cualquier otro producto (sección 7.2). Los nombres y precios pueden cambiar entre versiones; **los ids no**.
 
-## 11. Aprobación de la v2.4
+### 10.6 Keycloak (v2.5)
+
+Un solo Keycloak para toda la tienda: el «Identity Server» de la arquitectura. Va en el `docker-compose` de integración (10.3) y en el del backend de Catálogo, y al arrancar importa el realm desde `keycloak/realm-tienda.json`.
+
+| Qué | Valor |
+|---|---|
+| Imagen | `quay.io/keycloak/keycloak:26.8.0`, en modo desarrollo (`start-dev --import-realm`). No guarda nada entre reinicios |
+| Dirección para el navegador | `http://localhost:8180` |
+| Dirección dentro de Docker | `http://keycloak:8080` |
+| Realm | `tienda` |
+| Emisor de los tokens (`iss`) | `http://localhost:8180/realms/tienda`, siempre, aunque un servicio llegue por `keycloak:8080` |
+| Llaves públicas (JWKS) | `/realms/tienda/protocol/openid-connect/certs` |
+| Roles del realm | `admin` (administra el catálogo) y `cliente` (compra) |
+| Cliente del navegador | `tienda-web`: público, con PKCE (`S256`), para los orígenes `5050`, `5173`, `5174` y `5175` |
+| Cliente de pruebas | `tienda-pruebas`: permite pedir un token con usuario y contraseña desde curl o Postman. Solo desarrollo |
+| Usuarios de prueba | `admin` / `admin123` (roles `admin` y `cliente`) y `cliente` / `cliente123` (rol `cliente`) |
+
+El token es un JWT firmado con RS256. Lo que le sirve a cada servicio:
+
+| Campo | Qué es |
+|---|---|
+| `sub` | El id del usuario. Es el que Carrito usa como `userId` |
+| `preferred_username`, `name` | Usuario y nombre, para mostrar |
+| `realm_access.roles` | Los roles: `["admin", "cliente"]` o `["cliente"]` |
+| `exp` | Vence a los 5 minutos. El Host App lo renueva solo antes de que venza |
+
+Cada servicio valida el token por su cuenta, con la llave pública de Keycloak: Catálogo con Spring Security; Carrito, si decide aceptarlo, con su librería de JWT y RS256 en lugar del `JWT_SECRET`. Mientras Carrito no lo haga, sigue con su token de prueba (sección 11).
+
+## 11. Aprobación de la v2.4 y la v2.5
 
 El plazo para objetar es el **martes 17 de noviembre de 2026, a las 12:00 m.**, el mismo que fijó el Equipo C en su contrato de integración. Reemplaza al del 8 de noviembre de la primera publicación de la v2.4. Una objeción se discute y, si cambia algo, se publica en una versión nueva. **Si no hay objeciones antes de esa hora, la v2.4 queda acordada.**
 
 Como todos los cambios son compatibles con la v2.3, Catálogo los implementa desde ya, para llegar a la presentación de la integración del **jueves 19 de noviembre**. Si una objeción cambia algo, primero se corrige el contrato y después el código.
+
+**La v2.5 no le cambia nada a A ni a C.** Solo los endpoints Admin, que usa el frontend de Catálogo, piden token. Las lecturas siguen públicas, `descontar-stock` y `devolver-stock` siguen abiertos, y los eventos no cambian. Si Carrito quiere usar el login real, el token y sus campos están en la sección 10.6.
 
 | Equipo | Respuesta | Fecha |
 |---|---|---|
@@ -484,12 +529,15 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 | C — Carrito | Fijar su frontend en el `5175`. Ya envía la `referencia` y ya llama a `devolver-stock` | 7 y 10.4 |
 | B — Catálogo | Implementar los cambios de la v2.4, el Kong de 10.2 y el `docker-compose` de integración de 10.3 | 2, 4, 5 y 10 |
 
-| Cambio de la v2.4 | Implementado en Catálogo |
+| Cambio | Implementado en Catálogo |
 |---|---|
-| `referencia` idempotente en `descontar-stock` | Pendiente |
-| `POST /productos/devolver-stock` | Pendiente |
-| `items` en el 409 `STOCK_INSUFICIENTE` y el error `REFERENCIA_EN_USO` | Pendiente |
-| `activo` y `fecha` en los eventos | Pendiente |
+| v2.4: `referencia` idempotente en `descontar-stock` | Sí, en revisión (rama `v2.4-api-catalogo`) |
+| v2.4: `POST /productos/devolver-stock` | Sí, en revisión (rama `v2.4-api-catalogo`) |
+| v2.4: `items` en el 409 `STOCK_INSUFICIENTE` y el error `REFERENCIA_EN_USO` | Sí, en revisión (rama `v2.4-api-catalogo`) |
+| v2.4: `activo` y `fecha` en los eventos | Sí, en revisión (rama `v2.4-api-catalogo`) |
+| v2.4: productos de prueba con ids fijos (10.5) | Sí, en revisión (rama `v2.4-productos-prueba`) |
+| v2.5: token de Keycloak en los endpoints Admin, `401` y `403` | Sí, en revisión (rama `v2.5-login-keycloak`) |
+| v2.5: Keycloak en los `docker-compose` (10.6) | Sí, en revisión (ramas `v2.5-login-keycloak` del backend e `integracion-keycloak` del Host App) |
 
 ## 12. Historial de cambios
 
@@ -503,3 +551,4 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 | 2026-09-21 | v2.3 — Cambios compatibles con v2.2, a partir de la revisión cruzada con los contratos de Búsqueda v1.0 y Carrito v1.1. **Eventos:** se agregan `descripcion` y `stock` al payload (lo pedía Búsqueda como bloqueante) y se suma `producto.reactivado`. **Endpoints nuevos:** `POST /productos/{id}/activar` (no existía forma de reactivar) y `POST /productos/descontar-stock` (lo pedía Carrito como bloqueante para su checkout). **`GET /productos`:** nuevo parámetro `activo`, con `true` por defecto, para que la administración pueda encontrar lo que desactivó. **Errores:** se agrega `STOCK_INSUFICIENTE` (409), con el mismo nombre y código que ya usaba Carrito. **§9:** el Host App queda a cargo del Equipo B y su superficie de integración se documenta en `CONTRATO-HOSTAPP.md`. Se cierran los dos “pendiente de confirmar” de las secciones 6 y 7 |
 | 2026-11-05 | v2.4 — Cambios compatibles con v2.3, a partir de la revisión de los repositorios de Búsqueda y Carrito. **Carrito:** `referencia` opcional e idempotente en `descontar-stock`, nuevo `POST /productos/devolver-stock`, `items` en el 409 `STOCK_INSUFICIENTE` y nuevo error `REFERENCIA_EN_USO` (lo propuso el contrato de Carrito v1.3); la sección 7 detalla qué llama Carro en cada paso. **Búsqueda:** `activo` y `fecha` en el payload de los eventos, reglas de consumo (sección 5.1) y la sección 6 detalla cómo aplicar cada evento. **Sección 2:** URL base a través de Kong y directa. **Sección 9:** la etapa 1 del Host App es con iframes, como dice su contrato v1.1, y se decide el botón “Agregar al carro” (`/carrito?agregar={id}`). **Nuevas secciones:** 10 (infraestructura compartida: un solo RabbitMQ, el de Catálogo; un solo Kong con las rutas de los tres; un `docker-compose` de integración en el repositorio del Host App, operado por el Equipo B; y los puertos de los frontends) y 11 (aprobación, con plazo para objetar hasta el 8 de noviembre) |
 | 2026-11-12 | v2.4, revisión — Sin cambios en la API, los eventos ni lo que ya se había propuesto; completa la v2.4 con la respuesta del Equipo C (su «Contrato de integración» v1.0, que la acepta). **Sección 10.2:** configuración del CORS del Kong compartido (orígenes `5173`, `5174`, `5175` y `5050`). **Nueva sección 10.5:** seis productos de prueba con ids fijos, que Catálogo crea con el perfil `integracion` y anuncia con `producto.creado`. **Sección 11:** el plazo para objetar pasa al martes 17 de noviembre a las 12:00 m., el mismo del Equipo C, porque el del 8 de noviembre venció antes de que los equipos recibieran el documento; se registra la aceptación del Equipo C, los compromisos B1 a B4 con fecha y la respuesta a las preguntas abiertas del Equipo C, incluido el plan B para la presentación del 19 de noviembre |
+| 2026-11-13 | v2.5 — **Login con Keycloak.** Los endpoints Admin piden un token de Keycloak con el rol `admin` (sección 2), y también `GET /productos` con `activo` distinto de `true`. Nuevos errores `NO_AUTENTICADO` (401) y `SIN_PERMISO` (403) (sección 4). Nueva sección 10.6: Keycloak compartido, realm `tienda`, roles, clientes, usuarios de prueba y los campos del token. **Sección 8:** sale la autenticación real; quedan pendientes el token de servicio para `descontar-stock` y `devolver-stock` y el registro de usuarios; las órdenes las lleva Carrito. **Sección 9:** cómo inicia sesión el módulo dentro y fuera del Host App. **Sección 11:** la v2.5 no cambia nada para A ni para C, y la tabla de lo implementado se actualiza. Los endpoints Admin ya estaban marcados así desde la v1.0; lo que cambia es que ahora se valida |

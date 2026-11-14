@@ -1,8 +1,8 @@
 # Arquitectura — Catálogo (Equipo B)
 
 **Entrega:** Primera entrega — Ciclo 1 (actualizado en Ciclo 2)
-**Versión:** 1.5
-**Fecha:** 2026-09-23
+**Versión:** 1.6
+**Fecha:** 2026-11-13
 
 ## 1. Rol en el sistema
 
@@ -22,13 +22,17 @@ Ahí se ve el Cliente Web con su Host App y los módulos de cada equipo, Kong co
 | Eureka Client | Registro y descubrimiento del servicio |
 | Docker (Docker Compose) | Empaquetado y entorno reproducible; en desarrollo, MongoDB corre en un contenedor definido en `docker-compose.yml` |
 | RabbitMQ (vía Spring AMQP) | Publicación de eventos de dominio |
+| Spring Security (OAuth2 Resource Server) | Valida los tokens de Keycloak y decide quién puede llamar a cada endpoint (contrato v2.5) |
+| Keycloak 26 | Identidad: inicia las sesiones y emite los tokens. Lo comparten los tres equipos (contrato §10.6) |
 
 ## 3. Arquitectura interna
 
 ```mermaid
 graph TD
-    Kong[Kong API Gateway] -->|REST| PC[ProductoController]
-    Kong -->|REST| CC[CategoriaController]
+    Kong[Kong API Gateway] -->|REST| Seg[SeguridadConfig]
+    Seg -->|token válido y rol suficiente| PC[ProductoController]
+    Seg --> CC[CategoriaController]
+    Seg -.->|llave pública JWKS| Keycloak[Keycloak]
     PC --> PS[ProductoService]
     CC --> CS[CategoriaService]
     PS --> PR[ProductoRepository]
@@ -45,6 +49,7 @@ graph TD
 
 Capas:
 
+- **SeguridadConfig** (Spring Security) recibe cada petición antes que los controllers: comprueba el token de Keycloak cuando el endpoint lo pide y responde `401` o `403` con el formato del contrato (v2.5).
 - **Controller** expone los endpoints REST, valida la entrada y convierte entre HTTP y DTOs.
 - **Service** contiene la lógica de negocio: las reglas del contrato, el 404 cuando un producto no existe y el soft delete.
 - **Repository** es la interfaz de Spring Data hacia MongoDB.
@@ -76,6 +81,7 @@ Producto y Categoría, con sus campos y reglas de validación, están definidos 
 - **Entidades sin setters y DTOs separados:** `Producto` solo cambia con su constructor (POST), `actualizar(...)` (PUT) y `desactivar()` (DELETE). Así, las reglas del contrato (PUT no toca `id` ni `activo`; solo DELETE cambia `activo`) quedan en el código y no solo en el documento. La API nunca expone las entidades, sino DTOs, para que un cambio en la base de datos no cambie el contrato sin querer.
 - **Descuento de stock con una operación atómica de MongoDB, no con transacciones:** `POST /productos/descontar-stock` descuenta con un `updateOne` condicionado (`{_id, activo: true, stock: {$gte: cantidad}}` con `$inc` negativo). MongoDB garantiza atomicidad **por documento**, así que dos checkouts simultáneos sobre el mismo producto no pueden pasar los dos: el segundo no encuentra documento que cumpla la condición y se responde 409. Se descartó usar transacciones multi-documento porque exigen un conjunto de réplicas y esta entrega corre un Mongo de un solo nodo; cuando un ítem falla, el servicio revierte los descuentos ya hechos en esa misma petición, una compensación de mejor esfuerzo que es suficiente para el alcance actual. También se descartó una reserva con retención (apartar stock y liberarlo por tiempo), que arrastra expiraciones y un compensador que hoy no tiene dueño: el equipo de Órdenes no está asignado.
 - **Un repositorio por frente, no uno solo con las dos partes:** el microservicio vive en `teambsoft-backend` y el módulo de frontend en `teambsoft-frontend`. Cada frente tiene su propio ciclo: el backend se compila con Maven y se despliega como contenedor; el frontend se construye con Vite y termina integrándose al Host App. Separarlos deja cada repositorio con la forma que esperan sus herramientas (la raíz del repositorio del backend es la raíz del proyecto Maven) y evita que un cambio de Vue pase por la revisión de Java. El costo es que la documentación no se puede duplicar: el contrato, las historias y este documento viven solo en el repositorio del backend y el del frontend los enlaza. La separación se hizo antes de que existiera código de frontend, que es cuando no obliga a reescribir historial.
+- **Login con Keycloak, y el token lo valida cada servicio, no Kong (v2.5):** Catálogo es un *resource server*: no guarda contraseñas ni inicia sesiones; recibe un JWT firmado por Keycloak y lo comprueba con la llave pública del realm (firma, vencimiento y emisor). Los roles salen de `realm_access.roles`. Se eligió Spring Security sobre el plugin `jwt` de Kong porque hace todo en un solo lugar: con Kong habría que copiar la llave pública en `kong.yml` (y cambiarla a mano si Keycloak la rota), y Kong no sabe revisar roles, así que el rol lo tendría que leer Catálogo de todas formas. Además, las reglas quedan probadas con MockMvc. El costo es que cada equipo valida por su cuenta con su propia librería. La llave se descarga con la primera petición que trae token, así que Catálogo arranca aunque Keycloak no esté listo. `descontar-stock` y `devolver-stock` siguen abiertos en esta entrega: protegerlos exige que Carrito pida su propio token (contrato §8).
 - **Categorías precargadas desde el código, de forma idempotente:** se guardan al arrancar con ids fijos, así que repetir el arranque no crea duplicados. Se descartó un script de Mongo en Docker porque solo se ejecuta cuando el volumen está vacío.
 
 ## 6. Documentos relacionados
@@ -91,5 +97,6 @@ Producto y Categoría, con sus campos y reglas de validación, están definidos 
 | 2026-09-10 | v1.1 — Se fijan las versiones del stack (Spring Boot 4.1.1 con Java 21, MongoDB 7.0) y se documenta por qué MongoDB 7.0 y no 8.x |
 | 2026-09-11 | v1.2 — La arquitectura interna refleja lo construido en B1 (categorías, DTOs, manejador global de errores y carga de categorías). Nuevas decisiones: formato de errores, precio como Decimal128, entidades sin setters y carga idempotente de categorías |
 | 2026-09-21 | v1.3 — El módulo se separa en dos repositorios (`teambsoft-backend` y `teambsoft-frontend`) y el proyecto Maven pasa a la raíz del repositorio del backend. Se actualizan las rutas afectadas y se documenta la decisión. El contrato no cambia |
+| 2026-11-13 | v1.6 — Spring Security y Keycloak entran al stack. El diagrama muestra `SeguridadConfig` antes de los controllers, y se documenta la decisión de validar el token en cada servicio y no en Kong. Acompaña al contrato v2.5 |
 | 2026-09-23 | v1.5 — Se enlaza el diagrama del sistema completo, que estaba en el repositorio sin que ningún documento lo referenciara. Se actualizan las rutas tras mover el plan de trabajo y las guías a `docs/` |
 | 2026-09-21 | v1.4 — Se documenta cómo se descuenta el stock (operación atómica de MongoDB en vez de transacciones) y por qué se descarta la reserva con retención. Acompaña al contrato v2.3 |
