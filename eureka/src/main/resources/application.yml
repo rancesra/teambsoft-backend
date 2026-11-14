@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: eureka
+
+server:
+  # El puerto de siempre de Eureka. Los clientes lo buscan en http://eureka:8761/eureka/.
+  port: 8761
+
+eureka:
+  # El nombre que muestra la consola en "Environment" (por defecto dice "test").
+  environment: tienda-virtual
+  client:
+    # Este es el servidor: no se registra en sí mismo ni pide el registro a nadie.
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    # La "autopreservación" protege el registro cuando muchos servicios dejan de responder a la
+    # vez (por ejemplo, un corte de red): Eureka asume que el problema es suyo y no borra a nadie.
+    # Con un solo servicio de cada tipo, eso deja en la lista a los que de verdad se cayeron, así
+    # que se apaga: un servicio que deja de renovar sale del registro en unos 30 segundos.
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 5000
+    # Por defecto, la lista que entrega Eureka sale de una copia que se refresca cada 30 segundos,
+    # para aguantar miles de consultas. Aquí son pocas, y así la consola muestra cada cambio al instante.
+    use-read-only-response-cache: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

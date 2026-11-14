@@ -1,18 +1,18 @@
 spring:
   application:
-    # Nombre del servicio. Con este nombre se registrarÃ¡ en Eureka.
+    # Nombre del servicio. Con este nombre se registrará en Eureka.
     name: catalogo
   mongodb:
-    # ConexiÃ³n a MongoDB. En Boot 4 va en spring.mongodb (en Boot 3 era spring.data.mongodb).
+    # Conexión a MongoDB. En Boot 4 va en spring.mongodb (en Boot 3 era spring.data.mongodb).
     # Dentro de Docker se puede reemplazar con la variable de entorno SPRING_MONGODB_URI.
     uri: mongodb://localhost:27017/catalogo
   data:
     mongodb:
-      # Crea al arrancar los Ã­ndices declarados en las entidades (@CompoundIndex de Producto).
+      # Crea al arrancar los índices declarados en las entidades (@CompoundIndex de Producto).
       auto-index-creation: true
       representation:
         # Guarda los BigDecimal (el precio) como Decimal128, el decimal exacto de MongoDB.
-        # Desde Spring Data MongoDB 5 no hay valor por defecto: sin esta lÃ­nea, guardar un precio falla.
+        # Desde Spring Data MongoDB 5 no hay valor por defecto: sin esta línea, guardar un precio falla.
         big-decimal: decimal128
   rabbitmq:
     # Bus de eventos. Dentro de Docker el host es el nombre del servicio (rabbitmq), no localhost:
@@ -27,20 +27,29 @@ server:
 
 eureka:
   client:
+    # El estado que ve Eureka sale de /actuator/health: si Catálogo pierde MongoDB o RabbitMQ, en el
+    # registro aparece DOWN y no UP, aunque el proceso siga corriendo.
+    healthcheck:
+      enabled: true
     service-url:
-      # DÃ³nde vive el registro. Dentro de Docker es el nombre del servicio; se cambia con la
+      # Dónde vive el registro. Dentro de Docker es el nombre del servicio; se cambia con la
       # variable de entorno EUREKA_CLIENT_SERVICEURL_DEFAULTZONE.
       defaultZone: http://localhost:8761/eureka/
   instance:
-    # Se anuncia por IP y no por el nombre de la mÃ¡quina: dentro de Docker el hostname es un
-    # identificador que nadie mÃ¡s puede resolver.
+    # Se anuncia por IP y no por el nombre de la máquina: dentro de Docker el hostname es un
+    # identificador que nadie más puede resolver.
     prefer-ip-address: true
+    # Cada 10 segundos le confirma a Eureka que sigue vivo; si pasan 30 sin noticias, Eureka lo saca
+    # del registro. Con los valores de fábrica (30 y 90), un servicio caído sigue anunciado un
+    # minuto y medio.
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
 
 management:
   endpoint:
     health:
       # Muestra en /actuator/health el estado de cada componente (por ejemplo, mongo).
-      # Ãštil en desarrollo; hay que restringirlo antes de exponer el servicio a travÃ©s de Kong.
+      # Útil en desarrollo; hay que restringirlo antes de exponer el servicio a través de Kong.
       show-details: always
 # v2.5: Catálogo valida los tokens que emite Keycloak (contrato, sección 2).
 #  - issuer-uri: quién debe haber emitido el token. Es la dirección con la que el NAVEGADOR llega a
