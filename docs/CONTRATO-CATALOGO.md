@@ -1,10 +1,10 @@
 # Contrato de Servicio — Catálogo (Equipo B)
 
-**Versión:** 2.6 — Segunda entrega (Ciclo 2)\
-**Fecha:** 2026-11-14\
+**Versión:** 2.7 — Segunda entrega (Ciclo 2)\
+**Fecha:** 2026-11-15\
 **Equipo responsable:** Equipo B\
 **Consumido por:** Equipo A (Búsqueda), Equipo C (Carrito)\
-**Estado:** propuesta. El Equipo C aceptó la v2.4 el 12 de noviembre. La v2.5 solo cambia los endpoints de administración, que no usan ni A ni C, y la v2.6 solo agrega `imagenes` a los eventos. Plazo para objetar las tres: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, quedan acordadas.
+**Estado:** propuesta. El Equipo C aceptó la v2.4 el 12 de noviembre. La v2.5 solo cambia los endpoints de administración, que no usan ni A ni C, la v2.6 solo agrega `imagenes` a los eventos y la v2.7 solo describe el despliegue (sección 10). Plazo para objetar las cuatro: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, quedan acordadas.
 
 ## 1. Propósito
 
@@ -425,9 +425,10 @@ Un origen que no está en la lista no puede llamar a Kong desde el navegador. Si
 
 ### 10.3 Un `docker-compose` de integración, en el repositorio del Host App
 
-- Vive en [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp) y lo opera el **Equipo B**. Levanta los tres backends, sus bases de datos, el RabbitMQ de 10.1 y el Kong de 10.2.
-- **Construye cada backend desde su repositorio de GitHub**, con el `Dockerfile` de cada equipo: nadie copia código de otro.
-- **Dentro de la red de Docker** cada servicio usa sus puertos de siempre sin chocar (Carrito y Búsqueda pueden seguir los dos en el 3000). **Hacia afuera solo se publican Kong (`8000`), Keycloak (`8180`, v2.5) y la consola de RabbitMQ (`15672`).**
+- Vive en [teambsoft-hostapp](https://github.com/rancesra/teambsoft-hostapp) y lo opera el **Equipo B**. Levanta los tres backends, sus bases de datos, el RabbitMQ de 10.1 y el Kong de 10.2, y desde la v2.7 también **los cuatro frontends** (10.4).
+- **Construye cada backend desde su repositorio de GitHub**, con el `Dockerfile` de cada equipo: nadie copia código de otro. Los frontends también salen del repositorio de cada equipo, con un Dockerfile común que vive en el compose (contrato del Host App v1.4, sección 11.2).
+- **Dentro de la red de Docker** cada servicio usa sus puertos de siempre sin chocar (Carrito y Búsqueda pueden seguir los dos en el 3000). **En el computador donde corre se publican Kong (`8000`), Keycloak (`8180`, v2.5), las consolas de RabbitMQ (`15672`) y de Eureka (`8761`) y los cuatro frontends (10.4).**
+- **Publicada en internet (v2.7):** un túnel de Cloudflare lleva cada subdominio a su frontend o al login de Keycloak, con HTTPS. Kong, los backends, las bases de datos y las consolas no se publican. El detalle está en el contrato del Host App v1.4, sección 11.
 - Catálogo arranca con el perfil `integracion`, que carga los productos de prueba, y **después de Búsqueda** (sección 10.5).
 - Cada equipo sigue teniendo su propio `docker-compose.yml` para desarrollar solo. El de integración es para probar juntos y para la demostración.
 
@@ -436,11 +437,13 @@ Un origen que no está en la lista no puede llamar a Kong desde el navegador. Si
 | Módulo | Puerto | Llama a su backend a través de |
 |---|---|---|
 | Catálogo | `5173` | Kong: `/api/catalogo` |
-| Búsqueda | `5174` | Kong: `/api/busqueda` (su `VITE_API_URL` = `http://localhost:8000/api/busqueda`) |
+| Búsqueda | `5174` | Kong: `/api/busqueda` (su `VITE_API_URL` = `http://localhost:8000/api/busqueda` con `npm run dev`; `/api/busqueda` en el compose) |
 | Carrito | `5175` | Kong: `/api/carrito` |
 | Host App | `5050` | No llama a ningún backend |
 
 Cada frontend fija su puerto con `server.port` y `server.strictPort: true` en `vite.config.js`, para que Vite no lo cambie solo si está ocupado. El Host App los carga con esas direcciones (contrato del Host App, sección 4).
+
+**En el `docker-compose` (v2.7)** cada frontend se compila y se sirve con `vite preview` en el mismo puerto, y reenvía `/api` a Kong por dentro de Docker: el navegador llama a su propio origen. Publicada en internet, cada uno tiene su subdominio con HTTPS (`https://tienda.<dominio>`, `https://catalogo.<dominio>`, `https://busqueda.<dominio>` y `https://carrito.<dominio>`).
 
 ### 10.5 Productos de prueba con ids fijos
 
@@ -473,15 +476,15 @@ Un solo Keycloak para toda la tienda: el «Identity Server» de la arquitectura.
 | Qué | Valor |
 |---|---|
 | Imagen | `quay.io/keycloak/keycloak:26.8.0`, en modo desarrollo (`start-dev --import-realm`). No guarda nada entre reinicios |
-| Dirección para el navegador | `http://localhost:8180` |
+| Dirección para el navegador | `http://localhost:8180`. Publicada en internet (v2.7), `https://login.<dominio>` |
 | Dirección dentro de Docker | `http://keycloak:8080` |
 | Realm | `tienda` |
-| Emisor de los tokens (`iss`) | `http://localhost:8180/realms/tienda`, siempre, aunque un servicio llegue por `keycloak:8080` |
+| Emisor de los tokens (`iss`) | La dirección para el navegador más `/realms/tienda`, aunque un servicio llegue por `keycloak:8080`. Cada backend la recibe en `KEYCLOAK_EMISOR`, que el compose de integración ya les pasa |
 | Llaves públicas (JWKS) | `/realms/tienda/protocol/openid-connect/certs` |
 | Roles del realm | `admin` (administra el catálogo) y `cliente` (compra) |
-| Cliente del navegador | `tienda-web`: público, con PKCE (`S256`), para los orígenes `5050`, `5173`, `5174` y `5175` |
+| Cliente del navegador | `tienda-web`: público, con PKCE (`S256`), para los orígenes `5050`, `5173`, `5174` y `5175`, y publicada, para `tienda.<dominio>` y `catalogo.<dominio>` |
 | Cliente de pruebas | `tienda-pruebas`: permite pedir un token con usuario y contraseña desde curl o Postman. Solo desarrollo |
-| Usuarios de prueba | `admin` / `admin123` (roles `admin` y `cliente`) y `cliente` / `cliente123` (rol `cliente`) |
+| Usuarios de prueba | `admin` / `admin123` (roles `admin` y `cliente`) y `cliente` / `cliente123` (rol `cliente`). Publicada en internet, las claves se cambian en el `.env` del compose (`CLAVE_ADMIN_TIENDA` y `CLAVE_CLIENTE_TIENDA`) |
 
 El token es un JWT firmado con RS256. Lo que le sirve a cada servicio:
 
@@ -494,13 +497,15 @@ El token es un JWT firmado con RS256. Lo que le sirve a cada servicio:
 
 Cada servicio valida el token por su cuenta, con la llave pública de Keycloak: Catálogo con Spring Security; Carrito, si decide aceptarlo, con su librería de JWT y RS256 en lugar del `JWT_SECRET`. Mientras Carrito no lo haga, sigue con su token de prueba (sección 11).
 
-## 11. Aprobación de la v2.4, la v2.5 y la v2.6
+## 11. Aprobación de la v2.4, la v2.5, la v2.6 y la v2.7
 
 El plazo para objetar es el **martes 17 de noviembre de 2026, a las 12:00 m.**, el mismo que fijó el Equipo C en su contrato de integración. Reemplaza al del 8 de noviembre de la primera publicación de la v2.4. Una objeción se discute y, si cambia algo, se publica en una versión nueva. **Si no hay objeciones antes de esa hora, la v2.4 queda acordada.**
 
 Como todos los cambios son compatibles con la v2.3, Catálogo los implementa desde ya, para llegar a la presentación de la integración del **jueves 19 de noviembre**. Si una objeción cambia algo, primero se corrige el contrato y después el código.
 
 **La v2.6 solo agrega `imagenes` a los eventos de la sección 5.** A Carrito no le cambia nada, porque no consume eventos. Búsqueda lo recibe sin cambiar su consumidor, porque guarda el evento completo; para mostrar la foto, su frontend tiene que pintar `imagenes[0]`.
+
+**La v2.7 solo describe el despliegue (sección 10).** La API y los eventos no cambian, y A y C no cambian código: sus frontends y backends ya leen de variables de entorno las direcciones que cambian al publicar.
 
 **La v2.5 no le cambia nada a A ni a C.** Solo los endpoints Admin, que usa el frontend de Catálogo, piden token. Las lecturas siguen públicas, `descontar-stock` y `devolver-stock` siguen abiertos, y los eventos no cambian. Si Carrito quiere usar el login real, el token y sus campos están en la sección 10.6.
 
@@ -544,7 +549,8 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 | v2.4: productos de prueba con ids fijos (10.5) | Sí, en `main` |
 | v2.5: token de Keycloak en los endpoints Admin, `401` y `403` | Sí, en `main` |
 | v2.5: Keycloak en los `docker-compose` (10.6) | Sí, en `main` del backend y del Host App |
-| v2.6: `imagenes` en los eventos y fotos en los productos de prueba | Sí, en revisión (rama `productos-demo`) |
+| v2.6: `imagenes` en los eventos y fotos en los productos de prueba | Sí, en `main` |
+| v2.7: frontends en el compose de integración y despliegue con el túnel | Sí, en revisión (rama `despliegue-publico` del Host App) |
 
 ## 12. Historial de cambios
 
@@ -560,3 +566,4 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 | 2026-11-12 | v2.4, revisión — Sin cambios en la API, los eventos ni lo que ya se había propuesto; completa la v2.4 con la respuesta del Equipo C (su «Contrato de integración» v1.0, que la acepta). **Sección 10.2:** configuración del CORS del Kong compartido (orígenes `5173`, `5174`, `5175` y `5050`). **Nueva sección 10.5:** seis productos de prueba con ids fijos, que Catálogo crea con el perfil `integracion` y anuncia con `producto.creado`. **Sección 11:** el plazo para objetar pasa al martes 17 de noviembre a las 12:00 m., el mismo del Equipo C, porque el del 8 de noviembre venció antes de que los equipos recibieran el documento; se registra la aceptación del Equipo C, los compromisos B1 a B4 con fecha y la respuesta a las preguntas abiertas del Equipo C, incluido el plan B para la presentación del 19 de noviembre |
 | 2026-11-13 | v2.5 — **Login con Keycloak.** Los endpoints Admin piden un token de Keycloak con el rol `admin` (sección 2), y también `GET /productos` con `activo` distinto de `true`. Nuevos errores `NO_AUTENTICADO` (401) y `SIN_PERMISO` (403) (sección 4). Nueva sección 10.6: Keycloak compartido, realm `tienda`, roles, clientes, usuarios de prueba y los campos del token. **Sección 8:** sale la autenticación real; quedan pendientes el token de servicio para `descontar-stock` y `devolver-stock` y el registro de usuarios; las órdenes las lleva Carrito. **Sección 9:** cómo inicia sesión el módulo dentro y fuera del Host App. **Sección 11:** la v2.5 no cambia nada para A ni para C, y la tabla de lo implementado se actualiza. Los endpoints Admin ya estaban marcados así desde la v1.0; lo que cambia es que ahora se valida |
 | 2026-11-14 | v2.6 — Cambio compatible con la v2.5. **Sección 5:** los eventos `producto.creado`, `producto.actualizado` y `producto.reactivado` agregan `imagenes`, las URLs de las fotos, para que Búsqueda pueda mostrarlas sin llamar a Catálogo. **Sección 10.5:** los productos de prueba traen foto, y se menciona el script de productos de demostración. **Sección 11:** la v2.6 no le cambia nada a Carrito; a Búsqueda solo si quiere mostrar la foto. La tabla de lo implementado se actualiza: la v2.4 y la v2.5 ya están en `main` |
+| 2026-11-15 | v2.7 — **Despliegue.** Sin cambios en la API ni en los eventos. **Sección 10.3:** el compose de integración también levanta los cuatro frontends, y un túnel de Cloudflare publica la tienda en internet con HTTPS (detalle en el contrato del Host App v1.4, sección 11). **Sección 10.4:** dentro del compose cada frontend reenvía `/api` a Kong, y publicada tiene su subdominio. **Sección 10.6:** el emisor de los tokens sigue a la dirección de Keycloak (`KEYCLOAK_EMISOR`), y las claves de los usuarios de prueba se cambian en el `.env`. **Sección 11:** la v2.6 queda en `main` |
