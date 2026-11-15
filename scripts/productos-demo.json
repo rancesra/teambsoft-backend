@@ -1,0 +1,1486 @@
+[
+  {
+    "nombre": "Cama tapizada Annibale Colombo",
+    "descripcion": "Cama doble tapizada en cuero, con cabecero acolchado.",
+    "precio": 7599900,
+    "categoria": "cat-hogar",
+    "stock": 88,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/furniture/annibale-colombo-bed/1.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/annibale-colombo-bed/2.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/annibale-colombo-bed/3.webp"
+    ]
+  },
+  {
+    "nombre": "Sofá Annibale Colombo",
+    "descripcion": "Sofá de tres puestos tapizado en cuero, de líneas clásicas.",
+    "precio": 9999900,
+    "categoria": "cat-hogar",
+    "stock": 60,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/furniture/annibale-colombo-sofa/1.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/annibale-colombo-sofa/2.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/annibale-colombo-sofa/3.webp"
+    ]
+  },
+  {
+    "nombre": "Mesa de noche en cerezo africano",
+    "descripcion": "Mesa de noche de madera de cerezo con cajón.",
+    "precio": 1199900,
+    "categoria": "cat-hogar",
+    "stock": 64,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/furniture/bedside-table-african-cherry/1.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/bedside-table-african-cherry/2.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/bedside-table-african-cherry/3.webp"
+    ]
+  },
+  {
+    "nombre": "Silla ejecutiva Knoll Saarinen",
+    "descripcion": "Silla de sala de juntas con base giratoria y cojín tapizado.",
+    "precio": 1999900,
+    "categoria": "cat-hogar",
+    "stock": 26,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/furniture/knoll-saarinen-executive-conference-chair/1.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/knoll-saarinen-executive-conference-chair/2.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/knoll-saarinen-executive-conference-chair/3.webp"
+    ]
+  },
+  {
+    "nombre": "Lavamanos de madera con espejo",
+    "descripcion": "Mueble de baño en madera con lavamanos y espejo.",
+    "precio": 3199900,
+    "categoria": "cat-hogar",
+    "stock": 7,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/furniture/wooden-bathroom-sink-with-mirror/1.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/wooden-bathroom-sink-with-mirror/2.webp",
+      "https://cdn.dummyjson.com/product-images/furniture/wooden-bathroom-sink-with-mirror/3.webp"
+    ]
+  },
+  {
+    "nombre": "Columpio decorativo",
+    "descripcion": "Columpio colgante para interiores o terraza.",
+    "precio": 239900,
+    "categoria": "cat-hogar",
+    "stock": 47,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/home-decoration/decoration-swing/1.webp",
+      "https://cdn.dummyjson.com/product-images/home-decoration/decoration-swing/2.webp",
+      "https://cdn.dummyjson.com/product-images/home-decoration/decoration-swing/3.webp"
+    ]
+  },
+  {
+    "nombre": "Portarretratos árbol familiar",
+    "descripcion": "Portarretratos con forma de árbol para varias fotos.",
+    "precio": 119900,
+    "categoria": "cat-hogar",
+    "stock": 77,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/home-decoration/family-tree-photo-frame/1.webp"
+    ]
+  },
+  {
+    "nombre": "Planta decorativa artificial",
+    "descripcion": "Planta artificial en maceta, sin riego ni cuidados.",
+    "precio": 159900,
+    "categoria": "cat-hogar",
+    "stock": 28,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/home-decoration/house-showpiece-plant/1.webp",
+      "https://cdn.dummyjson.com/product-images/home-decoration/house-showpiece-plant/2.webp",
+      "https://cdn.dummyjson.com/product-images/home-decoration/house-showpiece-plant/3.webp"
+    ]
+  },
+  {
+    "nombre": "Maceta de cerámica",
+    "descripcion": "Maceta de cerámica para plantas de interior.",
+    "precio": 59900,
+    "categoria": "cat-hogar",
+    "stock": 59,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/home-decoration/plant-pot/1.webp",
+      "https://cdn.dummyjson.com/product-images/home-decoration/plant-pot/2.webp",
+      "https://cdn.dummyjson.com/product-images/home-decoration/plant-pot/3.webp",
+      "https://cdn.dummyjson.com/product-images/home-decoration/plant-pot/4.webp"
+    ]
+  },
+  {
+    "nombre": "Lámpara de mesa",
+    "descripcion": "Lámpara de mesa con pantalla de tela y luz cálida.",
+    "precio": 199900,
+    "categoria": "cat-hogar",
+    "stock": 9,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/home-decoration/table-lamp/1.webp"
+    ]
+  },
+  {
+    "nombre": "Espátula de bambú",
+    "descripcion": "Espátula de bambú que no raya los sartenes.",
+    "precio": 31900,
+    "categoria": "cat-hogar",
+    "stock": 37,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/bamboo-spatula/1.webp"
+    ]
+  },
+  {
+    "nombre": "Taza de aluminio negra",
+    "descripcion": "Taza de aluminio liviana, ideal para camping.",
+    "precio": 23900,
+    "categoria": "cat-hogar",
+    "stock": 75,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/black-aluminium-cup/1.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/black-aluminium-cup/2.webp"
+    ]
+  },
+  {
+    "nombre": "Batidor manual negro",
+    "descripcion": "Batidor de varillas con mango antideslizante.",
+    "precio": 39900,
+    "categoria": "cat-hogar",
+    "stock": 73,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/black-whisk/1.webp"
+    ]
+  },
+  {
+    "nombre": "Licuadora",
+    "descripcion": "Licuadora de vaso con varias velocidades.",
+    "precio": 159900,
+    "categoria": "cat-hogar",
+    "stock": 9,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/boxed-blender/1.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/boxed-blender/2.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/boxed-blender/3.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/boxed-blender/4.webp"
+    ]
+  },
+  {
+    "nombre": "Wok de acero al carbono",
+    "descripcion": "Wok para saltear a fuego alto, con mango de madera.",
+    "precio": 119900,
+    "categoria": "cat-hogar",
+    "stock": 40,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/carbon-steel-wok/1.webp"
+    ]
+  },
+  {
+    "nombre": "Tabla de picar",
+    "descripcion": "Tabla de picar resistente y fácil de lavar.",
+    "precio": 51900,
+    "categoria": "cat-hogar",
+    "stock": 14,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/chopping-board/1.webp"
+    ]
+  },
+  {
+    "nombre": "Exprimidor de cítricos amarillo",
+    "descripcion": "Exprimidor manual para limones y naranjas.",
+    "precio": 35900,
+    "categoria": "cat-hogar",
+    "stock": 22,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/citrus-squeezer-yellow/1.webp"
+    ]
+  },
+  {
+    "nombre": "Cortador de huevos",
+    "descripcion": "Cortador de huevos cocidos en rodajas parejas.",
+    "precio": 27900,
+    "categoria": "cat-hogar",
+    "stock": 40,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/egg-slicer/1.webp"
+    ]
+  },
+  {
+    "nombre": "Estufa eléctrica",
+    "descripcion": "Estufa eléctrica de mesa con control de temperatura.",
+    "precio": 199900,
+    "categoria": "cat-hogar",
+    "stock": 21,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/electric-stove/1.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/electric-stove/2.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/electric-stove/3.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/electric-stove/4.webp"
+    ]
+  },
+  {
+    "nombre": "Colador de malla fina",
+    "descripcion": "Colador de acero inoxidable con malla fina.",
+    "precio": 39900,
+    "categoria": "cat-hogar",
+    "stock": 85,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/fine-mesh-strainer/1.webp"
+    ]
+  },
+  {
+    "nombre": "Tenedor",
+    "descripcion": "Tenedor de mesa en acero inoxidable.",
+    "precio": 15900,
+    "categoria": "cat-hogar",
+    "stock": 7,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/fork/1.webp"
+    ]
+  },
+  {
+    "nombre": "Vaso de vidrio",
+    "descripcion": "Vaso de vidrio transparente para el uso diario.",
+    "precio": 19900,
+    "categoria": "cat-hogar",
+    "stock": 46,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/glass/1.webp"
+    ]
+  },
+  {
+    "nombre": "Rallador negro",
+    "descripcion": "Rallador de cuatro caras con base antideslizante.",
+    "precio": 43900,
+    "categoria": "cat-hogar",
+    "stock": 84,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/grater-black/1.webp"
+    ]
+  },
+  {
+    "nombre": "Batidora de mano",
+    "descripcion": "Batidora de inmersión para sopas, salsas y batidos.",
+    "precio": 139900,
+    "categoria": "cat-hogar",
+    "stock": 84,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/hand-blender/1.webp"
+    ]
+  },
+  {
+    "nombre": "Cubeta para hielo",
+    "descripcion": "Cubeta flexible para hacer cubos de hielo.",
+    "precio": 23900,
+    "categoria": "cat-hogar",
+    "stock": 13,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/ice-cube-tray/1.webp"
+    ]
+  },
+  {
+    "nombre": "Cernidor de cocina",
+    "descripcion": "Cernidor para harina y azúcar glas.",
+    "precio": 31900,
+    "categoria": "cat-hogar",
+    "stock": 68,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/kitchen-sieve/1.webp"
+    ]
+  },
+  {
+    "nombre": "Cuchillo de cocina",
+    "descripcion": "Cuchillo de chef con hoja de acero inoxidable.",
+    "precio": 59900,
+    "categoria": "cat-hogar",
+    "stock": 7,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/knife/1.webp"
+    ]
+  },
+  {
+    "nombre": "Lonchera",
+    "descripcion": "Lonchera hermética con compartimentos.",
+    "precio": 51900,
+    "categoria": "cat-hogar",
+    "stock": 94,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/lunch-box/1.webp"
+    ]
+  },
+  {
+    "nombre": "Horno microondas",
+    "descripcion": "Microondas de 20 litros con varios niveles de potencia.",
+    "precio": 359900,
+    "categoria": "cat-hogar",
+    "stock": 59,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/microwave-oven/1.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/microwave-oven/2.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/microwave-oven/3.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/microwave-oven/4.webp"
+    ]
+  },
+  {
+    "nombre": "Soporte para tazas",
+    "descripcion": "Árbol para colgar hasta seis tazas.",
+    "precio": 63900,
+    "categoria": "cat-hogar",
+    "stock": 88,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/mug-tree-stand/1.webp",
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/mug-tree-stand/2.webp"
+    ]
+  },
+  {
+    "nombre": "Sartén",
+    "descripcion": "Sartén antiadherente de 24 cm.",
+    "precio": 99900,
+    "categoria": "cat-hogar",
+    "stock": 90,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/pan/1.webp"
+    ]
+  },
+  {
+    "nombre": "Plato",
+    "descripcion": "Plato llano de cerámica blanca.",
+    "precio": 15900,
+    "categoria": "cat-hogar",
+    "stock": 66,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/plate/1.webp"
+    ]
+  },
+  {
+    "nombre": "Pinzas de cocina rojas",
+    "descripcion": "Pinzas de silicona para servir y voltear.",
+    "precio": 27900,
+    "categoria": "cat-hogar",
+    "stock": 82,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/red-tongs/1.webp"
+    ]
+  },
+  {
+    "nombre": "Olla con tapa de vidrio",
+    "descripcion": "Olla de acero inoxidable con tapa de vidrio templado.",
+    "precio": 159900,
+    "categoria": "cat-hogar",
+    "stock": 40,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/silver-pot-with-glass-cap/1.webp"
+    ]
+  },
+  {
+    "nombre": "Espátula ranurada",
+    "descripcion": "Espátula con ranuras para escurrir al voltear.",
+    "precio": 35900,
+    "categoria": "cat-hogar",
+    "stock": 88,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/slotted-turner/1.webp"
+    ]
+  },
+  {
+    "nombre": "Especiero",
+    "descripcion": "Organizador giratorio con frascos para especias.",
+    "precio": 79900,
+    "categoria": "cat-hogar",
+    "stock": 79,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/spice-rack/1.webp"
+    ]
+  },
+  {
+    "nombre": "Cuchara",
+    "descripcion": "Cuchara de mesa en acero inoxidable.",
+    "precio": 19900,
+    "categoria": "cat-hogar",
+    "stock": 59,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/spoon/1.webp"
+    ]
+  },
+  {
+    "nombre": "Bandeja",
+    "descripcion": "Bandeja para servir con asas laterales.",
+    "precio": 67900,
+    "categoria": "cat-hogar",
+    "stock": 71,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/tray/1.webp"
+    ]
+  },
+  {
+    "nombre": "Rodillo de madera",
+    "descripcion": "Rodillo de madera para masas y repostería.",
+    "precio": 47900,
+    "categoria": "cat-hogar",
+    "stock": 80,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/wooden-rolling-pin/1.webp"
+    ]
+  },
+  {
+    "nombre": "Pelador amarillo",
+    "descripcion": "Pelador de verduras con cuchilla giratoria.",
+    "precio": 23900,
+    "categoria": "cat-hogar",
+    "stock": 35,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/kitchen-accessories/yellow-peeler/1.webp"
+    ]
+  },
+  {
+    "nombre": "Apple MacBook Pro 14\" gris espacial",
+    "descripcion": "Portátil de 14 pulgadas con chip Apple y pantalla Liquid Retina.",
+    "precio": 7999900,
+    "categoria": "cat-electronica",
+    "stock": 24,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/1.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/2.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/3.webp"
+    ]
+  },
+  {
+    "nombre": "Portátil Asus Zenbook Pro doble pantalla",
+    "descripcion": "Portátil con una segunda pantalla táctil sobre el teclado.",
+    "precio": 7199900,
+    "categoria": "cat-electronica",
+    "stock": 45,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/laptops/asus-zenbook-pro-dual-screen-laptop/1.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/asus-zenbook-pro-dual-screen-laptop/2.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/asus-zenbook-pro-dual-screen-laptop/3.webp"
+    ]
+  },
+  {
+    "nombre": "Huawei Matebook X Pro",
+    "descripcion": "Portátil ultradelgado con pantalla táctil de alta resolución.",
+    "precio": 5599900,
+    "categoria": "cat-electronica",
+    "stock": 75,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/laptops/huawei-matebook-x-pro/1.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/huawei-matebook-x-pro/2.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/huawei-matebook-x-pro/3.webp"
+    ]
+  },
+  {
+    "nombre": "Lenovo Yoga 920",
+    "descripcion": "Portátil convertible 2 en 1 con bisagra de 360 grados.",
+    "precio": 4399900,
+    "categoria": "cat-electronica",
+    "stock": 40,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/laptops/lenovo-yoga-920/1.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/lenovo-yoga-920/2.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/lenovo-yoga-920/3.webp"
+    ]
+  },
+  {
+    "nombre": "Portátil Dell XPS 13 9300",
+    "descripcion": "Portátil compacto de 13 pulgadas con bordes mínimos.",
+    "precio": 5999900,
+    "categoria": "cat-electronica",
+    "stock": 74,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/laptops/new-dell-xps-13-9300-laptop/1.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/new-dell-xps-13-9300-laptop/2.webp",
+      "https://cdn.dummyjson.com/product-images/laptops/new-dell-xps-13-9300-laptop/3.webp"
+    ]
+  },
+  {
+    "nombre": "Camisa a cuadros azul y negra",
+    "descripcion": "Camisa de hombre a cuadros, manga larga.",
+    "precio": 119900,
+    "categoria": "cat-ropa",
+    "stock": 38,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shirts/blue-&-black-check-shirt/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/blue-&-black-check-shirt/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/blue-&-black-check-shirt/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/blue-&-black-check-shirt/4.webp"
+    ]
+  },
+  {
+    "nombre": "Camiseta Gigabyte Aorus",
+    "descripcion": "Camiseta de hombre con estampado gamer.",
+    "precio": 99900,
+    "categoria": "cat-ropa",
+    "stock": 90,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shirts/gigabyte-aorus-men-tshirt/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/gigabyte-aorus-men-tshirt/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/gigabyte-aorus-men-tshirt/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/gigabyte-aorus-men-tshirt/4.webp"
+    ]
+  },
+  {
+    "nombre": "Camisa escocesa de hombre",
+    "descripcion": "Camisa escocesa de algodón, manga larga.",
+    "precio": 139900,
+    "categoria": "cat-ropa",
+    "stock": 82,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shirts/man-plaid-shirt/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/man-plaid-shirt/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/man-plaid-shirt/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/man-plaid-shirt/4.webp"
+    ]
+  },
+  {
+    "nombre": "Camisa manga corta de hombre",
+    "descripcion": "Camisa fresca de manga corta para clima cálido.",
+    "precio": 79900,
+    "categoria": "cat-ropa",
+    "stock": 2,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shirts/man-short-sleeve-shirt/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/man-short-sleeve-shirt/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/man-short-sleeve-shirt/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/man-short-sleeve-shirt/4.webp"
+    ]
+  },
+  {
+    "nombre": "Camisa a cuadros de hombre",
+    "descripcion": "Camisa a cuadros de corte regular.",
+    "precio": 111900,
+    "categoria": "cat-ropa",
+    "stock": 95,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shirts/men-check-shirt/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/men-check-shirt/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/men-check-shirt/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shirts/men-check-shirt/4.webp"
+    ]
+  },
+  {
+    "nombre": "Nike Air Jordan 1 rojo y negro",
+    "descripcion": "Tenis de caña alta en los colores clásicos rojo y negro.",
+    "precio": 599900,
+    "categoria": "cat-ropa",
+    "stock": 7,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shoes/nike-air-jordan-1-red-and-black/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/nike-air-jordan-1-red-and-black/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/nike-air-jordan-1-red-and-black/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/nike-air-jordan-1-red-and-black/4.webp"
+    ]
+  },
+  {
+    "nombre": "Guayos de béisbol Nike",
+    "descripcion": "Guayos de béisbol con buen agarre en tierra y césped.",
+    "precio": 319900,
+    "categoria": "cat-ropa",
+    "stock": 12,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shoes/nike-baseball-cleats/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/nike-baseball-cleats/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/nike-baseball-cleats/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/nike-baseball-cleats/4.webp"
+    ]
+  },
+  {
+    "nombre": "Tenis Puma Future Rider",
+    "descripcion": "Tenis de estilo retro con suela acolchada.",
+    "precio": 359900,
+    "categoria": "cat-ropa",
+    "stock": 90,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/4.webp"
+    ]
+  },
+  {
+    "nombre": "Tenis deportivos blanco y rojo",
+    "descripcion": "Tenis deportivos livianos en blanco hueso y rojo.",
+    "precio": 479900,
+    "categoria": "cat-ropa",
+    "stock": 17,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-&-red/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-&-red/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-&-red/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-&-red/4.webp"
+    ]
+  },
+  {
+    "nombre": "Tenis deportivos blanco hueso",
+    "descripcion": "Tenis deportivos con detalles en rojo.",
+    "precio": 439900,
+    "categoria": "cat-ropa",
+    "stock": 62,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-red/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-red/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-red/3.webp",
+      "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-red/4.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj con correa de cuero café",
+    "descripcion": "Reloj análogo de hombre con correa de cuero.",
+    "precio": 359900,
+    "categoria": "cat-ropa",
+    "stock": 32,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-watches/brown-leather-belt-watch/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/brown-leather-belt-watch/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/brown-leather-belt-watch/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj Longines Master Collection",
+    "descripcion": "Reloj automático de acero con esfera clásica.",
+    "precio": 5999900,
+    "categoria": "cat-ropa",
+    "stock": 100,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-watches/longines-master-collection/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/longines-master-collection/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/longines-master-collection/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj Rolex Cellini Date esfera negra",
+    "descripcion": "Reloj de vestir con calendario y esfera negra.",
+    "precio": 35999900,
+    "categoria": "cat-ropa",
+    "stock": 40,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-cellini-date-black-dial/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-cellini-date-black-dial/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-cellini-date-black-dial/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj Rolex Cellini Moonphase",
+    "descripcion": "Reloj de vestir con indicador de fases lunares.",
+    "precio": 51999900,
+    "categoria": "cat-ropa",
+    "stock": 36,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-cellini-moonphase/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-cellini-moonphase/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-cellini-moonphase/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj Rolex Datejust",
+    "descripcion": "Reloj clásico de acero con ventana de fecha.",
+    "precio": 43999900,
+    "categoria": "cat-ropa",
+    "stock": 86,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-datejust/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-datejust/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-datejust/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj Rolex Submariner",
+    "descripcion": "Reloj de buceo sumergible hasta 300 metros.",
+    "precio": 55999900,
+    "categoria": "cat-ropa",
+    "stock": 55,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-submariner-watch/1.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-submariner-watch/2.webp",
+      "https://cdn.dummyjson.com/product-images/mens-watches/rolex-submariner-watch/3.webp"
+    ]
+  },
+  {
+    "nombre": "Amazon Echo Plus",
+    "descripcion": "Parlante inteligente con asistente de voz Alexa.",
+    "precio": 399900,
+    "categoria": "cat-electronica",
+    "stock": 61,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/amazon-echo-plus/1.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/amazon-echo-plus/2.webp"
+    ]
+  },
+  {
+    "nombre": "Apple AirPods",
+    "descripcion": "Audífonos inalámbricos con estuche de carga.",
+    "precio": 519900,
+    "categoria": "cat-electronica",
+    "stock": 67,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods/1.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods/2.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods/3.webp"
+    ]
+  },
+  {
+    "nombre": "Apple AirPods Max plateados",
+    "descripcion": "Audífonos de diadema con cancelación de ruido.",
+    "precio": 2199900,
+    "categoria": "cat-electronica",
+    "stock": 59,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods-max-silver/1.webp"
+    ]
+  },
+  {
+    "nombre": "Cargador inalámbrico Apple AirPower",
+    "descripcion": "Base para cargar varios dispositivos sin cables.",
+    "precio": 319900,
+    "categoria": "cat-electronica",
+    "stock": 1,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpower-wireless-charger/1.webp"
+    ]
+  },
+  {
+    "nombre": "Apple HomePod Mini gris",
+    "descripcion": "Parlante inteligente compacto con sonido de 360 grados.",
+    "precio": 399900,
+    "categoria": "cat-electronica",
+    "stock": 27,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-homepod-mini-cosmic-grey/1.webp"
+    ]
+  },
+  {
+    "nombre": "Cargador para iPhone",
+    "descripcion": "Cargador de pared USB-C de carga rápida.",
+    "precio": 79900,
+    "categoria": "cat-electronica",
+    "stock": 31,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-iphone-charger/1.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-iphone-charger/2.webp"
+    ]
+  },
+  {
+    "nombre": "Batería MagSafe de Apple",
+    "descripcion": "Batería externa que se adhiere al iPhone con imanes.",
+    "precio": 399900,
+    "categoria": "cat-electronica",
+    "stock": 1,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-magsafe-battery-pack/1.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-magsafe-battery-pack/2.webp"
+    ]
+  },
+  {
+    "nombre": "Apple Watch Series 4 dorado",
+    "descripcion": "Reloj inteligente con monitor de ritmo cardíaco.",
+    "precio": 1399900,
+    "categoria": "cat-electronica",
+    "stock": 33,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-watch-series-4-gold/1.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-watch-series-4-gold/2.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-watch-series-4-gold/3.webp"
+    ]
+  },
+  {
+    "nombre": "Audífonos Beats Flex",
+    "descripcion": "Audífonos inalámbricos de cuello, livianos.",
+    "precio": 199900,
+    "categoria": "cat-electronica",
+    "stock": 50,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/beats-flex-wireless-earphones/1.webp"
+    ]
+  },
+  {
+    "nombre": "Estuche de silicona iPhone 12 MagSafe",
+    "descripcion": "Estuche de silicona color ciruela compatible con MagSafe.",
+    "precio": 119900,
+    "categoria": "cat-electronica",
+    "stock": 69,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/iphone-12-silicone-case-with-magsafe-plum/1.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/iphone-12-silicone-case-with-magsafe-plum/2.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/iphone-12-silicone-case-with-magsafe-plum/3.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/iphone-12-silicone-case-with-magsafe-plum/4.webp"
+    ]
+  },
+  {
+    "nombre": "Monopié",
+    "descripcion": "Monopié extensible para cámara o celular.",
+    "precio": 79900,
+    "categoria": "cat-electronica",
+    "stock": 48,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/monopod/1.webp",
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/monopod/2.webp"
+    ]
+  },
+  {
+    "nombre": "Lámpara para selfies",
+    "descripcion": "Aro de luz con soporte para celular.",
+    "precio": 59900,
+    "categoria": "cat-electronica",
+    "stock": 58,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/selfie-lamp-with-iphone/1.webp"
+    ]
+  },
+  {
+    "nombre": "Palo de selfie",
+    "descripcion": "Palo de selfie extensible con control Bluetooth.",
+    "precio": 51900,
+    "categoria": "cat-electronica",
+    "stock": 11,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/selfie-stick-monopod/1.webp"
+    ]
+  },
+  {
+    "nombre": "Pedestal para cámara de estudio",
+    "descripcion": "Pedestal profesional con ruedas para cámaras de TV.",
+    "precio": 1999900,
+    "categoria": "cat-electronica",
+    "stock": 15,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/mobile-accessories/tv-studio-camera-pedestal/1.webp"
+    ]
+  },
+  {
+    "nombre": "iPhone 5s",
+    "descripcion": "Celular Apple de 4 pulgadas con lector de huella.",
+    "precio": 799900,
+    "categoria": "cat-electronica",
+    "stock": 25,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-5s/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-5s/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-5s/3.webp"
+    ]
+  },
+  {
+    "nombre": "iPhone 6",
+    "descripcion": "Celular Apple de 4,7 pulgadas.",
+    "precio": 1199900,
+    "categoria": "cat-electronica",
+    "stock": 60,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-6/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-6/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-6/3.webp"
+    ]
+  },
+  {
+    "nombre": "iPhone 13 Pro",
+    "descripcion": "Celular Apple con triple cámara y pantalla ProMotion.",
+    "precio": 4399900,
+    "categoria": "cat-electronica",
+    "stock": 56,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-13-pro/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-13-pro/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-13-pro/3.webp"
+    ]
+  },
+  {
+    "nombre": "iPhone X",
+    "descripcion": "Celular Apple con pantalla OLED y Face ID.",
+    "precio": 3599900,
+    "categoria": "cat-electronica",
+    "stock": 37,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-x/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-x/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/iphone-x/3.webp"
+    ]
+  },
+  {
+    "nombre": "Oppo A57",
+    "descripcion": "Celular de gama media con batería de larga duración.",
+    "precio": 999900,
+    "categoria": "cat-electronica",
+    "stock": 19,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-a57/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-a57/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-a57/3.webp"
+    ]
+  },
+  {
+    "nombre": "Oppo F19 Pro Plus",
+    "descripcion": "Celular con carga rápida y cámara cuádruple.",
+    "precio": 1599900,
+    "categoria": "cat-electronica",
+    "stock": 78,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-f19-pro-plus/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-f19-pro-plus/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-f19-pro-plus/3.webp"
+    ]
+  },
+  {
+    "nombre": "Oppo K1",
+    "descripcion": "Celular con lector de huella en pantalla.",
+    "precio": 1199900,
+    "categoria": "cat-electronica",
+    "stock": 55,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-k1/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-k1/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-k1/3.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/oppo-k1/4.webp"
+    ]
+  },
+  {
+    "nombre": "Realme C35",
+    "descripcion": "Celular económico con pantalla de 6,6 pulgadas.",
+    "precio": 599900,
+    "categoria": "cat-electronica",
+    "stock": 48,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-c35/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-c35/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-c35/3.webp"
+    ]
+  },
+  {
+    "nombre": "Realme X",
+    "descripcion": "Celular con cámara frontal emergente.",
+    "precio": 1199900,
+    "categoria": "cat-electronica",
+    "stock": 12,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-x/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-x/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-x/3.webp"
+    ]
+  },
+  {
+    "nombre": "Realme XT",
+    "descripcion": "Celular con cámara de 64 megapíxeles.",
+    "precio": 1399900,
+    "categoria": "cat-electronica",
+    "stock": 80,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-xt/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-xt/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/realme-xt/3.webp"
+    ]
+  },
+  {
+    "nombre": "Samsung Galaxy S7",
+    "descripcion": "Celular Samsung resistente al agua.",
+    "precio": 1199900,
+    "categoria": "cat-electronica",
+    "stock": 67,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s7/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s7/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s7/3.webp"
+    ]
+  },
+  {
+    "nombre": "Samsung Galaxy S8",
+    "descripcion": "Celular Samsung con pantalla infinita.",
+    "precio": 1999900,
+    "categoria": "cat-electronica",
+    "stock": 0,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s8/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s8/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s8/3.webp"
+    ]
+  },
+  {
+    "nombre": "Samsung Galaxy S10",
+    "descripcion": "Celular Samsung con triple cámara.",
+    "precio": 2799900,
+    "categoria": "cat-electronica",
+    "stock": 19,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s10/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s10/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s10/3.webp"
+    ]
+  },
+  {
+    "nombre": "Vivo S1",
+    "descripcion": "Celular con pantalla AMOLED y cámara emergente.",
+    "precio": 999900,
+    "categoria": "cat-electronica",
+    "stock": 50,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-s1/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-s1/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-s1/3.webp"
+    ]
+  },
+  {
+    "nombre": "Vivo V9",
+    "descripcion": "Celular con cámara frontal de 24 megapíxeles.",
+    "precio": 1199900,
+    "categoria": "cat-electronica",
+    "stock": 82,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-v9/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-v9/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-v9/3.webp"
+    ]
+  },
+  {
+    "nombre": "Vivo X21",
+    "descripcion": "Celular con lector de huella bajo la pantalla.",
+    "precio": 1999900,
+    "categoria": "cat-electronica",
+    "stock": 7,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-x21/1.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-x21/2.webp",
+      "https://cdn.dummyjson.com/product-images/smartphones/vivo-x21/3.webp"
+    ]
+  },
+  {
+    "nombre": "Gafas de sol negras",
+    "descripcion": "Gafas de sol con protección UV400.",
+    "precio": 119900,
+    "categoria": "cat-ropa",
+    "stock": 60,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/sunglasses/black-sun-glasses/1.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/black-sun-glasses/2.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/black-sun-glasses/3.webp"
+    ]
+  },
+  {
+    "nombre": "Gafas de sol clásicas",
+    "descripcion": "Gafas de sol de montura clásica.",
+    "precio": 99900,
+    "categoria": "cat-ropa",
+    "stock": 1,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/sunglasses/classic-sun-glasses/1.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/classic-sun-glasses/2.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/classic-sun-glasses/3.webp"
+    ]
+  },
+  {
+    "nombre": "Gafas verde y negro",
+    "descripcion": "Gafas de sol con lentes verdes.",
+    "precio": 139900,
+    "categoria": "cat-ropa",
+    "stock": 24,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/sunglasses/green-and-black-glasses/1.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/green-and-black-glasses/2.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/green-and-black-glasses/3.webp"
+    ]
+  },
+  {
+    "nombre": "Gafas de fiesta",
+    "descripcion": "Gafas llamativas para fiestas y eventos.",
+    "precio": 79900,
+    "categoria": "cat-ropa",
+    "stock": 86,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/sunglasses/party-glasses/1.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/party-glasses/2.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/party-glasses/3.webp"
+    ]
+  },
+  {
+    "nombre": "Gafas de sol",
+    "descripcion": "Gafas de sol livianas para todos los días.",
+    "precio": 91900,
+    "categoria": "cat-ropa",
+    "stock": 27,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/sunglasses/sunglasses/1.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/sunglasses/2.webp",
+      "https://cdn.dummyjson.com/product-images/sunglasses/sunglasses/3.webp"
+    ]
+  },
+  {
+    "nombre": "iPad Mini 2021 blanco estelar",
+    "descripcion": "Tablet Apple de 8,3 pulgadas.",
+    "precio": 1999900,
+    "categoria": "cat-electronica",
+    "stock": 47,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/tablets/ipad-mini-2021-starlight/1.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/ipad-mini-2021-starlight/2.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/ipad-mini-2021-starlight/3.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/ipad-mini-2021-starlight/4.webp"
+    ]
+  },
+  {
+    "nombre": "Samsung Galaxy Tab S8 Plus gris",
+    "descripcion": "Tablet Samsung de 12,4 pulgadas con lápiz S Pen.",
+    "precio": 2399900,
+    "categoria": "cat-electronica",
+    "stock": 62,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-s8-plus-grey/1.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-s8-plus-grey/2.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-s8-plus-grey/3.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-s8-plus-grey/4.webp"
+    ]
+  },
+  {
+    "nombre": "Samsung Galaxy Tab blanca",
+    "descripcion": "Tablet Samsung para estudio y entretenimiento.",
+    "precio": 1399900,
+    "categoria": "cat-electronica",
+    "stock": 92,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/1.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/2.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/3.webp",
+      "https://cdn.dummyjson.com/product-images/tablets/samsung-galaxy-tab-white/4.webp"
+    ]
+  },
+  {
+    "nombre": "Vestido azul",
+    "descripcion": "Vestido corto azul para el día.",
+    "precio": 119900,
+    "categoria": "cat-ropa",
+    "stock": 52,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/tops/blue-frock/1.webp",
+      "https://cdn.dummyjson.com/product-images/tops/blue-frock/2.webp",
+      "https://cdn.dummyjson.com/product-images/tops/blue-frock/3.webp",
+      "https://cdn.dummyjson.com/product-images/tops/blue-frock/4.webp"
+    ]
+  },
+  {
+    "nombre": "Vestido de verano para niña",
+    "descripcion": "Vestido fresco y estampado para niña.",
+    "precio": 79900,
+    "categoria": "cat-ropa",
+    "stock": 43,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/tops/girl-summer-dress/1.webp",
+      "https://cdn.dummyjson.com/product-images/tops/girl-summer-dress/2.webp",
+      "https://cdn.dummyjson.com/product-images/tops/girl-summer-dress/3.webp",
+      "https://cdn.dummyjson.com/product-images/tops/girl-summer-dress/4.webp"
+    ]
+  },
+  {
+    "nombre": "Vestido gris",
+    "descripcion": "Vestido gris de corte recto.",
+    "precio": 139900,
+    "categoria": "cat-ropa",
+    "stock": 55,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/tops/gray-dress/1.webp",
+      "https://cdn.dummyjson.com/product-images/tops/gray-dress/2.webp",
+      "https://cdn.dummyjson.com/product-images/tops/gray-dress/3.webp",
+      "https://cdn.dummyjson.com/product-images/tops/gray-dress/4.webp"
+    ]
+  },
+  {
+    "nombre": "Vestido corto",
+    "descripcion": "Vestido corto casual.",
+    "precio": 99900,
+    "categoria": "cat-ropa",
+    "stock": 22,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/tops/short-frock/1.webp",
+      "https://cdn.dummyjson.com/product-images/tops/short-frock/2.webp",
+      "https://cdn.dummyjson.com/product-images/tops/short-frock/3.webp",
+      "https://cdn.dummyjson.com/product-images/tops/short-frock/4.webp"
+    ]
+  },
+  {
+    "nombre": "Vestido escocés",
+    "descripcion": "Vestido con estampado escocés.",
+    "precio": 159900,
+    "categoria": "cat-ropa",
+    "stock": 73,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/tops/tartan-dress/1.webp",
+      "https://cdn.dummyjson.com/product-images/tops/tartan-dress/2.webp",
+      "https://cdn.dummyjson.com/product-images/tops/tartan-dress/3.webp",
+      "https://cdn.dummyjson.com/product-images/tops/tartan-dress/4.webp"
+    ]
+  },
+  {
+    "nombre": "Bolso de mano azul",
+    "descripcion": "Bolso de mano de mujer en color azul.",
+    "precio": 199900,
+    "categoria": "cat-ropa",
+    "stock": 76,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-bags/blue-women's-handbag/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/blue-women's-handbag/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/blue-women's-handbag/3.webp"
+    ]
+  },
+  {
+    "nombre": "Bolso de cuero Heshe",
+    "descripcion": "Bolso de cuero de mujer con correa ajustable.",
+    "precio": 519900,
+    "categoria": "cat-ropa",
+    "stock": 99,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-bags/heshe-women's-leather-bag/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/heshe-women's-leather-bag/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/heshe-women's-leather-bag/3.webp"
+    ]
+  },
+  {
+    "nombre": "Bolso Prada",
+    "descripcion": "Bolso de diseñador en cuero.",
+    "precio": 2399900,
+    "categoria": "cat-ropa",
+    "stock": 75,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-bags/prada-women-bag/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/prada-women-bag/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/prada-women-bag/3.webp"
+    ]
+  },
+  {
+    "nombre": "Morral blanco en cuero sintético",
+    "descripcion": "Morral de mujer en cuero sintético blanco.",
+    "precio": 159900,
+    "categoria": "cat-ropa",
+    "stock": 39,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-bags/white-faux-leather-backpack/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/white-faux-leather-backpack/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/white-faux-leather-backpack/3.webp"
+    ]
+  },
+  {
+    "nombre": "Bolso de mano negro",
+    "descripcion": "Bolso de mano de mujer en color negro.",
+    "precio": 239900,
+    "categoria": "cat-ropa",
+    "stock": 11,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-bags/women-handbag-black/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/women-handbag-black/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-bags/women-handbag-black/3.webp"
+    ]
+  },
+  {
+    "nombre": "Vestido de gala negro",
+    "descripcion": "Vestido largo de noche en color negro.",
+    "precio": 519900,
+    "categoria": "cat-ropa",
+    "stock": 25,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-dresses/black-women's-gown/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/black-women's-gown/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/black-women's-gown/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/black-women's-gown/4.webp"
+    ]
+  },
+  {
+    "nombre": "Corsé de cuero con falda",
+    "descripcion": "Conjunto de corsé de cuero y falda.",
+    "precio": 359900,
+    "categoria": "cat-ropa",
+    "stock": 30,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-dresses/corset-leather-with-skirt/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/corset-leather-with-skirt/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/corset-leather-with-skirt/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/corset-leather-with-skirt/4.webp"
+    ]
+  },
+  {
+    "nombre": "Corsé con falda negra",
+    "descripcion": "Conjunto de corsé y falda negra.",
+    "precio": 319900,
+    "categoria": "cat-ropa",
+    "stock": 33,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-dresses/corset-with-black-skirt/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/corset-with-black-skirt/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/corset-with-black-skirt/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/corset-with-black-skirt/4.webp"
+    ]
+  },
+  {
+    "nombre": "Vestido Pea",
+    "descripcion": "Vestido casual de mujer.",
+    "precio": 199900,
+    "categoria": "cat-ropa",
+    "stock": 6,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-dresses/dress-pea/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/dress-pea/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/dress-pea/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/dress-pea/4.webp"
+    ]
+  },
+  {
+    "nombre": "Traje Marni rojo y negro",
+    "descripcion": "Traje de mujer de diseñador en rojo y negro.",
+    "precio": 719900,
+    "categoria": "cat-ropa",
+    "stock": 62,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-dresses/marni-red-&-black-suit/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/marni-red-&-black-suit/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/marni-red-&-black-suit/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-dresses/marni-red-&-black-suit/4.webp"
+    ]
+  },
+  {
+    "nombre": "Aretes de cristal verde",
+    "descripcion": "Aretes con cristal verde.",
+    "precio": 119900,
+    "categoria": "cat-ropa",
+    "stock": 54,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/green-crystal-earring/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/green-crystal-earring/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/green-crystal-earring/3.webp"
+    ]
+  },
+  {
+    "nombre": "Aretes ovalados verdes",
+    "descripcion": "Aretes ovalados con piedra verde.",
+    "precio": 99900,
+    "categoria": "cat-ropa",
+    "stock": 73,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/green-oval-earring/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/green-oval-earring/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/green-oval-earring/3.webp"
+    ]
+  },
+  {
+    "nombre": "Aretes tropicales",
+    "descripcion": "Aretes coloridos de estilo tropical.",
+    "precio": 79900,
+    "categoria": "cat-ropa",
+    "stock": 1,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/tropical-earring/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/tropical-earring/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-jewellery/tropical-earring/3.webp"
+    ]
+  },
+  {
+    "nombre": "Pantuflas negro y café",
+    "descripcion": "Pantuflas cómodas para la casa.",
+    "precio": 79900,
+    "categoria": "cat-ropa",
+    "stock": 3,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-shoes/black-&-brown-slipper/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/black-&-brown-slipper/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/black-&-brown-slipper/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/black-&-brown-slipper/4.webp"
+    ]
+  },
+  {
+    "nombre": "Tacones Calvin Klein",
+    "descripcion": "Zapatos de tacón de mujer.",
+    "precio": 319900,
+    "categoria": "cat-ropa",
+    "stock": 93,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-shoes/calvin-klein-heel-shoes/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/calvin-klein-heel-shoes/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/calvin-klein-heel-shoes/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/calvin-klein-heel-shoes/4.webp"
+    ]
+  },
+  {
+    "nombre": "Zapatos dorados de mujer",
+    "descripcion": "Zapatos dorados para ocasiones especiales.",
+    "precio": 199900,
+    "categoria": "cat-ropa",
+    "stock": 88,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-shoes/golden-shoes-woman/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/golden-shoes-woman/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/golden-shoes-woman/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/golden-shoes-woman/4.webp"
+    ]
+  },
+  {
+    "nombre": "Zapatos Pampi",
+    "descripcion": "Zapatos casuales de mujer.",
+    "precio": 119900,
+    "categoria": "cat-ropa",
+    "stock": 49,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-shoes/pampi-shoes/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/pampi-shoes/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/pampi-shoes/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/pampi-shoes/4.webp"
+    ]
+  },
+  {
+    "nombre": "Zapatos rojos",
+    "descripcion": "Zapatos rojos de mujer.",
+    "precio": 139900,
+    "categoria": "cat-ropa",
+    "stock": 7,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-shoes/red-shoes/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/red-shoes/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/red-shoes/3.webp",
+      "https://cdn.dummyjson.com/product-images/womens-shoes/red-shoes/4.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj IWC Ingenieur automático",
+    "descripcion": "Reloj automático de acero.",
+    "precio": 19999900,
+    "categoria": "cat-ropa",
+    "stock": 90,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-watches/iwc-ingenieur-automatic-steel/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/iwc-ingenieur-automatic-steel/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/iwc-ingenieur-automatic-steel/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj Rolex Cellini Moonphase de mujer",
+    "descripcion": "Reloj de vestir con fases lunares.",
+    "precio": 63999900,
+    "categoria": "cat-ropa",
+    "stock": 52,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-watches/rolex-cellini-moonphase/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/rolex-cellini-moonphase/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/rolex-cellini-moonphase/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj Rolex Datejust de mujer",
+    "descripcion": "Reloj clásico de mujer con ventana de fecha.",
+    "precio": 43999900,
+    "categoria": "cat-ropa",
+    "stock": 4,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-watches/rolex-datejust-women/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/rolex-datejust-women/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/rolex-datejust-women/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj dorado de mujer",
+    "descripcion": "Reloj de mujer en tono dorado.",
+    "precio": 3199900,
+    "categoria": "cat-ropa",
+    "stock": 0,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-watches/watch-gold-for-women/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/watch-gold-for-women/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/watch-gold-for-women/3.webp"
+    ]
+  },
+  {
+    "nombre": "Reloj de pulsera de mujer",
+    "descripcion": "Reloj de pulsera sencillo para mujer.",
+    "precio": 519900,
+    "categoria": "cat-ropa",
+    "stock": 12,
+    "imagenes": [
+      "https://cdn.dummyjson.com/product-images/womens-watches/women's-wrist-watch/1.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/women's-wrist-watch/2.webp",
+      "https://cdn.dummyjson.com/product-images/womens-watches/women's-wrist-watch/3.webp"
+    ]
+  }
+]

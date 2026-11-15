@@ -76,6 +76,16 @@ class CargaProductosPruebaTest {
 	}
 
 	@Test
+	void cadaProductoDePruebaTraeAlMenosUnaFoto() {
+		carga.run(null);
+
+		assertThat(productoRepository.findAllById(IDS))
+				.allSatisfy(producto -> assertThat(producto.getImagenes())
+						.isNotEmpty()
+						.allSatisfy(url -> assertThat(url).startsWith("https://")));
+	}
+
+	@Test
 	void unSegundoArranqueNoPisaLoQueCambioNiVuelveAAnunciar() {
 		carga.run(null);
 		productoService.descontarStock(new DescuentoStockRequest(

@@ -1,6 +1,7 @@
 package co.edu.uis.catalogo.evento;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import co.edu.uis.catalogo.model.Producto;
 
@@ -22,11 +23,12 @@ import co.edu.uis.catalogo.model.Producto;
  * </ul>
  */
 public record ProductoEvento(String id, String nombre, String descripcion, BigDecimal precio,
-		String categoria, int stock, boolean activo, String fecha) {
+		String categoria, int stock, boolean activo, String fecha, List<String> imagenes) {
 
 	public static ProductoEvento desde(Producto producto, String fecha) {
 		return new ProductoEvento(producto.getId(), producto.getNombre(), producto.getDescripcion(),
-				producto.getPrecio(), producto.getCategoria(), producto.getStock(), producto.isActivo(), fecha);
+				producto.getPrecio(), producto.getCategoria(), producto.getStock(), producto.isActivo(), fecha,
+				List.copyOf(producto.getImagenes()));
 	}
 
 }

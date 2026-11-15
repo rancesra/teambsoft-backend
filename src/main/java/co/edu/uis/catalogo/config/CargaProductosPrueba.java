@@ -38,6 +38,11 @@ public class CargaProductosPrueba implements ApplicationRunner {
 
 	private static final Logger log = LoggerFactory.getLogger(CargaProductosPrueba.class);
 
+	// Fotos de Wikimedia Commons (licencias Creative Commons; autores en docs/CREDITOS-IMAGENES.md) y
+	// de DummyJSON, el mismo catálogo de prueba de scripts/productos-demo.json.
+	private static final String COMMONS = "https://thumb.wikimedia.org/wikipedia/commons/thumb/";
+	private static final String DUMMYJSON = "https://cdn.dummyjson.com/product-images/";
+
 	/**
 	 * La tabla de la sección 10.5 del contrato. Los ids no cambian nunca; el resto puede cambiar.
 	 *
@@ -47,17 +52,25 @@ public class CargaProductosPrueba implements ApplicationRunner {
 	static List<Producto> productos() {
 		return List.of(
 			producto("674000000000000000000001", "Camiseta básica algodón",
-					"Camiseta unisex 100% algodón, ideal para el día a día.", "49900", "cat-ropa", 100),
+					"Camiseta unisex 100% algodón, ideal para el día a día.", "49900", "cat-ropa", 100,
+					COMMONS + "9/9c/Ringflash_Tshirt_Blank_Template_%283214240974%29.jpg/960px-Ringflash_Tshirt_Blank_Template_%283214240974%29.jpg"),
 			producto("674000000000000000000002", "Jean clásico azul",
-					"Jean de corte recto en denim azul.", "129900", "cat-ropa", 50),
+					"Jean de corte recto en denim azul.", "129900", "cat-ropa", 50,
+					COMMONS + "3/3e/Levi%27s_501_raw_jeans.jpg/960px-Levi%27s_501_raw_jeans.jpg"),
 			producto("674000000000000000000003", "Lámpara de escritorio LED",
-					"Lámpara LED con brazo ajustable y tres niveles de luz.", "89900", "cat-hogar", 3),
+					"Lámpara LED con brazo ajustable y tres niveles de luz.", "89900", "cat-hogar", 3,
+					"https://upload.wikimedia.org/wikipedia/commons/3/38/Led_desk_lmap_1.png"),
 			producto("674000000000000000000004", "Juego de sábanas doble",
-					"Juego de sábanas para cama doble, 200 hilos.", "159900", "cat-hogar", 0),
+					"Juego de sábanas para cama doble, 200 hilos.", "159900", "cat-hogar", 0,
+					COMMONS + "e/ed/Prze%C5%9Bcierad%C5%82o.jpg/960px-Prze%C5%9Bcierad%C5%82o.jpg"),
 			producto("674000000000000000000005", "Audífonos inalámbricos",
-					"Audífonos Bluetooth con estuche de carga.", "199900", "cat-electronica", 20),
+					"Audífonos Bluetooth con estuche de carga.", "199900", "cat-electronica", 20,
+					DUMMYJSON + "mobile-accessories/apple-airpods/1.webp",
+					DUMMYJSON + "mobile-accessories/apple-airpods/2.webp",
+					DUMMYJSON + "mobile-accessories/apple-airpods/3.webp"),
 			desactivado(producto("674000000000000000000006", "Teclado mecánico",
-					"Teclado mecánico retroiluminado. Descontinuado.", "249900", "cat-electronica", 10)));
+					"Teclado mecánico retroiluminado. Descontinuado.", "249900", "cat-electronica", 10,
+					COMMONS + "6/68/Lingbao_JIGUANSHI_Mechanical_Gaming_Keyboard.jpg/960px-Lingbao_JIGUANSHI_Mechanical_Gaming_Keyboard.jpg")));
 	}
 
 	private final ProductoRepository productoRepository;
@@ -85,8 +98,8 @@ public class CargaProductosPrueba implements ApplicationRunner {
 	}
 
 	private static Producto producto(String id, String nombre, String descripcion, String precio, String categoria,
-			int stock) {
-		return new Producto(id, nombre, descripcion, new BigDecimal(precio), categoria, stock, List.of());
+			int stock, String... imagenes) {
+		return new Producto(id, nombre, descripcion, new BigDecimal(precio), categoria, stock, List.of(imagenes));
 	}
 
 	private static Producto desactivado(Producto producto) {

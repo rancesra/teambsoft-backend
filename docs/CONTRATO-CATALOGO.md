@@ -1,10 +1,10 @@
 # Contrato de Servicio — Catálogo (Equipo B)
 
-**Versión:** 2.5 — Segunda entrega (Ciclo 2)\
-**Fecha:** 2026-11-13\
+**Versión:** 2.6 — Segunda entrega (Ciclo 2)\
+**Fecha:** 2026-11-14\
 **Equipo responsable:** Equipo B\
 **Consumido por:** Equipo A (Búsqueda), Equipo C (Carrito)\
-**Estado:** propuesta. El Equipo C aceptó la v2.4 el 12 de noviembre. La v2.5 solo cambia los endpoints de administración, que no usan ni A ni C. Plazo para objetar las dos: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, quedan acordadas.
+**Estado:** propuesta. El Equipo C aceptó la v2.4 el 12 de noviembre. La v2.5 solo cambia los endpoints de administración, que no usan ni A ni C, y la v2.6 solo agrega `imagenes` a los eventos. Plazo para objetar las tres: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, quedan acordadas.
 
 ## 1. Propósito
 
@@ -235,15 +235,16 @@ El exchange es **durable** y no se borra solo (`durable: true`, `autoDelete: fal
 
 | Evento | Routing key | Se publica cuando | Payload |
 |---|---|---|---|
-| ProductoCreado | `producto.creado` | se crea un producto | id, nombre, descripcion, precio, categoria, stock, **activo**, **fecha** |
-| ProductoActualizado | `producto.actualizado` | se modifica cualquier campo, incluido el stock (`PUT`, `descontar-stock`, `devolver-stock`) | id, nombre, descripcion, precio, categoria, stock, **activo**, **fecha** |
+| ProductoCreado | `producto.creado` | se crea un producto | id, nombre, descripcion, precio, categoria, stock, **activo**, **fecha**, **imagenes** |
+| ProductoActualizado | `producto.actualizado` | se modifica cualquier campo, incluido el stock (`PUT`, `descontar-stock`, `devolver-stock`) | id, nombre, descripcion, precio, categoria, stock, **activo**, **fecha**, **imagenes** |
 | ProductoDesactivado | `producto.desactivado` | se hace soft delete (no se repite si el producto ya estaba inactivo) | id, **fecha** |
-| ProductoReactivado | `producto.reactivado` | se reactiva un producto desactivado (no se repite si ya estaba activo) | id, nombre, descripcion, precio, categoria, stock, **activo**, **fecha** |
+| ProductoReactivado | `producto.reactivado` | se reactiva un producto desactivado (no se repite si ya estaba activo) | id, nombre, descripcion, precio, categoria, stock, **activo**, **fecha**, **imagenes** |
 
-Los campos en negrita son nuevos en la v2.4:
+Los campos en negrita son nuevos: `activo` y `fecha` en la v2.4, `imagenes` en la v2.6.
 
 - **`activo`** (boolean): el estado del producto en el momento del evento. **`producto.actualizado` no implica que el producto esté activo:** un `PUT` sobre un producto desactivado publica `actualizado` y el producto sigue inactivo. Por eso cada evento lleva el estado completo y el consumidor no tiene que suponerlo.
 - **`fecha`** (string, ISO-8601 UTC, por ejemplo `"2026-11-05T15:30:00Z"`): el instante en que Catálogo publicó el evento. Sirve para descartar un evento más viejo que el último que ya se aplicó a ese producto.
+- **`imagenes`** (array de strings, v2.6): las URLs de las fotos del producto, las mismas de `GET /productos/{id}`. Puede venir vacío. Sirve para mostrar la foto en los resultados sin llamar a Catálogo. Es un campo agregado: quien no lo use lo ignora.
 
 Ejemplo de `producto.creado`:
 ```json
@@ -255,7 +256,8 @@ Ejemplo de `producto.creado`:
   "categoria": "cat-ropa",
   "stock": 120,
   "activo": true,
-  "fecha": "2026-11-05T15:30:00Z"
+  "fecha": "2026-11-05T15:30:00Z",
+  "imagenes": ["https://cdn.tienda.com/img/camiseta-1.jpg"]
 }
 ```
 
@@ -462,6 +464,8 @@ Cómo se cargan:
 
 Los ids son ObjectId válidos de 24 caracteres hexadecimales, como los de cualquier otro producto (sección 7.2). Los nombres y precios pueden cambiar entre versiones; **los ids no**.
 
+Desde la v2.6 cada uno trae al menos una foto en `imagenes` (de Wikimedia Commons y DummyJSON; créditos en `docs/CREDITOS-IMAGENES.md`). Aparte, `scripts/cargar-productos-demo.mjs` carga 127 productos más, con fotos, por la API normal: no tienen ids fijos y sirven solo para que la demostración no se vea vacía.
+
 ### 10.6 Keycloak (v2.5)
 
 Un solo Keycloak para toda la tienda: el «Identity Server» de la arquitectura. Va en el `docker-compose` de integración (10.3) y en el del backend de Catálogo, y al arrancar importa el realm desde `keycloak/realm-tienda.json`.
@@ -490,11 +494,13 @@ El token es un JWT firmado con RS256. Lo que le sirve a cada servicio:
 
 Cada servicio valida el token por su cuenta, con la llave pública de Keycloak: Catálogo con Spring Security; Carrito, si decide aceptarlo, con su librería de JWT y RS256 en lugar del `JWT_SECRET`. Mientras Carrito no lo haga, sigue con su token de prueba (sección 11).
 
-## 11. Aprobación de la v2.4 y la v2.5
+## 11. Aprobación de la v2.4, la v2.5 y la v2.6
 
 El plazo para objetar es el **martes 17 de noviembre de 2026, a las 12:00 m.**, el mismo que fijó el Equipo C en su contrato de integración. Reemplaza al del 8 de noviembre de la primera publicación de la v2.4. Una objeción se discute y, si cambia algo, se publica en una versión nueva. **Si no hay objeciones antes de esa hora, la v2.4 queda acordada.**
 
 Como todos los cambios son compatibles con la v2.3, Catálogo los implementa desde ya, para llegar a la presentación de la integración del **jueves 19 de noviembre**. Si una objeción cambia algo, primero se corrige el contrato y después el código.
+
+**La v2.6 solo agrega `imagenes` a los eventos de la sección 5.** A Carrito no le cambia nada, porque no consume eventos. Búsqueda lo recibe sin cambiar su consumidor, porque guarda el evento completo; para mostrar la foto, su frontend tiene que pintar `imagenes[0]`.
 
 **La v2.5 no le cambia nada a A ni a C.** Solo los endpoints Admin, que usa el frontend de Catálogo, piden token. Las lecturas siguen públicas, `descontar-stock` y `devolver-stock` siguen abiertos, y los eventos no cambian. Si Carrito quiere usar el login real, el token y sus campos están en la sección 10.6.
 
@@ -531,13 +537,14 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 
 | Cambio | Implementado en Catálogo |
 |---|---|
-| v2.4: `referencia` idempotente en `descontar-stock` | Sí, en revisión (rama `v2.4-api-catalogo`) |
-| v2.4: `POST /productos/devolver-stock` | Sí, en revisión (rama `v2.4-api-catalogo`) |
-| v2.4: `items` en el 409 `STOCK_INSUFICIENTE` y el error `REFERENCIA_EN_USO` | Sí, en revisión (rama `v2.4-api-catalogo`) |
-| v2.4: `activo` y `fecha` en los eventos | Sí, en revisión (rama `v2.4-api-catalogo`) |
-| v2.4: productos de prueba con ids fijos (10.5) | Sí, en revisión (rama `v2.4-productos-prueba`) |
-| v2.5: token de Keycloak en los endpoints Admin, `401` y `403` | Sí, en revisión (rama `v2.5-login-keycloak`) |
-| v2.5: Keycloak en los `docker-compose` (10.6) | Sí, en revisión (ramas `v2.5-login-keycloak` del backend e `integracion-keycloak` del Host App) |
+| v2.4: `referencia` idempotente en `descontar-stock` | Sí, en `main` |
+| v2.4: `POST /productos/devolver-stock` | Sí, en `main` |
+| v2.4: `items` en el 409 `STOCK_INSUFICIENTE` y el error `REFERENCIA_EN_USO` | Sí, en `main` |
+| v2.4: `activo` y `fecha` en los eventos | Sí, en `main` |
+| v2.4: productos de prueba con ids fijos (10.5) | Sí, en `main` |
+| v2.5: token de Keycloak en los endpoints Admin, `401` y `403` | Sí, en `main` |
+| v2.5: Keycloak en los `docker-compose` (10.6) | Sí, en `main` del backend y del Host App |
+| v2.6: `imagenes` en los eventos y fotos en los productos de prueba | Sí, en revisión (rama `productos-demo`) |
 
 ## 12. Historial de cambios
 
@@ -552,3 +559,4 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 | 2026-11-05 | v2.4 — Cambios compatibles con v2.3, a partir de la revisión de los repositorios de Búsqueda y Carrito. **Carrito:** `referencia` opcional e idempotente en `descontar-stock`, nuevo `POST /productos/devolver-stock`, `items` en el 409 `STOCK_INSUFICIENTE` y nuevo error `REFERENCIA_EN_USO` (lo propuso el contrato de Carrito v1.3); la sección 7 detalla qué llama Carro en cada paso. **Búsqueda:** `activo` y `fecha` en el payload de los eventos, reglas de consumo (sección 5.1) y la sección 6 detalla cómo aplicar cada evento. **Sección 2:** URL base a través de Kong y directa. **Sección 9:** la etapa 1 del Host App es con iframes, como dice su contrato v1.1, y se decide el botón “Agregar al carro” (`/carrito?agregar={id}`). **Nuevas secciones:** 10 (infraestructura compartida: un solo RabbitMQ, el de Catálogo; un solo Kong con las rutas de los tres; un `docker-compose` de integración en el repositorio del Host App, operado por el Equipo B; y los puertos de los frontends) y 11 (aprobación, con plazo para objetar hasta el 8 de noviembre) |
 | 2026-11-12 | v2.4, revisión — Sin cambios en la API, los eventos ni lo que ya se había propuesto; completa la v2.4 con la respuesta del Equipo C (su «Contrato de integración» v1.0, que la acepta). **Sección 10.2:** configuración del CORS del Kong compartido (orígenes `5173`, `5174`, `5175` y `5050`). **Nueva sección 10.5:** seis productos de prueba con ids fijos, que Catálogo crea con el perfil `integracion` y anuncia con `producto.creado`. **Sección 11:** el plazo para objetar pasa al martes 17 de noviembre a las 12:00 m., el mismo del Equipo C, porque el del 8 de noviembre venció antes de que los equipos recibieran el documento; se registra la aceptación del Equipo C, los compromisos B1 a B4 con fecha y la respuesta a las preguntas abiertas del Equipo C, incluido el plan B para la presentación del 19 de noviembre |
 | 2026-11-13 | v2.5 — **Login con Keycloak.** Los endpoints Admin piden un token de Keycloak con el rol `admin` (sección 2), y también `GET /productos` con `activo` distinto de `true`. Nuevos errores `NO_AUTENTICADO` (401) y `SIN_PERMISO` (403) (sección 4). Nueva sección 10.6: Keycloak compartido, realm `tienda`, roles, clientes, usuarios de prueba y los campos del token. **Sección 8:** sale la autenticación real; quedan pendientes el token de servicio para `descontar-stock` y `devolver-stock` y el registro de usuarios; las órdenes las lleva Carrito. **Sección 9:** cómo inicia sesión el módulo dentro y fuera del Host App. **Sección 11:** la v2.5 no cambia nada para A ni para C, y la tabla de lo implementado se actualiza. Los endpoints Admin ya estaban marcados así desde la v1.0; lo que cambia es que ahora se valida |
+| 2026-11-14 | v2.6 — Cambio compatible con la v2.5. **Sección 5:** los eventos `producto.creado`, `producto.actualizado` y `producto.reactivado` agregan `imagenes`, las URLs de las fotos, para que Búsqueda pueda mostrarlas sin llamar a Catálogo. **Sección 10.5:** los productos de prueba traen foto, y se menciona el script de productos de demostración. **Sección 11:** la v2.6 no le cambia nada a Carrito; a Búsqueda solo si quiere mostrar la foto. La tabla de lo implementado se actualiza: la v2.4 y la v2.5 ya están en `main` |

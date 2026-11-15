@@ -91,6 +91,7 @@ Los mockups son HTML: GitHub los muestra como código, hay que abrirlos en el na
 ├── docker-compose.yml       Catálogo con MongoDB, RabbitMQ, Keycloak, Eureka y Kong
 ├── eureka/                  Servidor de Eureka (proyecto Spring Boot aparte)
 ├── keycloak/                Realm "tienda" que importa Keycloak
+├── scripts/                 Carga de los productos de demostración
 ├── kong/                    Rutas de Kong para desarrollar Catálogo solo
 └── docs/                    Toda la documentación
     ├── CONTRATO-CATALOGO.md
@@ -144,6 +145,18 @@ Invoke-RestMethod -Headers @{Authorization="Bearer $TOKEN"} "http://localhost:80
 ```
 
 En las pruebas no hace falta Keycloak: `TokensDePrueba.admin()` simula el token en MockMvc.
+
+### Productos de demostración
+
+Para que la tienda no se vea vacía en una demo, [scripts/cargar-productos-demo.mjs](scripts/cargar-productos-demo.mjs) carga **127 productos con fotos** (49 de ropa, 40 de hogar y 38 de electrónica). Usa la API de verdad: inicia sesión como `admin` en Keycloak y crea cada producto con `POST /api/catalogo/productos` por Kong, así que cada uno publica su evento y Búsqueda lo indexa. Se puede correr varias veces: no repite los que ya existen.
+
+Con la tienda arriba (este `docker-compose.yml` o el de integración), desde la raíz del repositorio:
+
+```bash
+node scripts/cargar-productos-demo.mjs
+```
+
+Debe decir `Listo: 127 productos creados`. Los datos y las fotos vienen del catálogo de prueba público de [DummyJSON](https://dummyjson.com), con nombres y descripciones en español y precios en pesos. Las fotos se cargan desde su CDN, así que se necesita internet para verlas. No reemplazan a los 6 productos de prueba con ids fijos, que siguen igual.
 
 ### Eureka (registro de servicios)
 
