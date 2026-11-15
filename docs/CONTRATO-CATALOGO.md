@@ -1,10 +1,10 @@
 # Contrato de Servicio — Catálogo (Equipo B)
 
-**Versión:** 2.7 — Segunda entrega (Ciclo 2)\
+**Versión:** 2.8 — Segunda entrega (Ciclo 2)\
 **Fecha:** 2026-11-15\
 **Equipo responsable:** Equipo B\
 **Consumido por:** Equipo A (Búsqueda), Equipo C (Carrito)\
-**Estado:** propuesta. El Equipo C aceptó la v2.4 el 12 de noviembre. La v2.5 solo cambia los endpoints de administración, que no usan ni A ni C, la v2.6 solo agrega `imagenes` a los eventos y la v2.7 solo describe el despliegue (sección 10). Plazo para objetar las cuatro: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, quedan acordadas.
+**Estado:** propuesta. El Equipo C aceptó la v2.4 el 12 de noviembre. La v2.5 solo cambia los endpoints de administración, que no usan ni A ni C, la v2.6 solo agrega `imagenes` a los eventos, la v2.7 solo describe el despliegue (sección 10) y la v2.8 solo agrega el botón «Agregar al carro» a las tarjetas del listado (sección 9). Plazo para objetar las cinco: **martes 17 de noviembre de 2026, 12:00 m.** (sección 11). Si no hay objeciones antes de esa hora, quedan acordadas.
 
 ## 1. Propósito
 
@@ -382,7 +382,7 @@ Lo esencial para este contrato:
 
 **El botón “Agregar al carro”** (v2.4) funciona así:
 
-1. Catálogo lo pinta en la vista de detalle **solo si el producto está activo, tiene stock y el módulo está dentro del Host App**. Si corre solo, no hay carrito al cual llevar al usuario, así que el botón no aparece.
+1. Catálogo lo pinta en la vista de detalle y, desde la v2.8, también en cada tarjeta del listado, **solo si el producto está activo, tiene stock y el módulo está dentro del Host App**. Si corre solo, no hay carrito al cual llevar al usuario, así que el botón no aparece.
 2. Al pulsarlo, Catálogo le pide al Host App que navegue a `/carrito?agregar={id}`, con el mensaje `navegar` (contrato del Host App, sección 4).
 3. El módulo de Carrito abre con esa dirección, agrega una unidad del producto con su propio endpoint y muestra el carrito.
 
@@ -497,7 +497,7 @@ El token es un JWT firmado con RS256. Lo que le sirve a cada servicio:
 
 Cada servicio valida el token por su cuenta, con la llave pública de Keycloak: Catálogo con Spring Security; Carrito, si decide aceptarlo, con su librería de JWT y RS256 en lugar del `JWT_SECRET`. Mientras Carrito no lo haga, sigue con su token de prueba (sección 11).
 
-## 11. Aprobación de la v2.4, la v2.5, la v2.6 y la v2.7
+## 11. Aprobación de la v2.4 a la v2.8
 
 El plazo para objetar es el **martes 17 de noviembre de 2026, a las 12:00 m.**, el mismo que fijó el Equipo C en su contrato de integración. Reemplaza al del 8 de noviembre de la primera publicación de la v2.4. Una objeción se discute y, si cambia algo, se publica en una versión nueva. **Si no hay objeciones antes de esa hora, la v2.4 queda acordada.**
 
@@ -506,6 +506,8 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 **La v2.6 solo agrega `imagenes` a los eventos de la sección 5.** A Carrito no le cambia nada, porque no consume eventos. Búsqueda lo recibe sin cambiar su consumidor, porque guarda el evento completo; para mostrar la foto, su frontend tiene que pintar `imagenes[0]`.
 
 **La v2.7 solo describe el despliegue (sección 10).** La API y los eventos no cambian, y A y C no cambian código: sus frontends y backends ya leen de variables de entorno las direcciones que cambian al publicar.
+
+**La v2.8 solo cambia dónde aparece el botón «Agregar al carro» (sección 9).** Además del detalle, sale en cada tarjeta del listado, con las mismas tres condiciones, y envía el mismo mensaje `navegar` a `/carrito?agregar={id}`. A Carrito le llega exactamente lo mismo que antes, y Búsqueda no participa.
 
 **La v2.5 no le cambia nada a A ni a C.** Solo los endpoints Admin, que usa el frontend de Catálogo, piden token. Las lecturas siguen públicas, `descontar-stock` y `devolver-stock` siguen abiertos, y los eventos no cambian. Si Carrito quiere usar el login real, el token y sus campos están en la sección 10.6.
 
@@ -550,7 +552,8 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 | v2.5: token de Keycloak en los endpoints Admin, `401` y `403` | Sí, en `main` |
 | v2.5: Keycloak en los `docker-compose` (10.6) | Sí, en `main` del backend y del Host App |
 | v2.6: `imagenes` en los eventos y fotos en los productos de prueba | Sí, en `main` |
-| v2.7: frontends en el compose de integración y despliegue con el túnel | Sí, en revisión (rama `despliegue-publico` del Host App) |
+| v2.7: frontends en el compose de integración y despliegue con el túnel | Sí, en `main` del Host App, y publicada en `wordytechs.com` |
+| v2.8: «Agregar al carro» en las tarjetas del listado | En revisión (rama `mejoras-tienda` del frontend) |
 
 ## 12. Historial de cambios
 
@@ -567,3 +570,4 @@ Como todos los cambios son compatibles con la v2.3, Catálogo los implementa des
 | 2026-11-13 | v2.5 — **Login con Keycloak.** Los endpoints Admin piden un token de Keycloak con el rol `admin` (sección 2), y también `GET /productos` con `activo` distinto de `true`. Nuevos errores `NO_AUTENTICADO` (401) y `SIN_PERMISO` (403) (sección 4). Nueva sección 10.6: Keycloak compartido, realm `tienda`, roles, clientes, usuarios de prueba y los campos del token. **Sección 8:** sale la autenticación real; quedan pendientes el token de servicio para `descontar-stock` y `devolver-stock` y el registro de usuarios; las órdenes las lleva Carrito. **Sección 9:** cómo inicia sesión el módulo dentro y fuera del Host App. **Sección 11:** la v2.5 no cambia nada para A ni para C, y la tabla de lo implementado se actualiza. Los endpoints Admin ya estaban marcados así desde la v1.0; lo que cambia es que ahora se valida |
 | 2026-11-14 | v2.6 — Cambio compatible con la v2.5. **Sección 5:** los eventos `producto.creado`, `producto.actualizado` y `producto.reactivado` agregan `imagenes`, las URLs de las fotos, para que Búsqueda pueda mostrarlas sin llamar a Catálogo. **Sección 10.5:** los productos de prueba traen foto, y se menciona el script de productos de demostración. **Sección 11:** la v2.6 no le cambia nada a Carrito; a Búsqueda solo si quiere mostrar la foto. La tabla de lo implementado se actualiza: la v2.4 y la v2.5 ya están en `main` |
 | 2026-11-15 | v2.7 — **Despliegue.** Sin cambios en la API ni en los eventos. **Sección 10.3:** el compose de integración también levanta los cuatro frontends, y un túnel de Cloudflare publica la tienda en internet con HTTPS (detalle en el contrato del Host App v1.4, sección 11). **Sección 10.4:** dentro del compose cada frontend reenvía `/api` a Kong, y publicada tiene su subdominio. **Sección 10.6:** el emisor de los tokens sigue a la dirección de Keycloak (`KEYCLOAK_EMISOR`), y las claves de los usuarios de prueba se cambian en el `.env`. **Sección 11:** la v2.6 queda en `main` |
+| 2026-11-15 | v2.8 — Cambio compatible con la v2.7. **Sección 9:** el botón «Agregar al carro» también aparece en cada tarjeta del listado, con las mismas condiciones del detalle (producto activo, con stock y módulo dentro del Host App) y el mismo mensaje `navegar` a `/carrito?agregar={id}`. Así el usuario agrega desde el listado sin abrir cada producto. **Sección 11:** se explica por qué A y C no cambian nada |
