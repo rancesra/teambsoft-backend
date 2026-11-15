@@ -53,6 +53,7 @@ class PublicacionEventosTest {
 	private static final long ESPERA_MS = 5000;
 	private static final long ESPERA_SIN_MENSAJE_MS = 1000;
 	private static final String NOMBRE = "Producto de prueba de eventos";
+	private static final String FOTO = "https://cdn.tienda.com/img/prueba-1.jpg";
 
 	/** ISO-8601 en UTC, con o sin milisegundos: {@code 2026-11-12T15:30:00Z} o {@code ...:00.123Z}. */
 	private static final String FECHA_ISO = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,3})?Z";
@@ -118,6 +119,8 @@ class PublicacionEventosTest {
 		// v2.4: el estado y la fecha del evento.
 		assertThat(cuerpo).contains("\"activo\":true");
 		assertThat(cuerpo).containsPattern("\"fecha\":\"" + FECHA_ISO + "\"");
+		// v2.6: las fotos, para que Búsqueda las muestre.
+		assertThat(cuerpo).contains("\"imagenes\":[\"" + FOTO + "\"]");
 	}
 
 	/** v2.4: un PUT sobre un producto desactivado publica actualizado, pero con activo en false. */
@@ -255,7 +258,7 @@ class PublicacionEventosTest {
 
 	private ProductoRequest datos(int stock) {
 		return new ProductoRequest(NOMBRE, "Descripción de prueba", new BigDecimal("49900"), "cat-ropa",
-				stock, List.of());
+				stock, List.of(FOTO));
 	}
 
 	private DescuentoStockRequest descuento(int cantidad) {
