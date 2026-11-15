@@ -1,0 +1,40 @@
+diff --git a/busqueda-frontend/src/App.vue b/busqueda-frontend/src/App.vue
+index b730b68..b129d08 100644
+--- a/busqueda-frontend/src/App.vue
++++ b/busqueda-frontend/src/App.vue
+@@ -130,6 +130,10 @@ function etiquetaCategoria(c) {
+               :class="{ enlace: embebido }"
+               @click="verProducto(producto)"
+             >
++              <!-- Contrato de Catálogo v2.6: el evento trae "imagenes". -->
++              <div class="foto">
++                <img v-if="producto.imagenes?.length" :src="producto.imagenes[0]" :alt="producto.nombre" loading="lazy" />
++              </div>
+               <strong class="nombre">{{ producto.nombre }}</strong>
+               <span class="precio">{{ formatoPrecio.format(producto.precio) }}</span>
+               <span v-if="producto.categoria" class="categoria">{{ String(producto.categoria).replace(/^cat-/, '') }}</span>
+@@ -212,6 +216,24 @@ main.busqueda .search-bar {
+   background: var(--code-bg);
+ }
+ 
++/* Recuadro 4:3 fijo, con o sin foto, para que las tarjetas de una fila queden parejas. */
++.tarjeta .foto {
++  position: relative;
++  aspect-ratio: 4 / 3;
++  margin: -12px -12px 4px;
++  border-radius: 8px 8px 0 0;
++  overflow: hidden;
++  background: var(--bg);
++}
++
++.tarjeta .foto img {
++  position: absolute;
++  inset: 0;
++  width: 100%;
++  height: 100%;
++  object-fit: contain;
++}
++
+ .tarjeta.enlace {
+   cursor: pointer;
+ }
